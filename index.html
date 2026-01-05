@@ -5,6 +5,18 @@
     <link rel="icon" type="" href="" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>storehouse-properties-frontend</title>
+
+    <script>
+  window.googleMapsLoaded = false;
+  window.initMap = function() {
+    window.googleMapsLoaded = true;
+  };
+</script>
+<script
+  async
+  deferinitMap
+  src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCzm_2OkKwUin5ZVJ_tWUwBZoulh0oVuIE&libraries=places&callback="
+></script>
   </head>
   <body>
     <div id="root"></div>

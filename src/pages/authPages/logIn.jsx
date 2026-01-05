@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
-import { toast } from "react-hot-toast"; // Global toast only
+import { toast } from "react-hot-toast"; 
 import { FcGoogle } from "react-icons/fc";
 
 export default function Login() {
@@ -25,38 +25,15 @@ export default function Login() {
       toast.error("Email and password are required");
       return;
     }
-    // Add your auth logic here (API call, etc.)
     toast.success("Signed in successfully! 🎉");
   };
 
   return (
     <div className="min-h-screen w-full relative">
-      {/* Background with blue overlay — SAME as Signup */}
-      <div
-        className="absolute inset-0 bg-cover bg-center"
-        style={{
-          backgroundImage: "url('https://images.unsplash.com/photo-1583847268964-b28dc8f51f92?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80')", // Kitchen/room image
-        }}
-      >
-        <div className="absolute inset-0 bg-blue-900/60"></div>
-      </div>
 
-      {/* Home Button */}
-      <button
-        onClick={() => window.location.href = "/"}
-        className="absolute top-6 left-6 flex items-center gap-1 text-white hover:text-blue-200 z-20"
-      >
-        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-        </svg>
-        Home page
-      </button>
-
-      {/* White "Login" heading — outside the form */}
       <h1 className="text-white text-3xl font-bold text-center pt-6 z-10 relative">Login</h1>
 
-      {/* Centered form */}
-      <div className="flex flex-col items-center justify-between min-h-screen py-3 px-4">
+      <div className="flex flex-col items-center justify-between py-3 px-4">
         <div className="flex-grow"></div>
 
         <div className="w-full max-w-md bg-white rounded-3xl p-6 border border-gray-300 shadow-xl z-10">
@@ -65,7 +42,6 @@ export default function Login() {
           </h2>
 
           <form onSubmit={handleSubmit}>
-            {/* Email Field */}
             <div className="mb-4">
               <label htmlFor="email" className="block text-xs font-medium text-gray-700 mb-1">Email</label>
               <input
@@ -79,7 +55,6 @@ export default function Login() {
               />
             </div>
 
-            {/* Password Field */}
             <div className="relative mb-4">
               <label htmlFor="password" className="block text-xs font-medium text-gray-700 mb-1">Password</label>
               <input
@@ -100,7 +75,6 @@ export default function Login() {
               </button>
             </div>
 
-            {/* Remember Me + Forgot Password */}
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-2">
                 <input
@@ -120,7 +94,6 @@ export default function Login() {
               </a>
             </div>
 
-            {/* Sign In Button */}
             <button
               type="submit"
               className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-full font-medium text-sm transition mb-4"
@@ -128,7 +101,6 @@ export default function Login() {
               Sign in
             </button>
 
-            {/* Google Sign In */}
             <button
               type="button"
               className="w-full flex items-center justify-center gap-2 py-2 border border-gray-300 rounded-full hover:bg-gray-50 transition text-sm"
@@ -137,7 +109,6 @@ export default function Login() {
               Sign in with Google
             </button>
 
-            {/* Sign Up Link */}
             <p className="text-center text-xs mt-5 text-gray-600">
               Don't have an account?{" "}
               <a href="/signup" className="text-blue-600 hover:underline font-medium">

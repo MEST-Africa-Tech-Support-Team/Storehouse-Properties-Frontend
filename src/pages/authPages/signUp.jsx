@@ -56,31 +56,9 @@ export default function Signup() {
 
   return (
     <div className="min-h-screen w-full relative">
-      {/* Background with blue overlay */}
-      <div
-        className="absolute inset-0 bg-cover bg-center"
-        style={{
-          backgroundImage: "url('https://images.unsplash.com/photo-1583847268964-b28dc8f51f92?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80')",
-        }}
-      >
-        <div className="absolute inset-0 bg-blue-900/60"></div>
-      </div>
 
-      {/* Home Button */}
-      <button
-        onClick={() => window.location.href = "/"}
-        className="absolute top-6 left-6 flex items-center gap-1 text-white hover:text-blue-200 z-20"
-      >
-        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-        </svg>
-        Home page
-      </button>
-
-      {/* White "Sign up" heading — outside the form */}
       <h1 className="text-white text-3xl font-bold text-center pt-3 z-10 relative">Sign up</h1>
 
-      {/* Centered form with balanced vertical spacing */}
       <div className="flex flex-col items-center justify-between min-h-screen py-2 px-4">
         <div className="flex-grow"></div>
 
@@ -89,7 +67,6 @@ export default function Signup() {
             Get started with Storehouse
           </h2>
 
-          {/* Name fields */}
           <div className="grid grid-cols-2 gap-3 mb-4">
             <div>
               <label htmlFor="firstName" className="block text-xs font-medium text-gray-700 mb-1">First Name</label>
@@ -115,7 +92,6 @@ export default function Signup() {
             </div>
           </div>
 
-          {/* Email */}
           <div className="mb-4">
             <label htmlFor="email" className="block text-xs font-medium text-gray-700 mb-1">Email</label>
             <input
@@ -129,7 +105,6 @@ export default function Signup() {
             />
           </div>
 
-          {/* Country & State */}
           <div className="grid grid-cols-2 gap-3 mb-4">
             <div>
               <label htmlFor="country" className="block text-xs font-medium text-gray-700 mb-1">Country</label>
@@ -168,7 +143,6 @@ export default function Signup() {
             </div>
           </div>
 
-          {/* Password */}
           <div className="relative mb-3">
             <label htmlFor="password" className="block text-xs font-medium text-gray-700 mb-1">Password</label>
             <input
@@ -191,7 +165,6 @@ export default function Signup() {
             </button>
           </div>
 
-          {/* Password rules (pop-up) */}
           {showPasswordRules && (
             <div className="mb-3 p-2 bg-gray-50 rounded-lg text-[10px] space-y-0.5">
               <div className={`flex items-center gap-1 ${passwordRules.length ? "text-green-600" : "text-gray-500"}`}>
@@ -209,7 +182,6 @@ export default function Signup() {
             </div>
           )}
 
-          {/* Confirm Password */}
           <div className="mb-5">
             <label htmlFor="confirmPassword" className="block text-xs font-medium text-gray-700 mb-1">Confirm Password</label>
             <input
@@ -223,7 +195,6 @@ export default function Signup() {
             />
           </div>
 
-          {/* Submit Button */}
           <button
             onClick={validate}
             className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-full font-medium text-sm transition mb-4"
@@ -231,7 +202,6 @@ export default function Signup() {
             Sign up
           </button>
 
-          {/* Google Signup */}
           <button className="w-full flex items-center justify-center gap-2 py-2 border border-gray-300 rounded-full hover:bg-gray-50 transition text-sm">
             <FcGoogle className="text-xl" />
             Sign up with Google

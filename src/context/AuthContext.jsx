@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useEffect, useCallback } from 'react';
-import { useNavigate } from 'react-router';
+import { useNavigate } from 'react-router'; 
 
 const AuthContext = createContext();
 
@@ -68,8 +68,7 @@ export const AuthProvider = ({ children }) => {
 
   return (
     <AuthContext.Provider value={value}>
-      {/* Only render children when auth check is done */}
-      {loading ? null : children}
+      {!loading && children}
     </AuthContext.Provider>
   );
 };

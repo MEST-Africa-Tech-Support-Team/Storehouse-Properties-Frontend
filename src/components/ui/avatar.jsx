@@ -45,13 +45,11 @@ const Avatar = ({
           alt={name || 'User profile'}
           className="h-full w-full object-cover"
           onError={(e) => {
-            // Fallback to initials if image fails to load
             e.target.style.display = 'none';
             e.target.nextElementSibling.style.display = 'flex';
           }}
         />
       ) : null}
-      {/* Fallback: show initials */}
       <span
         className="absolute inset-0 flex items-center justify-center"
         style={{ display: src ? 'none' : 'flex' }}
