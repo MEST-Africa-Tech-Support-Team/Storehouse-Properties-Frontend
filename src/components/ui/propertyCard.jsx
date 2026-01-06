@@ -1,17 +1,27 @@
 import React from "react";
+import { useNavigate } from "react-router"; //
 import { FaStar, FaMapMarkerAlt } from "react-icons/fa";
 
 const PropertyCard = ({
+  id, 
   image,
   title,
   location,
   rating,
   price,
-  onViewDetails,
 }) => {
+  const navigate = useNavigate(); 
+  const handleNavigation = () => {
+    navigate(`/property/${id}`);
+  };
+
   return (
-    <article className="max-w-[340px] w-full bg-white rounded-[22px] overflow-hidden shadow-[0_10px_30px_-10px_rgba(0,0,0,0.1)] hover:shadow-[0_25px_60px_-15px_rgba(0,0,0,0.2)] transition-all duration-300 group">
+    <article 
+      onClick={handleNavigation} 
+      className="max-w-[340px] w-full bg-white rounded-[22px] overflow-hidden shadow-[0_10px_30px_-10px_rgba(0,0,0,0.1)] hover:shadow-[0_25px_60px_-15px_rgba(0,0,0,0.2)] transition-all duration-300 group cursor-pointer"
+    >
       
+     
       <div className="h-[150px] w-full overflow-hidden">
         <img
           src={image}
@@ -50,7 +60,10 @@ const PropertyCard = ({
           </div>
 
           <button
-            onClick={onViewDetails}
+            onClick={(e) => {
+              e.stopPropagation(); 
+              handleNavigation();
+            }}
             aria-label={`View details for ${title}`}
             className="text-[#2563eb] text-[10px] font-bold hover:text-blue-800 transition-colors"
           >

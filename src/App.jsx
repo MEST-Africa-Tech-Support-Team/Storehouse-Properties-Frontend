@@ -10,6 +10,7 @@ import Explore from "./pages/explore.jsx";
 import Signup from "./pages/authPages/signUp.jsx";
 import Login from "./pages/authPages/logIn.jsx";
 import { Toaster } from 'react-hot-toast';
+import PropertyDetails from "./pages/propertyDetails.jsx";
 
 const router = createBrowserRouter([
   {
@@ -23,6 +24,7 @@ const router = createBrowserRouter([
       { path: "/about", element: <About /> },
       { path: "/contact", element: <Contact /> },
       { path: "/explore", element: <Explore /> },
+      { path: "/property/:id", element: <PropertyDetails /> },
     ],
   },
   {
@@ -32,8 +34,8 @@ const router = createBrowserRouter([
       </AuthProvider>
     ),
     children: [
-      { path: "/signup", element: <Signup /> },
-      { path: "/login", element: <Login /> },
+      { path: "/auth/signup", element: <Signup /> },
+      { path: "/auth/login", element: <Login /> },
     ],
   },
 ]);
