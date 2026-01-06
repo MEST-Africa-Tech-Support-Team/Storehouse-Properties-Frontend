@@ -72,12 +72,12 @@ export default function Header() {
             ) : (
               <>
                 <Link 
-                  to="/login" 
+                  to="/auth/login" 
                   className="text-gray-700 hover:text-blue-600 text-sm font-medium"
                 >
                   Sign In
                 </Link>
-                <Link to="/signup" className={buttonClasses}>
+                <Link to="/auth/signup" className={buttonClasses}>
                   Create Account
                 </Link>
               </>
