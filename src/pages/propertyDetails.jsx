@@ -11,8 +11,9 @@ import AmenitiesSection from '../components/property/amenitiesSec';
 import ReviewsSection from '../components/property/reviewSec';
 import LocationSection from '../components/property/locationSec';
 import BookingForm from '../components/property/bookingForm';
+import SimilarProperties from '../components/property/similarProperty';
 
-// Mock data — replace with API call in production
+// Mock data
 const mockProperties = [
   {
     id: 1,
@@ -56,7 +57,7 @@ const mockProperties = [
         text: 'Perfect for a business trip. The workspace was excellent and the building\'s amenities made my stay very comfortable. Highly recommend!',
       },
     ],
-    price: 120,
+    price: 180,
   },
 ];
 
@@ -87,17 +88,14 @@ export default function PropertyDetails() {
   };
 
   return (
-    <div className="bg-gray-50 min-h-screen">
-      {/* Image Gallery */}
-      <div className="container py-6">
+    <div className="bg-white min-h-screen px-8 py-2">
+      <div className="mb-8">
         <PropertyImageGallery images={property.images} />
       </div>
 
-      {/* Content */}
-      <div className="container py-6">
-        <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Left Column */}
-          <div className="lg:col-span-2">
+      <div className="max-w-6xl mx-auto">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
+          <div className="lg:col-span-2 space-y-20">
             <PropertyHeader
               title={property.title}
               location={property.location}
@@ -117,10 +115,15 @@ export default function PropertyDetails() {
             <LocationSection location={property.location} />
           </div>
 
-          {/* Right Column - Booking Form */}
           <div className="lg:col-span-1">
-            <BookingForm price={property.price} />
+            <div className="sticky top-6">
+              <BookingForm price={property.price} />
+            </div>
           </div>
+        </div>
+
+        <div className="mb-12">
+          <SimilarProperties />
         </div>
       </div>
     </div>

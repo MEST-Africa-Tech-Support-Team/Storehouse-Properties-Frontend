@@ -14,7 +14,7 @@ export default function PropertyHeader({ title, location, rating, reviewCount, i
         </div>
         <button
           onClick={onToggleFavorite}
-          className={`p-2 rounded-full ${isFavorite ? 'text-red-500' : 'text-gray-400 hover:text-red-500'} transition`}
+          className={`p-2 ${isFavorite ? 'text-red-500' : 'text-gray-400 hover:text-red-500'} transition`}
         >
           <FaHeart />
         </button>

@@ -47,7 +47,6 @@ const Footer = () => {
         </section>
       </div>
 
-      {/* Divider */}
       <div className="border-t border-white/10 mx-6"></div>
 
       <div className="text-center py-3 text-gray-400 text-sm">

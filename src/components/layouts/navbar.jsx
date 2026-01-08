@@ -37,7 +37,7 @@ export default function Header() {
         <div className="flex items-center justify-between">
           <Link to="/" className="flex items-center gap-1.5 text-xl font-bold text-gray-900">
             <MdHome className="h-6 w-6 text-blue-600" />
-            StoreHouse
+            Storehouse
           </Link>
 
           <nav className="hidden md:flex items-center gap-6">
@@ -47,8 +47,8 @@ export default function Header() {
                 to={path}
                 className={`text-sm font-medium transition-colors ${
                   isActive(path)
-                    ? 'text-gray-900 font-bold' 
-                    : 'text-gray-700 hover:text-blue-600'
+                    ? 'text-gray-950 font-bold' 
+                    : 'text-gray-500 hover:text-blue-600'
                 }`}
               >
                 {label}

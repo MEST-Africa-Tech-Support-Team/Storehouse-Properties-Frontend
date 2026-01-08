@@ -34,24 +34,27 @@ const faqData = [
   }
 ];
 
-
-const FAQItem = ({ question, answer }) => {
-  const [isOpen, setIsOpen] = useState(false);
-
+// Passing isOpen and toggle function from parent to ensure isolation
+const FAQItem = ({ question, answer, isOpen, toggle }) => {
   return (
-    <div className="bg-[#F4F8FF]  rounded-4xl overflow-hidden transition-all duration-300">
+    <div className="bg-[#F4F8FF] rounded-4xl overflow-hidden transition-all duration-300">
       <button
-        onClick={() => setIsOpen(!isOpen)}
+        onClick={toggle}
         className="flex justify-between items-center w-full p-5 text-left focus:outline-none"
         aria-expanded={isOpen}
       >
         <h3 className="text-lg font-bold text-gray-600">{question}</h3>
         <FaChevronDown
           className={`text-gray-400 flex-shrink-0 transform transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`}
+          aria-hidden="true"
         />
       </button>
       
-      <div className={`overflow-hidden transition-all duration-300 ease-in-out ${isOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'}`}>
+      <div
+        className={`overflow-hidden transition-all duration-300 ease-in-out ${
+          isOpen ? 'max-h-[500px] opacity-100' : 'max-h-0 opacity-0'
+        }`}
+      >
         <div className="p-5 pt-0 text-gray-500 leading-relaxed">
           {answer}
         </div>
@@ -61,12 +64,21 @@ const FAQItem = ({ question, answer }) => {
 };
 
 const FAQSection = () => {
+  // Store the ID of the currently open FAQ. null means all are closed.
+  const [openId, setOpenId] = useState(null);
+
+  const handleToggle = (id) => {
+    // If user clicks the already open FAQ, close it (set to null), 
+    // otherwise set the new ID
+    setOpenId(openId === id ? null : id);
+  };
+
   return (
-    <section className="py-16 px-26 max-w-7xl mx-auto">
-      <div className="mb-10 text-center relative">
+    <section className="py-16 px-6 md:px-26 max-w-7xl mx-auto">
+      <div className="mb-12 text-center">
         <div className="h-[300px] md:h-[400px] rounded-[32px] overflow-hidden mb-12 shadow-xl group">
           <img
-            src="https://images.unsplash.com/photo-1584132967334-10e028bd69f7?q=80&w=2070&auto=format&fit=crop" 
+            src="https://images.unsplash.com/photo-1584132967334-10e028bd69f7?q=80&w=2070&auto=format&fit=crop"
             alt="Luxury Resort Pool"
             className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
           />
@@ -75,17 +87,19 @@ const FAQSection = () => {
         <span className="block text-[#2563eb] font-bold text-sm uppercase tracking-wider mb-3">
           Frequently Asked Questions
         </span>
-        <h2 className="text-[#0f1d37] text-[40px] md:text-[40px] font-extrabold tracking-tight">
+        <h2 className="text-[#0f1d37] text-3xl md:text-4xl font-extrabold tracking-tight">
           Find Answers To Common Questions
         </h2>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
         {faqData.map((item) => (
-          <FAQItem 
+          <FAQItem
             key={item.id}
             question={item.question}
             answer={item.answer}
+            isOpen={openId === item.id}
+            toggle={() => handleToggle(item.id)}
           />
         ))}
       </div>
