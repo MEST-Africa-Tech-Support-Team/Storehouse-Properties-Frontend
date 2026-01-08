@@ -1,71 +1,105 @@
-// src/components/PropertyImageGallery.jsx
-import { useState } from 'react';
-import { FaExpandAlt, FaCompressAlt } from 'react-icons/fa';
+import React, { useState } from 'react';
+import { FaChevronLeft, FaChevronRight, FaTimes } from 'react-icons/fa';
 
-export default function PropertyImageGallery({ images }) {
-  const [isFullscreen, setIsFullscreen] = useState(false);
+const PropertyImageGallery = ({ images = [] }) => {
+  const [showModal, setShowModal] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
 
-  const nextImage = () => {
+  const openLightbox = (index) => {
+    setCurrentIndex(index);
+    setShowModal(true);
+  };
+
+  const nextImage = (e) => {
+    e.stopPropagation();
     setCurrentIndex((prev) => (prev + 1) % images.length);
   };
 
-  const prevImage = () => {
+  const prevImage = (e) => {
+    e.stopPropagation();
     setCurrentIndex((prev) => (prev - 1 + images.length) % images.length);
   };
 
+  const displayImages = images.slice(0, 5);
+
   return (
-    <div className={`relative w-full h-[400px] sm:h-[500px] overflow-hidden rounded-xl ${isFullscreen ? 'fixed inset-0 z-50 bg-black' : ''}`}>
-      <img
-        src={images[currentIndex]}
-        alt="Property"
-        className={`w-full h-full object-cover transition-transform duration-300 ${isFullscreen ? 'object-contain' : 'object-cover'}`}
-      />
-      
-      {/* Fullscreen Toggle */}
-      <button
-        onClick={() => setIsFullscreen(!isFullscreen)}
-        className="absolute top-2 right-2 p-2 bg-white rounded-full shadow-md hover:bg-gray-100 transition"
-      >
-        {isFullscreen ? <FaCompressAlt /> : <FaExpandAlt />}
-      </button>
+    <div className="w-full max-w-7xl mx-auto px-4 py-6">
+      <div className="grid grid-cols-1 md:grid-cols-4 grid-rows-2 gap-2 h-[300px] md:h-[500px] rounded-2xl overflow-hidden cursor-pointer">
+        
+        <div 
+          className="md:col-span-2 md:row-span-2 relative overflow-hidden group"
+          onClick={() => openLightbox(0)}
+        >
+          <img 
+            src={displayImages[0]} 
+            className="w-full h-full object-cover transition duration-500 group-hover:brightness-90"
+            alt="Property Hero"
+          />
+        </div>
 
-      {/* Navigation Arrows */}
-      {!isFullscreen && (
-        <>
-          <button
-            onClick={prevImage}
-            className="absolute left-2 top-1/2 transform -translate-y-1/2 p-2 bg-white rounded-full shadow-md hover:bg-gray-100 transition"
+        {displayImages.slice(1).map((img, idx) => (
+          <div 
+            key={idx} 
+            className="hidden md:block relative overflow-hidden group"
+            onClick={() => openLightbox(idx + 1)}
           >
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-            </svg>
-          </button>
-          <button
-            onClick={nextImage}
-            className="absolute right-2 top-1/2 transform -translate-y-1/2 p-2 bg-white rounded-full shadow-md hover:bg-gray-100 transition"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-            </svg>
-          </button>
-        </>
-      )}
-
-      {/* Thumbnail Strip */}
-      {!isFullscreen && (
-        <div className="absolute bottom-2 left-0 right-0 flex justify-center space-x-2 p-2">
-          {images.map((img, idx) => (
-            <img
-              key={idx}
-              src={img}
-              alt={`Thumbnail ${idx + 1}`}
-              className={`h-12 w-16 object-cover rounded cursor-pointer border-2 ${idx === currentIndex ? 'border-blue-500' : 'border-gray-300'}`}
-              onClick={() => setCurrentIndex(idx)}
+            <img 
+              src={img} 
+              className="w-full h-full object-cover transition duration-500 group-hover:brightness-90"
+              alt={`Property ${idx + 1}`}
             />
-          ))}
+          </div>
+        ))}
+        
+        {images.length > 5 && (
+            <button 
+                onClick={() => openLightbox(0)}
+                className="absolute bottom-4 right-4 bg-white border border-black px-4 py-2 rounded-lg font-semibold text-sm hover:bg-gray-100 transition shadow-md z-10"
+            >
+                Show all photos
+            </button>
+        )}
+      </div>
+
+      {showModal && (
+        <div className="fixed inset-0 z-[100] bg-gray-800 flex flex-col items-center justify-center">
+          <div className="absolute top-0 left-0 right-0 p-6 flex justify-between items-center text-white z-10">
+            <span className="text-lg font-medium">
+              {currentIndex + 1} / {images.length}
+            </span>
+            <button 
+              onClick={() => setShowModal(false)}
+              className="p-3 hover:bg-white/10 rounded-full transition"
+            >
+              <FaTimes size={24} />
+            </button>
+          </div>
+
+          <button 
+            onClick={prevImage}
+            className="absolute left-4 p-4 text-white hover:bg-white/10 rounded-full transition z-10"
+          >
+            <FaChevronLeft size={30} />
+          </button>
+
+          <button 
+            onClick={nextImage}
+            className="absolute right-4 p-4 text-white hover:bg-white/10 rounded-full transition z-10"
+          >
+            <FaChevronRight size={30} />
+          </button>
+
+          <div className="w-full h-full flex items-center justify-center p-4 md:p-20">
+            <img 
+              src={images[currentIndex]} 
+              className="max-w-full max-h-full object-contain select-none"
+              alt="Expanded view"
+            />
+          </div>
         </div>
       )}
     </div>
   );
-}
+};
+
+export default PropertyImageGallery;
