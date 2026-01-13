@@ -102,7 +102,6 @@ export default function TermsAndConditions() {
 
   return (
     <div className="min-h-screen bg-white">
-      {/* Hero Section */}
       <div className="relative h-[300px] sm:h-[400px] w-full overflow-hidden">
         <img
           src="https://images.unsplash.com/photo-1583847268964-b28dc8f51f92?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80"
@@ -116,16 +115,13 @@ export default function TermsAndConditions() {
         </div>
       </div>
 
-      {/* Main Content */}
       <div className="container py-8 max-w-4xl mx-auto">
-        {/* Intro Box */}
         <div className="bg-gray-50 p-6 rounded-xl mb-8">
           <p className="text-gray-800 leading-relaxed">
             These Terms & Conditions govern your use of the Store House platform and services. By accessing or using our website and booking services, you agree to be bound by these terms. Please read them carefully before proceeding with any reservation or account creation. Your continued use of our platform constitutes acceptance of these terms.
           </p>
         </div>
 
-        {/* Accordion Sections */}
         <div className="space-y-4">
           {sections.map((section) => (
             <div
@@ -167,7 +163,6 @@ export default function TermsAndConditions() {
           ))}
         </div>
 
-        {/* Footer Action Bar */}
         <div className="mt-12 pt-6 border-t border-gray-200 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div className="flex items-center gap-3">
             <input

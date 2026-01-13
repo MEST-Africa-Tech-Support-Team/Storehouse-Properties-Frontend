@@ -5,7 +5,6 @@ export default function MissionVisionSection() {
     <div className="py-12 bg-blue-50">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          {/* Our Mission */}
           <div className="bg-white p-6 rounded-2xl shadow-sm hover:shadow-md transition-shadow">
             <div className="w-12 h-12 bg-blue-600 rounded-xl flex items-center justify-center mb-4">
               <svg
@@ -23,7 +22,6 @@ export default function MissionVisionSection() {
             </p>
           </div>
 
-          {/* Our Vision */}
           <div className="bg-white p-6 rounded-2xl shadow-sm hover:shadow-md transition-shadow">
             <div className="w-12 h-12 bg-blue-600 rounded-xl flex items-center justify-center mb-4">
               <svg

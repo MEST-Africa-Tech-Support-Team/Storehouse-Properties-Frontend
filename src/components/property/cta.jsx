@@ -18,14 +18,8 @@ const CTASection = () => {
             to="/explore"
             className="w-full sm:w-auto px-10 py-4 bg-white text-[#2563eb] text-[18px] font-bold rounded-full shadow-[#bfdbfe] hover:shadow-[#bfdbfe] hover:translate-y-[2px] active:shadow-none active:translate-y-[6px] transition-all duration-150 text-center"
           >
-            Start Searching
+           Explore Properties
           </Link>
-
-          <button 
-            className="w-full sm:w-auto px-10 py-4 bg-transparent text-white text-[18px] font-bold rounded-full border-2 border-white shadow-[rgba(255,255,255,0.2)] hover:shadow-[rgba(255,255,255,0.2)] hover:translate-y-[2px] active:shadow-none active:translate-y-[6px] transition-all duration-150"
-          >
-            List Your Property
-          </button>
         </div>
       </div>
 

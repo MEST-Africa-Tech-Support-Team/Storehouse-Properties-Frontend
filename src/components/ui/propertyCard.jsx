@@ -1,5 +1,5 @@
 import React from "react";
-import { useNavigate } from "react-router"; //
+import { useNavigate } from "react-router"; 
 import { FaStar, FaMapMarkerAlt } from "react-icons/fa";
 
 const PropertyCard = ({

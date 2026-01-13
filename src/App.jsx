@@ -12,6 +12,7 @@ import Login from "./pages/authPages/logIn.jsx";
 import { Toaster } from "react-hot-toast";
 import PropertyDetails from "./pages/propertyDetails.jsx";
 import TermsConditions from "./pages/termsAndConditions.jsx";
+import CompleteBookingPage from "./pages/confirmBooking.jsx";
 
 const router = createBrowserRouter([
   {
@@ -29,6 +30,7 @@ const router = createBrowserRouter([
     ],
   },
   { path: "/property/terms&conditions", element: <TermsConditions /> },
+  { path: "/booking/confirm", element: <CompleteBookingPage /> },
   {
     element: (
       <AuthProvider>
