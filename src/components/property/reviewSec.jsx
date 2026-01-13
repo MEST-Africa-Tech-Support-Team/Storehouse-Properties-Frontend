@@ -1,4 +1,3 @@
-// src/components/ReviewsSection.jsx
 import { FaStar } from 'react-icons/fa';
 
 export default function ReviewsSection({ reviews }) {

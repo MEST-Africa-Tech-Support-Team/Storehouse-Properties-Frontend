@@ -1,4 +1,3 @@
-// src/components/AmenitiesSection.jsx
 import { FaWifi, FaCar, FaSnowflake, FaDumbbell, FaConciergeBell, FaUtensils, FaTv, FaShieldAlt, FaChild } from 'react-icons/fa';
 
 export default function AmenitiesSection({ amenities }) {

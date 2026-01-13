@@ -53,7 +53,6 @@ export default function BookingForm({ price = 180 }) {
     });
   };
 
-  // Format date for display (mm/dd/yyyy)
   const formatDate = (isoDate) => {
     if (!isoDate) return '';
     const date = new Date(isoDate);
@@ -65,16 +64,13 @@ export default function BookingForm({ price = 180 }) {
 
   return (
     <div className="w-full max-w-[380px] bg-white p-5 rounded-2xl border border-gray-200 shadow-sm font-sans">
-      {/* Price Header */}
       <div className="text-center mb-4">
         <span className="text-2xl md:text-3xl font-bold text-[#1e293b]">${price}</span>
         <span className="text-gray-500 text-sm ml-1">/ night</span>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-3">
-        {/* Date Inputs */}
         <div className="grid grid-cols-2 gap-2">
-          {/* Check-in */}
           <div className="relative border border-gray-200 rounded-xl p-3 focus-within:ring-1 focus-within:ring-blue-500 focus-within:border-blue-500 transition">
             <label className="block text-[10px] font-medium text-gray-500 uppercase tracking-wider">Check-in</label>
             <div className="flex items-center justify-between mt-1">
@@ -88,7 +84,6 @@ export default function BookingForm({ price = 180 }) {
             </div>
           </div>
 
-          {/* Check-out */}
           <div className="relative border border-gray-200 rounded-xl p-3 focus-within:ring-1 focus-within:ring-blue-500 focus-within:border-blue-500 transition">
             <label className="block text-[10px] font-medium text-gray-500 uppercase tracking-wider">Check-out</label>
             <div className="flex items-center justify-between mt-1">
@@ -103,7 +98,6 @@ export default function BookingForm({ price = 180 }) {
           </div>
         </div>
 
-        {/* Guests */}
         <div className="relative border border-gray-200 rounded-xl p-3 focus-within:ring-1 focus-within:ring-blue-500 focus-within:border-blue-500 transition">
           <label className="block text-[10px] font-medium text-gray-500 uppercase tracking-wider">Guests</label>
           <div className="flex items-center justify-between mt-1">
@@ -120,7 +114,6 @@ export default function BookingForm({ price = 180 }) {
           </div>
         </div>
 
-        {/* Cost Breakdown — only show if dates selected */}
         {nights > 0 && (
           <div className="pt-4 space-y-2">
             <div className="flex justify-between text-[14px] text-[#1e293b]">
@@ -145,7 +138,6 @@ export default function BookingForm({ price = 180 }) {
           </div>
         )}
 
-        {/* Action Button */}
         <div className="pt-3">
           <button
             type="submit"

@@ -1,4 +1,3 @@
-// src/components/PropertyDescription.jsx
 export default function PropertyDescription({ description }) {
   return (
     <div className="mb-8">

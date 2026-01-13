@@ -1,4 +1,3 @@
-// src/components/FAQItem.jsx
 import { useState } from 'react';
 import { FaChevronDown } from "react-icons/fa";
 
@@ -8,7 +7,7 @@ export default function FAQItem({ question, answer }) {
   return (
     <div 
       className="bg-[#F4F8FF] rounded-4xl overflow-hidden transition-all duration-300 mb-4"
-      style={{ willChange: 'height' }} // 👈 Prevents GPU flicker during animation
+      style={{ willChange: 'height' }} 
     >
       <button
         onClick={() => setIsOpen(!isOpen)}
@@ -23,7 +22,6 @@ export default function FAQItem({ question, answer }) {
         />
       </button>
       
-      {/* ✅ Key Fix: Use max-h-0/96 + overflow-hidden + min-h for stability */}
       <div
         id={`faq-answer-${question.replace(/\s+/g, '-').toLowerCase()}`}
         className={`overflow-hidden transition-all duration-300 ease-in-out ${

@@ -14,13 +14,12 @@ const ExplorePage = () => {
   const [activeCategory, setActiveCategory] = useState("All");
 
   const [searchLocation, setSearchLocation] = useState("");
-  const [tempSearch, setTempSearch] = useState(""); // For "Apply" logic
+  const [tempSearch, setTempSearch] = useState(""); 
   const [guests, setGuests] = useState(2);
   const [childIncluded, setChildIncluded] = useState("Yes");
   const [propertyType, setPropertyType] = useState("All Types");
   const [sortBy, setSortBy] = useState("Popularity");
 
-  // --- Initialize OOP Data ---
   useEffect(() => {
     const rawData = Array.from({ length: 80 }).map((_, i) => ({
       id: i,
@@ -36,12 +35,11 @@ const ExplorePage = () => {
     setAllProperties(rawData.map(item => new Property(item)));
   }, []);
 
-  // --- Functional Apply/Reset ---
   const handleApply = () => {
     setLoading(true);
     setTimeout(() => {
       setSearchLocation(tempSearch);
-      setPage(1); // Reset pagination on new search
+      setPage(1); 
       setLoading(false);
     }, 600);
   };
@@ -65,7 +63,6 @@ const ExplorePage = () => {
     }, 800);
   };
 
-  // --- Filtering & Sorting Engine ---
   const filteredProperties = useMemo(() => {
     let result = allProperties.filter(prop => {
       const matchCategory = activeCategory === "All" || prop.category === activeCategory;
@@ -83,12 +80,11 @@ const ExplorePage = () => {
 
   return (
     <div className="bg-white min-h-screen">
-      {/* --- 1. Hero Banner with Unsplash Image --- */}
       <section 
         className="relative h-[400px] w-full flex items-center px-16 bg-cover bg-center"
         style={{ backgroundImage: `url('https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=1920&q=80')` }}
       >
-        <div className="absolute inset-0 bg-black/40" /> {/* Overlay for readability */}
+        <div className="absolute inset-0 bg-black/40" /> 
         <div className="relative z-10 max-w-[1440px] mx-auto w-full">
           <h1 className="text-[56px] font-black text-white tracking-tight mb-2">
             Explore Stays
@@ -99,11 +95,9 @@ const ExplorePage = () => {
         </div>
       </section>
 
-      {/* --- 2. Compact Floating Search Card --- */}
       <section className="px-16 -mt-10 relative z-30">
         <div className="max-w-[1440px] mx-auto bg-white rounded-[20px] shadow-[0_15px_60px_-15px_rgba(0,0,0,0.12)] border border-gray-100 p-5 flex items-end gap-4">
           
-          {/* Location Input */}
           <div className="flex-[1.5] min-w-[180px]">
             <label className="block text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-2 ml-1">Location</label>
             <div className="relative">
@@ -132,7 +126,6 @@ const ExplorePage = () => {
             onChange={setPropertyType} 
           />
 
-          {/* Guest Counter */}
           <div className="min-w-[110px]">
             <label className="block text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-2 ml-1">Guests</label>
             <div className="flex items-center justify-between bg-gray-50 rounded-xl px-4 py-3 border border-transparent">
@@ -149,7 +142,6 @@ const ExplorePage = () => {
             onChange={setSortBy} 
           />
 
-          {/* Buttons */}
           <div className="flex items-center gap-2">
             <button 
               onClick={handleApply}
@@ -167,10 +159,8 @@ const ExplorePage = () => {
         </div>
       </section>
 
-      {/* --- 3. Grid Content --- */}
       <section className="max-w-[1440px] mx-auto px-16 pt-16 pb-20">
         
-        {/* Category Filter */}
         <div className="flex gap-3 mb-12 overflow-x-auto no-scrollbar">
           {["All", "Apartments", "Short Stays", "Family Homes", "Luxury"].map((cat) => (
             <button
@@ -187,7 +177,6 @@ const ExplorePage = () => {
           ))}
         </div>
 
-        {/* 4-Column Property Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-6 gap-y-10">
           {visibleProperties.map((prop) => (
             <div key={prop.id} className="relative group animate-fadeIn">
@@ -207,7 +196,6 @@ const ExplorePage = () => {
           ))}
         </div>
 
-        {/* --- 4. Load More with Professional State --- */}
         <div className="flex flex-col items-center gap-4 mt-20">
           <button 
             onClick={handleLoadMore}
@@ -229,7 +217,6 @@ const ExplorePage = () => {
   );
 };
 
-// --- Custom Dropdown Sub-Component ---
 const CustomDropdown = ({ label, options, value, onChange }) => {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef(null);

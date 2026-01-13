@@ -1,4 +1,3 @@
-// src/components/PropertyHeader.jsx
 import { FaMapMarkerAlt, FaStar, FaHeart } from 'react-icons/fa';
 
 export default function PropertyHeader({ title, location, rating, reviewCount, isSuperhost, onToggleFavorite, isFavorite }) {

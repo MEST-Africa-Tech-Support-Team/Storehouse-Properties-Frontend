@@ -8,14 +8,13 @@ export default function SearchBar() {
   const [loading, setLoading] = useState(false);
   const locationInputRef = useRef(null);
 
-  // Initialize Google Places Autocomplete
   useEffect(() => {
     if (!window.google || !window.google.maps || !window.google.maps.places) return;
 
     const autocomplete = new window.google.maps.places.Autocomplete(
       locationInputRef.current,
       {
-        types: ['(cities)'], // or ['geocode'] for broader
+        types: ['(cities)'], 
         fields: ['address_components', 'formatted_address'],
       }
     );
@@ -28,7 +27,6 @@ export default function SearchBar() {
     });
 
     return () => {
-      // Cleanup not strictly needed, but good practice
       if (autocomplete) autocomplete.unbindAll();
     };
   }, []);
@@ -49,14 +47,11 @@ export default function SearchBar() {
     const toastId = toast.loading('Searching...');
 
     try {
-      // Simulate API call
       await new Promise((resolve) => setTimeout(resolve, 1500));
 
-      // TODO: Replace with real search logic
       console.log({ location, checkIn, checkOut });
 
       toast.success('Properties found!', { id: toastId });
-      // Example: navigate('/results', { state: { location, checkIn, checkOut } });
     } catch (err) {
       toast.error('Search failed. Please try again.', { id: toastId });
     } finally {
@@ -82,7 +77,6 @@ export default function SearchBar() {
   return (
     <div className="bg-white rounded-xl sm:p-4 shadow-lg max-w-4xl mx-auto w-full">
       <form onSubmit={handleSubmit} className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-2 sm:gap-3">
-        {/* Location */}
         <div className="sm:col-span-2">
           <label htmlFor="location" className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
             Location
@@ -112,7 +106,6 @@ export default function SearchBar() {
           </div>
         </div>
 
-        {/* Check-in */}
         <div>
           <label htmlFor="checkIn" className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
             Check-in
@@ -126,7 +119,6 @@ export default function SearchBar() {
           />
         </div>
 
-        {/* Check-out */}
         <div>
           <label htmlFor="checkOut" className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
             Check-out
@@ -140,7 +132,6 @@ export default function SearchBar() {
           />
         </div>
 
-        {/* Search Button */}
         <div className="flex items-end">
           <button
             type="submit"
