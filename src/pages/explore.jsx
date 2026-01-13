@@ -5,7 +5,7 @@ import {
 } from "react-icons/fa";
 
 import { Property, PropertyService } from "../lib/property";
-import PropertyCard from "../components/ui/PropertyCard";
+import PropertyCard from "../components/ui/propertyCard";
 
 const ExplorePage = () => {
   const [allProperties, setAllProperties] = useState([]);
