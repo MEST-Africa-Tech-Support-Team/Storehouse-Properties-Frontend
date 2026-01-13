@@ -1,9 +1,6 @@
-// src/components/property/bookingForm.jsx
 import { useState, useEffect } from 'react';
 import { toast } from 'react-hot-toast';
 import { useNavigate } from 'react-router';
-import { FaChevronDown } from 'react-icons/fa';
-import { HiOutlineCalendar } from 'react-icons/hi';
 
 export default function BookingForm({ price = 180 }) {
   const [checkIn, setCheckIn] = useState('');
@@ -13,11 +10,9 @@ export default function BookingForm({ price = 180 }) {
   const [total, setTotal] = useState(0);
   const navigate = useNavigate();
 
-  // Pricing constants
   const cleaningFee = 25;
   const serviceFee = 35;
 
-  // Recalculate total whenever dates change
   useEffect(() => {
     if (checkIn && checkOut) {
       const inDate = new Date(checkIn);
@@ -48,18 +43,17 @@ export default function BookingForm({ price = 180 }) {
       toast.error('Check-out must be after check-in');
       return;
     }
-    navigate('/property/terms&conditions', {
+    navigate('/property/:id/terms&conditions', {
       state: { price, checkIn, checkOut, guests, total, nights },
     });
   };
 
-  const formatDate = (isoDate) => {
-    if (!isoDate) return '';
-    const date = new Date(isoDate);
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
-    const year = date.getFullYear();
-    return `${month}/${day}/${year}`;
+  const incrementGuests = () => {
+    if (guests < 6) setGuests(guests + 1);
+  };
+
+  const decrementGuests = () => {
+    if (guests > 1) setGuests(guests - 1);
   };
 
   return (
@@ -80,7 +74,6 @@ export default function BookingForm({ price = 180 }) {
                 onChange={(e) => setCheckIn(e.target.value)}
                 className="w-full text-[14px] text-[#1e293b] outline-none bg-transparent appearance-none cursor-pointer"
               />
-              <HiOutlineCalendar className="text-gray-500 text-lg" />
             </div>
           </div>
 
@@ -93,7 +86,6 @@ export default function BookingForm({ price = 180 }) {
                 onChange={(e) => setCheckOut(e.target.value)}
                 className="w-full text-[14px] text-[#1e293b] outline-none bg-transparent appearance-none cursor-pointer"
               />
-              <HiOutlineCalendar className="text-gray-500 text-lg" />
             </div>
           </div>
         </div>
@@ -101,16 +93,29 @@ export default function BookingForm({ price = 180 }) {
         <div className="relative border border-gray-200 rounded-xl p-3 focus-within:ring-1 focus-within:ring-blue-500 focus-within:border-blue-500 transition">
           <label className="block text-[10px] font-medium text-gray-500 uppercase tracking-wider">Guests</label>
           <div className="flex items-center justify-between mt-1">
-            <select
-              value={guests}
-              onChange={(e) => setGuests(e.target.value)}
-              className="w-full appearance-none bg-transparent text-[14px] text-[#1e293b] outline-none cursor-pointer"
-            >
-              {[1, 2, 3, 4, 5, 6].map(num => (
-                <option key={num} value={num}>{num} guest{num > 1 ? 's' : ''}</option>
-              ))}
-            </select>
-            <FaChevronDown className="text-gray-400 text-xs" />
+            <span className="text-[14px] text-[#1e293b]">
+              {guests} guest{guests !== 1 ? 's' : ''}
+            </span>
+            <div className="flex items-center space-x-1">
+              <button
+                type="button"
+                onClick={decrementGuests}
+                disabled={guests <= 1}
+                className="w-5 h-5 flex items-center justify-center text-gray-500  border rounded-full disabled:opacity-30 bg-gray-50"
+                aria-label="Decrease guests"
+              >
+                −
+              </button>
+              <button
+                type="button"
+                onClick={incrementGuests}
+                disabled={guests >= 10}
+                className="w-5 h-5 flex items-center justify-center text-gray-500 border rounded-full disabled:opacity-30 bg-gray-50"
+                aria-label="Increase guests"
+              >
+                +
+              </button>
+            </div>
           </div>
         </div>
 

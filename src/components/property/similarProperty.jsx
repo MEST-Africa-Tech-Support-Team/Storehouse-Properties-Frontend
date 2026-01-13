@@ -1,5 +1,5 @@
 import React from 'react';
-import PropertyCard from '../../components/ui/propertyCard'; 
+import PropertyCard from '../ui/propertyCard'; 
 
 const SimilarProperties = () => {
  
