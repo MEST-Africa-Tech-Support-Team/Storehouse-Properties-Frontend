@@ -13,7 +13,7 @@ export default function TermsAndConditions() {
 
   const handleAccept = () => {
     if (!isAccepted) return;
-    navigate('/booking/confirm'); 
+    navigate('/property/:id/booking/confirm'); 
   };
 
   const handleDecline = () => {
