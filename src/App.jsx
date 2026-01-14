@@ -13,6 +13,8 @@ import { Toaster } from "react-hot-toast";
 import PropertyDetails from "./pages/propertyDetails.jsx";
 import TermsConditions from "./pages/termsAndConditions.jsx";
 import CompleteBookingPage from "./pages/confirmBooking.jsx";
+import UserDashboardOverview from "./pages/userDashboard/overview.jsx";
+import DashboardLayout from "./components/layouts/userDashboardLayout.jsx";
 
 const router = createBrowserRouter([
   {
@@ -29,8 +31,22 @@ const router = createBrowserRouter([
       { path: "/property/:id", element: <PropertyDetails /> },
     ],
   },
+
+  {
+    element: (
+      <AuthProvider>
+        <DashboardLayout />
+      </AuthProvider>
+    ),
+    children: [
+      { path: "/dashboard", element: <UserDashboardOverview /> },
+      
+    ],
+  },
+
   { path: "/property/:id/terms&conditions", element: <TermsConditions /> },
   { path: "/property/:id/booking/confirm", element: <CompleteBookingPage /> },
+
   {
     element: (
       <AuthProvider>
