@@ -1,6 +1,7 @@
 import React from "react";
 import { Link } from "react-router";
 import { IoMdArrowBack } from "react-icons/io";
+import { toast } from 'react-hot-toast';
 import BookingSummary from "../components/property/bookingSummary.jsx";
 import GuestInformation from "../components/property/guestInformation.jsx";
 
@@ -18,7 +19,8 @@ export default function CompleteBookingPage() {
 
   const handleFormSubmit = (data) => {
     console.log("Booking submitted:", data);
-    alert("Booking details saved! Redirecting to payment...");
+    toast.success("Booking details saved! Redirecting to payment...");
+    // Here you would typically redirect to a payment page or process payment
   };
 
   return (

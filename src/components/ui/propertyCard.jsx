@@ -14,9 +14,10 @@ const PropertyCard = ({
   badge = '',
   category = '',
   images = [image],
+  isFavorite: initialIsLiked = false, 
 }) => {
   const navigate = useNavigate();
-  const [isLiked, setIsLiked] = useState(false);
+  const [isLiked, setIsLiked] = useState(initialIsLiked); 
 
   const handleNavigation = useCallback(() => {
     navigate(`/property/${id}`, {

@@ -1,5 +1,5 @@
-import React from 'react';
-import { Link } from 'react-router';
+import React from "react";
+import { Link } from "react-router";
 
 import { IoLocationOutline } from "react-icons/io5";
 import { IoIosCalendar } from "react-icons/io";
@@ -13,127 +13,65 @@ const ActiveBookingCard = () => {
     checkOut: "Dec 27, 2024",
     nights: 7,
     status: "Confirmed",
-    image: "https://via.placeholder.com/200x150?text=Apartment"
+    image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRz9HI6MGIwQaw4M1eHeN1N0DU7J6neAS0lSQ&s",
   };
 
   return (
-    <div style={{
-      background: '#fff',
-      borderRadius: '16px',
-      padding: '20px',
-      boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
-      display: 'flex',
-      gap: '20px',
-      alignItems: 'center'
-    }}>
+    <div className="bg-white rounded-2xl p-5 shadow-[0_4px_12px_rgba(0,0,0,0.08)] flex gap-5 items-start mb-6 font-sans">
       <img
         src={booking.image}
         alt={booking.title}
-        style={{
-          width: '120px',
-          height: '90px',
-          objectFit: 'cover',
-          borderRadius: '12px',
-          flexShrink: 0
-        }}
+        className="w-[120px] h-[90px] object-cover rounded-xl flex-shrink-0 transition-transform duration-300 ease-out hover:scale-105"
       />
 
-      <div style={{ flex: 1, minWidth: 0 }}>
-        <h3 style={{
-          margin: '0 0 8px 0',
-          fontSize: '20px',
-          fontWeight: '600',
-          color: '#111'
-        }}>
-          {booking.title}
-        </h3>
+      <div className="flex-1 min-w-0">
+        <div className="flex justify-between items-start mb-2">
+          <h3 className="text-lg font-semibold text-gray-900 leading-[1.4] m-0">
+            {booking.title}
+          </h3>
+          <span className="px-3 py-1 bg-[#d4edda] text-[#155724] rounded-full text-xs font-semibold">
+            {booking.status}
+          </span>
+        </div>
 
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: '6px',
-          marginBottom: '12px',
-          color: '#666',
-          fontSize: '14px'
-        }}>
-          <IoLocationOutline size={16} />
+        <div className="flex items-center gap-1.5 mb-3 text-gray-500 text-sm">
+          <IoLocationOutline size={16} className="text-gray-500" />
           {booking.location}
         </div>
 
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: '16px',
-          marginBottom: '16px',
-          fontSize: '14px',
-          color: '#666'
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-            <IoIosCalendar size={18} color="#0066ff" />
+        <div className="flex items-center gap-4 mb-4 text-gray-600 text-sm">
+          <div className="flex items-center gap-1.5">
+            <IoIosCalendar size={18} className="text-[#0066ff]" />
             <div>
-              <div style={{ fontSize: '12px', color: '#888' }}>Check-in</div>
-              <div style={{ fontWeight: '600', color: '#111' }}>{booking.checkIn}</div>
+              <div className="text-xs text-gray-500 font-medium">Check-in</div>
+              <div className="font-semibold text-gray-900">{booking.checkIn}</div>
             </div>
           </div>
 
-          <span style={{ fontSize: '16px', color: '#ccc' }}>→</span>
+          <span className="text-lg text-gray-300">→</span>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-            <IoIosCalendar size={18} color="#0066ff" />
+          <div className="flex items-center gap-1.5">
+            <IoIosCalendar size={18} className="text-[#0066ff]" />
             <div>
-              <div style={{ fontSize: '12px', color: '#888' }}>Check-out</div>
-              <div style={{ fontWeight: '600', color: '#111' }}>{booking.checkOut}</div>
+              <div className="text-xs text-gray-500 font-medium">Check-out</div>
+              <div className="font-semibold text-gray-900">{booking.checkOut}</div>
             </div>
           </div>
 
-          <div style={{
-            width: '1px',
-            height: '32px',
-            backgroundColor: '#eee',
-            margin: '0 16px'
-          }}></div>
+          {/* Divider */}
+          <div className="w-px h-8 bg-gray-200 mx-4"></div>
 
-          <div style={{
-            textAlign: 'right',
-            fontSize: '14px',
-            color: '#666'
-          }}>
-            <div style={{ fontSize: '12px' }}>Total Nights</div>
-            <div style={{ fontWeight: '600', color: '#111' }}>{booking.nights} nights</div>
+          <div className="text-right">
+            <div className="text-xs text-gray-500 font-medium">Total Nights</div>
+            <div className="font-semibold text-gray-900">{booking.nights} nights</div>
           </div>
-        </div>
-
-        <div style={{
-          display: 'inline-block',
-          padding: '4px 12px',
-          backgroundColor: '#d4edda',
-          color: '#155724',
-          borderRadius: '20px',
-          fontSize: '12px',
-          fontWeight: '600',
-          marginBottom: '12px'
-        }}>
-          {booking.status}
         </div>
 
         <Link
           to={`/booking/${booking.id}`}
-          style={{
-            display: 'block',
-            width: '100%',
-            padding: '12px 20px',
-            backgroundColor: '#0066ff',
-            color: '#fff',
-            textDecoration: 'none',
-            borderRadius: '24px',
-            textAlign: 'center',
-            fontWeight: '600',
-            fontSize: '15px',
-            transition: 'background-color 0.2s',
-            marginTop: '8px'
-          }}
-          onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#0055d4'}
-          onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#0066ff'}
+          className="block w-[calc(40%+35px)] py-3 px-5 bg-[#0066ff] text-white no-underline rounded-full text-center font-semibold text-sm transition-colors"
+          onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#0055d4")}
+          onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#0066ff")}
         >
           View Booking Details
         </Link>

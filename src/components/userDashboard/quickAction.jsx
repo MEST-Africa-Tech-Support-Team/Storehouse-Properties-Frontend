@@ -1,101 +1,43 @@
 import React from 'react';
 import { Link } from 'react-router';
 
-
 import { RiCalendarCheckFill } from "react-icons/ri";
 import { AiOutlineHeart } from "react-icons/ai";
 import { FaRegUser } from "react-icons/fa6";
 
 const QuickActions = () => {
-  const baseStyle = {
-    flex: 1,
-    padding: '16px 20px',
-    textDecoration: 'none',
-    background: '#fff',
-    borderRadius: '16px', 
-    boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
-    transition: 'transform 0.2s ease, box-shadow 0.2s ease',
-    display: 'flex',
-    alignItems: 'center',
-    gap: '12px', 
-    cursor: 'pointer'
-  };
-
-  const hoverStyle = {
-    transform: 'translateY(-3px)',
-    boxShadow: '0 6px 16px rgba(0,0,0,0.12)'
-  };
-
-  const iconWrapper = (color) => ({
-    width: '44px',
-    height: '44px',
-    borderRadius: '50%',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: `${color}10`,
-    boxShadow: `0 4px 10px ${color}20`
-  });
-
-  const iconStyle = (color) => ({
-    color: color,
-    fontSize: '22px'
-  });
-
-  const textStyle = (color) => ({
-    color: color,
-    fontWeight: '600',
-    fontSize: '15px',
-    whiteSpace: 'nowrap'
-  });
-
   return (
-    <div style={{ background: '#fff', borderRadius: '16px', padding: '20px', boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}>
-      <h3 style={{ margin: '0 0 16px 0', fontSize: '18px', fontWeight: '600', color: '#333' }}>Quick Actions</h3>
-      <div style={{ display: 'flex', gap: '16px' }}>
+    <div className="bg-white rounded-2xl p-5 shadow-[0_2px_8px_rgba(0,0,0,0.1)]">
+      <h3 className="text-lg font-semibold text-gray-800 mb-4">Quick Actions</h3>
+      <div className="flex gap-4">
         <Link
-          to="/bookings"
-          style={baseStyle}
-          onMouseEnter={(e) => Object.assign(e.currentTarget.style, hoverStyle)}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.transform = '';
-            e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.08)';
-          }}
+          to="/dashboard/bookings"
+          className="flex-1 flex items-center gap-3 p-4 bg-white rounded-2xl shadow-[0_4px_12px_rgba(0,0,0,0.08)] hover:-translate-y-1 hover:shadow-[0_6px_16px_rgba(0,0,0,0.12)] transition-transform duration-200 cursor-pointer"
         >
-          <div style={iconWrapper('#3B82F6')}>
-            <RiCalendarCheckFill style={iconStyle('#3B82F6')} />
+          <div className="w-11 h-11 rounded-full bg-blue-50 flex items-center justify-center shadow-[0_4px_10px_rgba(59,130,246,0.12)]">
+            <RiCalendarCheckFill className="text-blue-500 text-xl" />
           </div>
-          <span style={textStyle('#3B82F6')}>My Bookings</span>
+          <span className="font-semibold text-blue-500 whitespace-nowrap">My Bookings</span>
         </Link>
 
         <Link
-          to="/favorites"
-          style={baseStyle}
-          onMouseEnter={(e) => Object.assign(e.currentTarget.style, hoverStyle)}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.transform = '';
-            e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.08)';
-          }}
+          to="/dashboard/favorites"
+          className="flex-1 flex items-center gap-3 p-4 bg-white rounded-2xl shadow-[0_4px_12px_rgba(0,0,0,0.08)] hover:-translate-y-1 hover:shadow-[0_6px_16px_rgba(0,0,0,0.12)] transition-transform duration-200 cursor-pointer"
         >
-          <div style={iconWrapper('#EF4444')}>
-            <AiOutlineHeart style={iconStyle('#EF4444')} />
+          <div className="w-11 h-11 rounded-full bg-red-50 flex items-center justify-center shadow-[0_4px_10px_rgba(239,68,68,0.12)]">
+            <AiOutlineHeart className="text-red-500 text-xl" />
           </div>
-          <span style={textStyle('#EF4444')}>Favorites</span>
+          <span className="font-semibold text-red-500 whitespace-nowrap">Favorites</span>
         </Link>
 
         <Link
-          to="/profile"
-          style={baseStyle}
-          onMouseEnter={(e) => Object.assign(e.currentTarget.style, hoverStyle)}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.transform = '';
-            e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.08)';
-          }}
+          to="/dashboard/profile"
+          className="flex-1 flex items-center gap-3 p-4 bg-white rounded-2xl shadow-[0_4px_12px_rgba(0,0,0,0.08)] hover:-translate-y-1 hover:shadow-[0_6px_16px_rgba(0,0,0,0.12)] transition-transform duration-200 cursor-pointer"
         >
-          <div style={iconWrapper('#8B5CF6')}>
-            <FaRegUser style={iconStyle('#8B5CF6')} />
+          <div className="w-11 h-11 rounded-full bg-violet-50 flex items-center justify-center shadow-[0_4px_10px_rgba(139,92,246,0.12)]">
+            <FaRegUser className="text-violet-500 text-xl" />
           </div>
-          <span style={textStyle('#8B5CF6')}>Profile</span>
+          <span className="font-semibold text-violet-500 whitespace-nowrap">Profile</span>
         </Link>
       </div>
     </div>
