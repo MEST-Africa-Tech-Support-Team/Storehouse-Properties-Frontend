@@ -15,6 +15,10 @@ import TermsConditions from "./pages/termsAndConditions.jsx";
 import CompleteBookingPage from "./pages/confirmBooking.jsx";
 import UserDashboardOverview from "./pages/userDashboard/overview.jsx";
 import DashboardLayout from "./components/layouts/userDashboardLayout.jsx";
+import BookingsPage from "./pages/userDashboard/booking.jsx";
+import FavoritesPage from "./pages/userDashboard/favorites.jsx";
+import ProfilePage from "./pages/userDashboard/profile.jsx";
+import SupportPage from "./pages/userDashboard/support.jsx";
 
 const router = createBrowserRouter([
   {
@@ -40,7 +44,11 @@ const router = createBrowserRouter([
     ),
     children: [
       { path: "/dashboard", element: <UserDashboardOverview /> },
-      
+      { path: "/dashboard/bookings", element: <BookingsPage /> },
+      { path: "/dashboard/favorites", element: <FavoritesPage /> },
+      { path: "/dashboard/profile", element: <ProfilePage /> },
+      { path: "/dashboard/support", element: <SupportPage /> },
+
     ],
   },
 
