@@ -63,11 +63,11 @@ export default function Login() {
         Login
       </h1>
 
-      <div className="flex flex-col items-center justify-between py-6 px-4">
+      <div className="flex flex-col items-center justify-between py-8 px-4">
         <div className="flex-grow"></div>
 
         <div className="w-full max-w-md bg-white rounded-3xl p-6 border border-gray-300 shadow-xl z-10">
-          <h2 className="text-center text-sm font-medium mb-5 text-gray-600">
+          <h2 className="text-center text-lg font-medium mb-5 text-black">
             Welcome Back To Storehouse
           </h2>
 
