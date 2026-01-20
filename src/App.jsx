@@ -29,66 +29,117 @@ import AdminUsersPage from "./pages/adminDashboard/users.jsx";
 
 
 
+// const router = createBrowserRouter([
+//   {
+//     element: (
+//       <AuthProvider>
+//         <RootLayout />
+//       </AuthProvider>
+//     ),
+//     children: [
+//       { index: true, element: <Home /> },
+//       { path: "/about", element: <About /> },
+//       { path: "/contact", element: <Contact /> },
+//       { path: "/explore", element: <Explore /> },
+//       { path: "/property/:id", element: <PropertyDetails /> },
+//     ],
+//   },
+
+//   {
+//     element: (
+//       <AuthProvider>
+//         <DashboardLayout />
+//       </AuthProvider>
+//     ),
+//     children: [
+//       { path: "/dashboard", element: <UserDashboardOverview /> },
+//       { path: "/dashboard/bookings", element: <BookingsPage /> },
+//       { path: "/dashboard/favorites", element: <FavoritesPage /> },
+//       { path: "/dashboard/profile", element: <ProfilePage /> },
+//       { path: "/dashboard/support", element: <SupportPage /> },
+
+//     ],
+//   },
+
+//     {
+//     path: "/admin",
+//     element: <AdminLayout />,
+//     children: [
+//       { index: true, element: <AdminOverviewPage /> },
+//       { path: "analytics", element: <AdminAnalyticsPage /> },
+//           { path: "bookings", element: <AdminBookingsPage /> },
+//           { path: "properties", element: <AdminPropertiesPage /> },
+//           { path: "users", element: <AdminUsersPage /> },
+//           { path: "settings", element: <AdminSettingsPage /> },
+//     ],
+//   },
+
+//   { path: "/property/:id/terms&conditions", element: <TermsConditions /> },
+//   { path: "/property/:id/booking/confirm", element: <CompleteBookingPage /> },
+
+//   {
+//     element: (
+//       <AuthProvider>
+//         <AuthLayout />
+//       </AuthProvider>
+//     ),
+//     children: [
+//       { path: "/auth/signup", element: <Signup /> },
+//       { path: "/auth/login", element: <Login /> },
+//     ],
+//   },
+// ]);
+
 const router = createBrowserRouter([
   {
-    element: (
-      <AuthProvider>
-        <RootLayout />
-      </AuthProvider>
-    ),
+    element: <RootLayout />,
     children: [
       { index: true, element: <Home /> },
-      { path: "/about", element: <About /> },
-      { path: "/contact", element: <Contact /> },
-      { path: "/explore", element: <Explore /> },
-      { path: "/property/:id", element: <PropertyDetails /> },
+      { path: "about", element: <About /> },
+      { path: "contact", element: <Contact /> },
+      { path: "explore", element: <Explore /> },
+      { path: "property/:id", element: <PropertyDetails /> },
     ],
   },
 
   {
-    element: (
-      <AuthProvider>
-        <DashboardLayout />
-      </AuthProvider>
-    ),
+    path: "dashboard",
+    element: <DashboardLayout />,
     children: [
-      { path: "/dashboard", element: <UserDashboardOverview /> },
-      { path: "/dashboard/bookings", element: <BookingsPage /> },
-      { path: "/dashboard/favorites", element: <FavoritesPage /> },
-      { path: "/dashboard/profile", element: <ProfilePage /> },
-      { path: "/dashboard/support", element: <SupportPage /> },
-
+      { index: true, element: <UserDashboardOverview /> },
+      { path: "bookings", element: <BookingsPage /> },
+      { path: "favorites", element: <FavoritesPage /> },
+      { path: "profile", element: <ProfilePage /> },
+      { path: "support", element: <SupportPage /> },
     ],
   },
 
-    {
-    path: "/admin",
+  {
+    path: "admin",
     element: <AdminLayout />,
     children: [
       { index: true, element: <AdminOverviewPage /> },
       { path: "analytics", element: <AdminAnalyticsPage /> },
-          { path: "bookings", element: <AdminBookingsPage /> },
-          { path: "properties", element: <AdminPropertiesPage /> },
-          { path: "users", element: <AdminUsersPage /> },
-          { path: "settings", element: <AdminSettingsPage /> },
+      { path: "bookings", element: <AdminBookingsPage /> },
+      { path: "properties", element: <AdminPropertiesPage /> },
+      { path: "users", element: <AdminUsersPage /> },
+      { path: "settings", element: <AdminSettingsPage /> },
     ],
   },
 
-  { path: "/property/:id/terms&conditions", element: <TermsConditions /> },
-  { path: "/property/:id/booking/confirm", element: <CompleteBookingPage /> },
+  { path: "property/:id/terms-and-conditions", element: <TermsConditions /> },
+  { path: "property/:id/booking/confirm", element: <CompleteBookingPage /> },
 
   {
-    element: (
-      <AuthProvider>
-        <AuthLayout />
-      </AuthProvider>
-    ),
+    path: "auth",
+    element: <AuthLayout />,
     children: [
-      { path: "/auth/signup", element: <Signup /> },
-      { path: "/auth/login", element: <Login /> },
+      { path: "signup", element: <Signup /> },
+      { path: "login", element: <Login /> },
     ],
   },
 ]);
+
 
 export default function App() {
   return (
