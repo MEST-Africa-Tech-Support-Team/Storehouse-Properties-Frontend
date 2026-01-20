@@ -141,11 +141,20 @@ const router = createBrowserRouter([
 ]);
 
 
+// export default function App() {
+//   return (
+//     <>
+//       <RouterProvider router={router} />
+//       <Toaster />
+//     </>
+//   );
+// }
+
 export default function App() {
   return (
-    <>
+    <AuthProvider>
       <RouterProvider router={router} />
       <Toaster />
-    </>
+    </AuthProvider>
   );
 }
