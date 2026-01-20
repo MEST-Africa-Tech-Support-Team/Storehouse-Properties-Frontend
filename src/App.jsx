@@ -1,5 +1,5 @@
 import React from "react";
-import { createBrowserRouter, RouterProvider } from "react-router";
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
 import RootLayout from "./components/layouts/RootLayout.jsx";
 import AuthLayout from "./components/layouts/AuthLayout.jsx";
@@ -18,7 +18,16 @@ import DashboardLayout from "./components/layouts/userDashboardLayout.jsx";
 import BookingsPage from "./pages/userDashboard/booking.jsx";
 import FavoritesPage from "./pages/userDashboard/favorites.jsx";
 import ProfilePage from "./pages/userDashboard/profile.jsx";
-import SupportPage from "./pages/userDashboard/support.jsx";
+import SupportPage from "./pages/userDashboard/support.jsx";      
+import AdminOverviewPage from "./pages/adminDashboard/overview.jsx";
+import AdminLayout from "./components/layouts/AdminLayout.jsx";
+import AdminAnalyticsPage from "./pages/adminDashboard/analytics.jsx";
+import AdminBookingsPage from "./pages/adminDashboard/bookings.jsx";
+import AdminPropertiesPage from "./pages/adminDashboard/properties.jsx";
+import AdminSettingsPage from "./pages/adminDashboard/settings.jsx";
+import AdminUsersPage from "./pages/adminDashboard/users.jsx";
+
+
 
 const router = createBrowserRouter([
   {
@@ -49,6 +58,19 @@ const router = createBrowserRouter([
       { path: "/dashboard/profile", element: <ProfilePage /> },
       { path: "/dashboard/support", element: <SupportPage /> },
 
+    ],
+  },
+
+    {
+    path: "/admin",
+    element: <AdminLayout />,
+    children: [
+      { index: true, element: <AdminOverviewPage /> },
+      { path: "analytics", element: <AdminAnalyticsPage /> },
+          { path: "bookings", element: <AdminBookingsPage /> },
+          { path: "properties", element: <AdminPropertiesPage /> },
+          { path: "users", element: <AdminUsersPage /> },
+          { path: "settings", element: <AdminSettingsPage /> },
     ],
   },
 
