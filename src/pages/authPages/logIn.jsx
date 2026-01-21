@@ -3,7 +3,7 @@ import { Eye, EyeOff } from "lucide-react";
 import { toast } from "react-hot-toast";
 import { FcGoogle } from "react-icons/fc";
 import { authService } from "../../services/authService.js";
-import { useNavigate } from "react-router";
+import { useNavigate, Link } from "react-router-dom";
 
 export default function Login() {
   const navigate = useNavigate();
@@ -27,35 +27,161 @@ export default function Login() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!form.email || !form.password) {
+    // Validation
+    if (!form.email.trim() || !form.password.trim()) {
       toast.error("Email and password are required");
       return;
     }
 
-    setLoading(true);
-    try {
-      const data = await authService.login({
-        email: form.email,
-        password: form.password,
-      });
+    // Email format validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(form.email.trim())) {
+      toast.error("Please enter a valid email address");
+      return;
+    }
 
-      // store token safely
-      if (data?.token) {
+    // Password length validation
+    if (form.password.length < 8) {
+      toast.error("Password must be at least 8 characters");
+      return;
+    }
+
+    setLoading(true);
+    
+    try {
+      // Show loading toast
+      const loadingToast = toast.loading("Signing you in...");
+      
+      // Prepare credentials
+      const credentials = {
+        email: form.email.trim(),
+        password: form.password,
+      };
+      
+      console.log("Attempting login with:", { email: credentials.email });
+      
+      // Call auth service
+      const result = await authService.login(credentials);
+      
+      // Store token and user data
+      if (result.token) {
         if (form.rememberMe) {
-          localStorage.setItem("authToken", data.token);
+          localStorage.setItem("authToken", result.token);
+          localStorage.setItem("rememberMe", "true");
+          
+          // Store user data if available
+          if (result.user) {
+            localStorage.setItem("user", JSON.stringify(result.user));
+          }
         } else {
-          sessionStorage.setItem("authToken", data.token);
+          sessionStorage.setItem("authToken", result.token);
+          sessionStorage.removeItem("rememberMe");
+          
+          // Store user data in session
+          if (result.user) {
+            sessionStorage.setItem("user", JSON.stringify(result.user));
+          }
+        }
+      } else {
+        // If no token in response, check if we have one from authService
+        const token = authService.getToken();
+        if (token) {
+          if (form.rememberMe) {
+            localStorage.setItem("authToken", token);
+          } else {
+            sessionStorage.setItem("authToken", token);
+          }
         }
       }
-
-      toast.success("Signed in successfully 🎉");
+      
+      // Update toast to success
+      toast.dismiss(loadingToast);
+      toast.success("Signed in successfully! 🎉", {
+        duration: 3000,
+        icon: '✅',
+        style: {
+          background: '#10b981',
+          color: '#fff',
+        }
+      });
+      
+      // Navigate to dashboard
+      console.log("Login successful, redirecting to /dashboard");
+      
+      // Clear form
+      setForm({
+        email: "",
+        password: "",
+        rememberMe: form.rememberMe, // Keep rememberMe preference
+      });
+      
+      // Navigate immediately to dashboard
       navigate("/dashboard");
+      
     } catch (error) {
-      toast.error(error.message || "Login failed");
+      console.error("Login error:", error);
+      
+      // Handle specific error cases
+      let errorMessage = error.message || "Login failed. Please try again.";
+      
+      if (errorMessage.toLowerCase().includes('invalid') || errorMessage.toLowerCase().includes('credentials')) {
+        errorMessage = "Invalid email or password. Please try again.";
+      } else if (errorMessage.toLowerCase().includes('verify') || errorMessage.toLowerCase().includes('not verified')) {
+        errorMessage = "Please verify your email before logging in. Check your inbox for the verification link.";
+      } else if (errorMessage.toLowerCase().includes('network')) {
+        errorMessage = "Network error. Please check your connection and try again.";
+      } else if (errorMessage.includes('429') || errorMessage.toLowerCase().includes('too many')) {
+        errorMessage = "Too many login attempts. Please try again in a few minutes.";
+      } else if (errorMessage.includes('404') || errorMessage.toLowerCase().includes('not found')) {
+        errorMessage = "Account not found. Please check your email or sign up.";
+      } else if (errorMessage.includes('401') || errorMessage.toLowerCase().includes('unauthorized')) {
+        errorMessage = "Invalid email or password. Please try again.";
+      }
+      
+      toast.error(errorMessage, {
+        duration: 5000,
+        style: {
+          background: '#ef4444',
+          color: '#fff',
+        }
+      });
+      
+      // Clear password field for security
+      setForm(prev => ({ ...prev, password: "" }));
     } finally {
       setLoading(false);
     }
   };
+
+  // Handle Enter key press
+  const handleKeyPress = (e) => {
+    if (e.key === 'Enter' && !loading) {
+      handleSubmit(e);
+    }
+  };
+
+  // Load remember me preference on component mount
+  useState(() => {
+    const rememberMe = localStorage.getItem("rememberMe") === "true";
+    const savedEmail = localStorage.getItem("savedEmail");
+    
+    if (rememberMe && savedEmail) {
+      setForm(prev => ({
+        ...prev,
+        email: savedEmail,
+        rememberMe: true
+      }));
+    }
+  }, []);
+
+  // Save email if remember me is checked
+  useState(() => {
+    if (form.rememberMe && form.email) {
+      localStorage.setItem("savedEmail", form.email);
+    } else if (!form.rememberMe) {
+      localStorage.removeItem("savedEmail");
+    }
+  }, [form.rememberMe, form.email]);
 
   return (
     <div className="min-h-screen w-full relative">
@@ -71,7 +197,7 @@ export default function Login() {
             Welcome Back To Storehouse
           </h2>
 
-          <form onSubmit={handleSubmit}>
+          <form onSubmit={handleSubmit} onKeyPress={handleKeyPress}>
             <div className="mb-4">
               <label
                 htmlFor="email"
@@ -87,7 +213,8 @@ export default function Login() {
                 onChange={handleChange}
                 disabled={loading}
                 placeholder="Enter your email"
-                className="w-full px-3 py-2 border border-gray-300 rounded-full focus:outline-none focus:ring-1 focus:ring-blue-500 text-sm text-gray-500 placeholder:text-gray-400"
+                className="w-full px-3 py-2 border border-gray-300 rounded-full focus:outline-none focus:ring-1 focus:ring-blue-500 text-sm text-gray-500 placeholder:text-gray-400 disabled:bg-gray-50 disabled:cursor-not-allowed transition-colors"
+                autoComplete="email"
               />
             </div>
 
@@ -106,15 +233,16 @@ export default function Login() {
                 onChange={handleChange}
                 disabled={loading}
                 placeholder="Enter your password"
-                className="w-full px-3 py-2 border border-gray-300 rounded-full focus:outline-none focus:ring-1 focus:ring-blue-500 text-sm text-gray-500 placeholder:text-gray-400"
+                className="w-full px-3 py-2 border border-gray-300 rounded-full focus:outline-none focus:ring-1 focus:ring-blue-500 text-sm text-gray-500 placeholder:text-gray-400 disabled:bg-gray-50 disabled:cursor-not-allowed transition-colors"
+                autoComplete="current-password"
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-8 text-gray-400"
+                className="absolute right-3 top-8 text-gray-400 hover:text-gray-600 transition-colors disabled:opacity-50"
                 disabled={loading}
               >
-                {showPassword ? <EyeOff size={14} /> : <Eye size={14} />}
+                {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
               </button>
             </div>
 
@@ -127,35 +255,60 @@ export default function Login() {
                   checked={form.rememberMe}
                   onChange={handleChange}
                   disabled={loading}
-                  className="w-4 h-4 text-blue-600 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500"
+                  className="w-4 h-4 text-blue-600 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
                 />
-                <label htmlFor="rememberMe" className="text-xs text-gray-500">
+                <label 
+                  htmlFor="rememberMe" 
+                  className={`text-xs ${loading ? 'text-gray-400' : 'text-gray-500'}`}
+                >
                   Remember me
                 </label>
               </div>
-              <a
-                href="/forgot-password"
-                className="text-xs text-blue-600 hover:underline"
+              <Link
+                to="/auth/forgot-password"
+                className={`text-xs hover:underline transition-colors ${
+                  loading ? 'text-gray-400 cursor-not-allowed' : 'text-blue-600 hover:text-blue-800'
+                }`}
               >
                 Forgot password?
-              </a>
+              </Link>
             </div>
 
             <button
               type="submit"
-              disabled={loading}
-              className={`w-full py-2 rounded-full font-medium text-sm transition mb-4 ${
-                loading
+              disabled={loading || !form.email.trim() || !form.password.trim()}
+              className={`w-full py-2.5 rounded-full font-medium text-sm transition-all duration-200 mb-4 ${
+                loading || !form.email.trim() || !form.password.trim()
                   ? "bg-blue-400 cursor-not-allowed"
-                  : "bg-blue-600 hover:bg-blue-700 text-white"
+                  : "bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white shadow-sm hover:shadow-md"
               }`}
             >
-              {loading ? "Signing in..." : "Sign in"}
+              {loading ? (
+                <span className="flex items-center justify-center gap-2">
+                  <svg className="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                  Signing in...
+                </span>
+              ) : (
+                'Sign in'
+              )}
             </button>
+
+            <div className="relative mb-4">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-gray-300"></div>
+              </div>
+              <div className="relative flex justify-center text-xs">
+                <span className="px-2 bg-white text-gray-500">Or continue with</span>
+              </div>
+            </div>
 
             <button
               type="button"
-              className="w-full flex items-center justify-center gap-2 py-2 border border-gray-300 rounded-full hover:bg-gray-50 transition text-sm"
+              disabled={loading}
+              className="w-full flex items-center justify-center gap-2 py-2.5 border border-gray-300 rounded-full hover:bg-gray-50 active:bg-gray-100 transition-colors text-sm disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <FcGoogle className="text-xl" />
               Sign in with Google
@@ -163,12 +316,21 @@ export default function Login() {
 
             <p className="text-center text-xs mt-5 text-gray-600">
               Don't have an account?{" "}
-              <a
-                href="/auth/signup"
-                className="text-blue-600 hover:underline font-medium"
+              <Link
+                to="/auth/signup"
+                className={`font-medium transition-colors ${
+                  loading ? 'text-blue-400 cursor-not-allowed' : 'text-blue-600 hover:text-blue-800 hover:underline'
+                }`}
               >
                 Sign up
-              </a>
+              </Link>
+            </p>
+
+            <p className="text-center text-xs mt-3 text-gray-500">
+              By signing in, you agree to our{" "}
+              <Link to="/terms" className="text-blue-600 hover:underline">Terms of Service</Link>{" "}
+              and{" "}
+              <Link to="/privacy" className="text-blue-600 hover:underline">Privacy Policy</Link>
             </p>
           </form>
         </div>
