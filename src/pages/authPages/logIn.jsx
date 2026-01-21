@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Eye, EyeOff } from "lucide-react";
 import { toast } from "react-hot-toast";
 import { FcGoogle } from "react-icons/fc";
@@ -13,175 +13,75 @@ export default function Login() {
   const [form, setForm] = useState({
     email: "",
     password: "",
-    rememberMe: false,
   });
 
+  useEffect(() => {
+    if (authService.isAuthenticated()) {
+      navigate("/dashboard", { replace: true });
+    }
+  }, [navigate]);
+
   const handleChange = (e) => {
-    const { name, value, type, checked } = e.target;
+    const { name, value } = e.target;
     setForm((prev) => ({
       ...prev,
-      [name]: type === "checkbox" ? checked : value,
+      [name]: value,
     }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Validation
     if (!form.email.trim() || !form.password.trim()) {
       toast.error("Email and password are required");
       return;
     }
 
-    // Email format validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(form.email.trim())) {
       toast.error("Please enter a valid email address");
       return;
     }
 
-    // Password length validation
-    if (form.password.length < 8) {
-      toast.error("Password must be at least 8 characters");
-      return;
-    }
-
     setLoading(true);
-    
     try {
-      // Show loading toast
-      const loadingToast = toast.loading("Signing you in...");
-      
-      // Prepare credentials
       const credentials = {
         email: form.email.trim(),
         password: form.password,
       };
-      
-      console.log("Attempting login with:", { email: credentials.email });
-      
-      // Call auth service
-      const result = await authService.login(credentials);
-      
-      // Store token and user data
-      if (result.token) {
-        if (form.rememberMe) {
-          localStorage.setItem("authToken", result.token);
-          localStorage.setItem("rememberMe", "true");
-          
-          // Store user data if available
-          if (result.user) {
-            localStorage.setItem("user", JSON.stringify(result.user));
-          }
-        } else {
-          sessionStorage.setItem("authToken", result.token);
-          sessionStorage.removeItem("rememberMe");
-          
-          // Store user data in session
-          if (result.user) {
-            sessionStorage.setItem("user", JSON.stringify(result.user));
-          }
-        }
-      } else {
-        // If no token in response, check if we have one from authService
-        const token = authService.getToken();
-        if (token) {
-          if (form.rememberMe) {
-            localStorage.setItem("authToken", token);
-          } else {
-            sessionStorage.setItem("authToken", token);
-          }
-        }
-      }
-      
-      // Update toast to success
-      toast.dismiss(loadingToast);
-      toast.success("Signed in successfully! 🎉", {
-        duration: 3000,
-        icon: '✅',
-        style: {
-          background: '#10b981',
-          color: '#fff',
-        }
-      });
-      
-      // Navigate to dashboard
-      console.log("Login successful, redirecting to /dashboard");
-      
-      // Clear form
-      setForm({
-        email: "",
-        password: "",
-        rememberMe: form.rememberMe, // Keep rememberMe preference
-      });
-      
-      // Navigate immediately to dashboard
+
+      await authService.login(credentials);
+
+      toast.success("Signed in successfully! 🎉");
       navigate("/dashboard");
-      
     } catch (error) {
-      console.error("Login error:", error);
-      
-      // Handle specific error cases
       let errorMessage = error.message || "Login failed. Please try again.";
-      
-      if (errorMessage.toLowerCase().includes('invalid') || errorMessage.toLowerCase().includes('credentials')) {
-        errorMessage = "Invalid email or password. Please try again.";
-      } else if (errorMessage.toLowerCase().includes('verify') || errorMessage.toLowerCase().includes('not verified')) {
+
+      if (
+        errorMessage.toLowerCase().includes("invalid") ||
+        errorMessage.toLowerCase().includes("credentials") ||
+        errorMessage.includes("401")
+      ) {
+        errorMessage = "Invalid email or password.";
+      } else if (
+        errorMessage.toLowerCase().includes("verify") ||
+        errorMessage.toLowerCase().includes("not verified")
+      ) {
         errorMessage = "Please verify your email before logging in. Check your inbox for the verification link.";
-      } else if (errorMessage.toLowerCase().includes('network')) {
-        errorMessage = "Network error. Please check your connection and try again.";
-      } else if (errorMessage.includes('429') || errorMessage.toLowerCase().includes('too many')) {
-        errorMessage = "Too many login attempts. Please try again in a few minutes.";
-      } else if (errorMessage.includes('404') || errorMessage.toLowerCase().includes('not found')) {
+      } else if (errorMessage.includes("404")) {
         errorMessage = "Account not found. Please check your email or sign up.";
-      } else if (errorMessage.includes('401') || errorMessage.toLowerCase().includes('unauthorized')) {
-        errorMessage = "Invalid email or password. Please try again.";
+      } else if (errorMessage.includes("429")) {
+        errorMessage = "Too many login attempts. Please try again in a few minutes.";
+      } else if (errorMessage.toLowerCase().includes("network")) {
+        errorMessage = "Network error. Please check your connection and try again.";
       }
-      
-      toast.error(errorMessage, {
-        duration: 5000,
-        style: {
-          background: '#ef4444',
-          color: '#fff',
-        }
-      });
-      
-      // Clear password field for security
-      setForm(prev => ({ ...prev, password: "" }));
+
+      toast.error(errorMessage);
+      setForm((prev) => ({ ...prev, password: "" }));
     } finally {
       setLoading(false);
     }
   };
-
-  // Handle Enter key press
-  const handleKeyPress = (e) => {
-    if (e.key === 'Enter' && !loading) {
-      handleSubmit(e);
-    }
-  };
-
-  // Load remember me preference on component mount
-  useState(() => {
-    const rememberMe = localStorage.getItem("rememberMe") === "true";
-    const savedEmail = localStorage.getItem("savedEmail");
-    
-    if (rememberMe && savedEmail) {
-      setForm(prev => ({
-        ...prev,
-        email: savedEmail,
-        rememberMe: true
-      }));
-    }
-  }, []);
-
-  // Save email if remember me is checked
-  useState(() => {
-    if (form.rememberMe && form.email) {
-      localStorage.setItem("savedEmail", form.email);
-    } else if (!form.rememberMe) {
-      localStorage.removeItem("savedEmail");
-    }
-  }, [form.rememberMe, form.email]);
 
   return (
     <div className="min-h-screen w-full relative">
@@ -197,7 +97,7 @@ export default function Login() {
             Welcome Back To Storehouse
           </h2>
 
-          <form onSubmit={handleSubmit} onKeyPress={handleKeyPress}>
+          <form onSubmit={handleSubmit}>
             <div className="mb-4">
               <label
                 htmlFor="email"
@@ -247,23 +147,7 @@ export default function Login() {
             </div>
 
             <div className="flex items-center justify-between mb-6">
-              <div className="flex items-center gap-2">
-                <input
-                  id="rememberMe"
-                  name="rememberMe"
-                  type="checkbox"
-                  checked={form.rememberMe}
-                  onChange={handleChange}
-                  disabled={loading}
-                  className="w-4 h-4 text-blue-600 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
-                />
-                <label 
-                  htmlFor="rememberMe" 
-                  className={`text-xs ${loading ? 'text-gray-400' : 'text-gray-500'}`}
-                >
-                  Remember me
-                </label>
-              </div>
+              <div></div> 
               <Link
                 to="/auth/forgot-password"
                 className={`text-xs hover:underline transition-colors ${

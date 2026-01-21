@@ -1,11 +1,11 @@
-import React, { useState, useEffect, useMemo, useRef } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { 
-  FaChevronDown, FaPlus, FaMinus, FaSearch, 
-  FaHeart, FaSpinner, FaCheck 
+  FaChevronDown, FaPlus, FaMinus, FaHeart, FaSpinner, FaCheck 
 } from "react-icons/fa";
 
 import { Property, PropertyService } from "../lib/property";
 import PropertyCard from "../components/ui/propertyCard";
+import FavoritesFilterBar from "../components/userDashboard/favouritesFilterBar.jsx"; 
 
 const ExplorePage = () => {
   const [allProperties, setAllProperties] = useState([]);
@@ -13,12 +13,8 @@ const ExplorePage = () => {
   const [loading, setLoading] = useState(false);
   const [activeCategory, setActiveCategory] = useState("All");
 
-  const [searchLocation, setSearchLocation] = useState("");
-  const [tempSearch, setTempSearch] = useState(""); 
-  const [guests, setGuests] = useState(2);
-  const [childIncluded, setChildIncluded] = useState("Yes");
-  const [propertyType, setPropertyType] = useState("All Types");
-  const [sortBy, setSortBy] = useState("Popularity");
+  // State for filter values (managed by FavoritesFilterBar)
+  const [appliedFilters, setAppliedFilters] = useState({});
 
   useEffect(() => {
     const rawData = Array.from({ length: 80 }).map((_, i) => ({
@@ -35,22 +31,14 @@ const ExplorePage = () => {
     setAllProperties(rawData.map(item => new Property(item)));
   }, []);
 
-  const handleApply = () => {
-    setLoading(true);
-    setTimeout(() => {
-      setSearchLocation(tempSearch);
-      setPage(1); 
-      setLoading(false);
-    }, 600);
+  // Handle filters from FavoritesFilterBar
+  const handleApplyFilters = (filters) => {
+    setAppliedFilters(filters);
+    setPage(1); // Reset to first page on new search
   };
 
-  const handleReset = () => {
-    setTempSearch("");
-    setSearchLocation("");
-    setGuests(2);
-    setChildIncluded("Yes");
-    setPropertyType("All Types");
-    setSortBy("Popularity");
+  const handleResetFilters = () => {
+    setAppliedFilters({});
     setActiveCategory("All");
     setPage(1);
   };
@@ -63,18 +51,60 @@ const ExplorePage = () => {
     }, 800);
   };
 
+  // Apply filters from FavoritesFilterBar + category
   const filteredProperties = useMemo(() => {
     let result = allProperties.filter(prop => {
+      // Category filter
       const matchCategory = activeCategory === "All" || prop.category === activeCategory;
-      const matchLocation = prop.location.toLowerCase().includes(searchLocation.toLowerCase());
-      return matchCategory && matchLocation;
+      
+      // Location filter (from city param)
+      const matchLocation = !appliedFilters.city || 
+        prop.location.toLowerCase().includes(appliedFilters.city.toLowerCase());
+      
+      // Price filters
+      const matchMinPrice = !appliedFilters.minPrice || prop.price >= appliedFilters.minPrice;
+      const matchMaxPrice = !appliedFilters.maxPrice || prop.price <= appliedFilters.maxPrice;
+      
+      // Child policy
+      const matchChildren = appliedFilters.childrenAllowed === undefined || 
+        (prop.childrenAllowed === appliedFilters.childrenAllowed);
+      
+      // Pet policy
+      const matchPets = appliedFilters.petsAllowed === undefined || 
+        (prop.petsAllowed === appliedFilters.petsAllowed);
+      
+      // Property type
+      const matchType = !appliedFilters.propertyType || 
+        prop.type?.toLowerCase() === appliedFilters.propertyType.toLowerCase();
+      
+      // Title/keyword
+      const matchTitle = !appliedFilters.title || 
+        prop.title.toLowerCase().includes(appliedFilters.title.toLowerCase());
+      
+      // Featured only
+      const matchFeatured = !appliedFilters.featured || prop.featured === true;
+
+      return matchCategory && 
+             matchLocation && 
+             matchMinPrice && 
+             matchMaxPrice && 
+             matchChildren && 
+             matchPets && 
+             matchType && 
+             matchTitle && 
+             matchFeatured;
     });
 
-    if (sortBy === "Price: Low to High") result.sort((a, b) => a.price - b.price);
-    if (sortBy === "Price: High to Low") result.sort((a, b) => b.price - a.price);
-    
+    // Sorting
+    if (appliedFilters.sortBy === "Price: Low to High") {
+      result.sort((a, b) => a.price - b.price);
+    } else if (appliedFilters.sortBy === "Price: High to Low") {
+      result.sort((a, b) => b.price - a.price);
+    }
+    // Note: "Popularity" is default order
+
     return result;
-  }, [allProperties, activeCategory, searchLocation, sortBy]);
+  }, [allProperties, activeCategory, appliedFilters]);
 
   const visibleProperties = PropertyService.getPaginatedItems(filteredProperties, page);
 
@@ -95,72 +125,17 @@ const ExplorePage = () => {
         </div>
       </section>
 
+      {/* ✅ Replaced entire filter bar with FavoritesFilterBar */}
       <section className="px-16 -mt-10 relative z-30">
-        <div className="max-w-[1440px] mx-auto bg-white rounded-[20px] shadow-[0_15px_60px_-15px_rgba(0,0,0,0.12)] border border-gray-100 p-5 flex items-end gap-4">
-          
-          <div className="flex-[1.5] min-w-[180px]">
-            <label className="block text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-2 ml-1">Location</label>
-            <div className="relative">
-              <input 
-                type="text" 
-                value={tempSearch}
-                onChange={(e) => setTempSearch(e.target.value)}
-                placeholder="Where are you going?" 
-                className="w-full bg-gray-50 rounded-xl px-4 py-3 text-[13px] font-semibold focus:outline-none focus:ring-2 focus:ring-blue-100 transition-all" 
-              />
-              <FaSearch className="absolute right-4 top-3.5 text-gray-300 text-xs" />
-            </div>
-          </div>
-
-          <CustomDropdown 
-            label="Child Included" 
-            options={["Yes", "No"]} 
-            value={childIncluded} 
-            onChange={setChildIncluded} 
+        <div className="max-w-[1440px] mx-auto">
+          <FavoritesFilterBar 
+            onApply={handleApplyFilters} 
+            onReset={handleResetFilters} 
           />
-
-          <CustomDropdown 
-            label="Property Type" 
-            options={["All Types", "Apartments", "Houses", "Luxury Villas"]} 
-            value={propertyType} 
-            onChange={setPropertyType} 
-          />
-
-          <div className="min-w-[110px]">
-            <label className="block text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-2 ml-1">Guests</label>
-            <div className="flex items-center justify-between bg-gray-50 rounded-xl px-4 py-3 border border-transparent">
-              <button onClick={() => setGuests(Math.max(1, guests - 1))} className="text-gray-400 hover:text-blue-600"><FaMinus size={8}/></button>
-              <span className="font-bold text-[13px] text-[#0f172a]">{guests}</span>
-              <button onClick={() => setGuests(guests + 1)} className="text-gray-400 hover:text-blue-600"><FaPlus size={8}/></button>
-            </div>
-          </div>
-
-          <CustomDropdown 
-            label="Sort By" 
-            options={["Popularity", "Price: Low to High", "Price: High to Low"]} 
-            value={sortBy} 
-            onChange={setSortBy} 
-          />
-
-          <div className="flex items-center gap-2">
-            <button 
-              onClick={handleApply}
-              className="bg-blue-600 text-white h-[46px] px-8 rounded-xl font-bold text-[13px] hover:bg-blue-700 transition-all flex items-center justify-center min-w-[100px]"
-            >
-              {loading && searchLocation !== tempSearch ? <FaSpinner className="animate-spin" /> : "Apply"}
-            </button>
-            <button 
-              onClick={handleReset}
-              className="text-gray-400 font-bold text-[13px] h-[46px] px-4 hover:text-blue-600 transition-colors"
-            >
-              Reset
-            </button>
-          </div>
         </div>
       </section>
 
       <section className="max-w-[1440px] mx-auto px-16 pt-16 pb-20">
-        
         <div className="flex gap-3 mb-12 overflow-x-auto no-scrollbar">
           {["All", "Apartments", "Short Stays", "Family Homes", "Luxury"].map((cat) => (
             <button
@@ -213,47 +188,6 @@ const ExplorePage = () => {
           </p>
         </div>
       </section>
-    </div>
-  );
-};
-
-const CustomDropdown = ({ label, options, value, onChange }) => {
-  const [isOpen, setIsOpen] = useState(false);
-  const dropdownRef = useRef(null);
-
-  useEffect(() => {
-    const handleClickOutside = (e) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) setIsOpen(false);
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
-
-  return (
-    <div className="min-w-[140px] relative" ref={dropdownRef}>
-      <label className="block text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-2 ml-1">{label}</label>
-      <div 
-        onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center justify-between bg-gray-50 rounded-xl px-4 py-3 cursor-pointer hover:bg-gray-100 transition-colors border border-transparent select-none"
-      >
-        <span className="font-bold text-[13px] text-[#0f172a] truncate mr-2">{value}</span>
-        <FaChevronDown className={`text-[9px] text-gray-400 transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`} />
-      </div>
-
-      {isOpen && (
-        <div className="absolute z-50 w-full mt-2 bg-white border border-gray-100 shadow-xl rounded-xl py-2 overflow-hidden animate-slideDown">
-          {options.map((opt) => (
-            <div 
-              key={opt}
-              onClick={() => { onChange(opt); setIsOpen(false); }}
-              className="px-4 py-2 text-[13px] font-semibold text-gray-600 hover:bg-blue-50 hover:text-blue-600 cursor-pointer flex items-center justify-between"
-            >
-              {opt}
-              {value === opt && <FaCheck className="text-[10px]" />}
-            </div>
-          ))}
-        </div>
-      )}
     </div>
   );
 };
