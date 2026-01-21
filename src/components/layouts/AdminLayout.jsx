@@ -13,21 +13,34 @@ const AdminLayout = () => {
   }, []);
 
   // Configuration for each route's header content
-  const getHeaderContent = () => {
-    const path = location.pathname;
+ const getHeaderContent = () => {
+  const path = location.pathname;
 
-    if (path.includes("properties")) {
-      return {
-        title: "Properties",
-        subtitle: "Manage, review, and organize all property listings",
-        action: (
-          <button className="flex items-center gap-2 bg-[#1E5EFF] px-4 py-2 rounded-lg text-white hover:bg-blue-700 transition-all shadow-md font-semibold text-sm">
-            <RiAddCircleLine className="text-lg" />
-            Add New Property
-          </button>
-        ),
-      };
-    }
+  // 1. Specific "Add Property" Header
+  if (path.includes("properties/add")) {
+    return {
+      title: "Add New Property",
+      subtitle: "List a new property by filling out the information below",
+      action: null, // No button needed here
+    };
+  }
+
+  // 2. Standard Properties List Header
+  if (path.includes("properties")) {
+    return {
+      title: "Properties",
+      subtitle: "Manage, review, and organize all property listings",
+      action: (
+        <Link 
+          to="/admin/properties/add" 
+          className="flex items-center gap-2 bg-[#1E5EFF] px-4 py-2 rounded-lg text-white hover:bg-blue-700 transition-all shadow-md font-semibold text-sm"
+        >
+          <RiAddCircleLine className="text-lg" />
+          Add New Property
+        </Link>
+      ),
+    };
+  }
 
     if (path.includes("bookings")) {
       return {
