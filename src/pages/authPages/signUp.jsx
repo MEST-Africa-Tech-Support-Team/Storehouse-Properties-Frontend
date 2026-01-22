@@ -1,3 +1,4 @@
+// src/pages/auth/Signup.jsx
 import { useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
 import { toast } from "react-hot-toast";
@@ -28,6 +29,7 @@ export default function Signup() {
 
   const passwordRules = {
     length: form.password.length >= 8,
+    lowercase: /[a-z]/.test(form.password),
     uppercase: /[A-Z]/.test(form.password),
     number: /[0-9]/.test(form.password),
     special: /[^A-Za-z0-9]/.test(form.password),
@@ -72,31 +74,36 @@ export default function Signup() {
       return;
     }
 
-    if (!Object.values(passwordRules).every(Boolean)) {
+    const pwd = form.password;
+    const rulesMet = {
+      length: pwd.length >= 8,
+      lowercase: /[a-z]/.test(pwd),
+      uppercase: /[A-Z]/.test(pwd),
+      number: /[0-9]/.test(pwd),
+      special: /[^A-Za-z0-9]/.test(pwd),
+    };
+
+    if (!Object.values(rulesMet).every(Boolean)) {
       toast.error("Password does not meet requirements");
       return;
     }
 
-    const signupData = new FormData();
-    signupData.append("firstName", form.firstName);
-    signupData.append("lastName", form.lastName);
-    signupData.append("email", form.email);
-    signupData.append("phone", form.phone);
-    signupData.append("country", form.country);
-    signupData.append("state", form.state);
-    signupData.append("password", form.password);
-    signupData.append("confirmPassword", form.confirmPassword);
+    const userData = {
+      firstName: form.firstName,
+      lastName: form.lastName,
+      email: form.email,
+      phone: form.phone,
+      password: form.password,
+      confirmPassword: form.confirmPassword,
+    };
 
     setLoading(true);
     try {
-      await authService.signup(signupData);
-
-      toast.success(
-        "Account created successfully. Please check your email to verify."
-      );
-      navigate("/auth/login");
+      await authService.signup(userData);
+      toast.success("Registration successful! Please check your email to verify your account.");
+     
     } catch (error) {
-      toast.error(error.message || "Signup failed");
+      toast.error(error.message || "Signup failed. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -226,6 +233,7 @@ export default function Signup() {
           {showPasswordRules && (
             <div className="mb-3 p-2 bg-gray-50 rounded-lg text-[10px]">
               <div>{passwordRules.length ? "✓" : "✗"} 8 characters</div>
+              <div>{passwordRules.lowercase ? "✓" : "✗"} Lowercase</div>
               <div>{passwordRules.uppercase ? "✓" : "✗"} Uppercase</div>
               <div>{passwordRules.number ? "✓" : "✗"} Number</div>
               <div>{passwordRules.special ? "✓" : "✗"} Special</div>
