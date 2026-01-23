@@ -1,4 +1,5 @@
-import { createContext, useContext, useState, useEffect, useCallback } from 'react';
+// src/context/AuthContext.js
+import { createContext, useContext, useState, useEffect } from 'react';
 import { authService } from '../services/authService.js';
 
 const AuthContext = createContext();
@@ -9,7 +10,6 @@ export const useAuth = () => {
   return context;
 };
 
-// Compute initials safely
 const getInitials = (user) => {
   if (!user) return 'U';
   const first = user.firstName?.charAt(0) || user.email?.charAt(0) || 'U';
@@ -20,43 +20,47 @@ const getInitials = (user) => {
 export const AuthProvider = ({ children }) => {
   const [currentUser, setCurrentUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [authVersion, setAuthVersion] = useState(0); // ✅ Track auth changes
 
-  // Initialize from localStorage
-  useEffect(() => {
-    const init = () => {
+  const initializeAuth = () => {
+    try {
       const token = authService.getToken();
       const storedUser = localStorage.getItem('user');
+      
       if (token && storedUser) {
         const user = JSON.parse(storedUser);
         setCurrentUser({ ...user, initials: getInitials(user) });
+      } else {
+        authService.logout();
+        setCurrentUser(null);
       }
-      setLoading(false);
-    };
-    init();
-  }, []);
-
-  const login = useCallback(async (credentials) => {
-    setLoading(true);
-    try {
-      const result = await authService.login(credentials); // returns { user, token }
-      const user = result.user;
-      const userWithInitials = { ...user, initials: getInitials(user) };
-      setCurrentUser(userWithInitials);
-      localStorage.setItem('user', JSON.stringify(user));
-      return { user: userWithInitials };
+    } catch (error) {
+      console.error('Auth init error:', error);
+      authService.logout();
+      setCurrentUser(null);
     } finally {
       setLoading(false);
     }
-  }, []);
+  };
 
-  const logout = useCallback(() => {
+  // ✅ Re-initialize when authVersion changes
+  useEffect(() => {
+    initializeAuth();
+  }, [authVersion]);
+
+  const logout = () => {
     authService.logout();
     setCurrentUser(null);
-    localStorage.removeItem('user');
-  }, []);
+    setAuthVersion(prev => prev + 1); // ✅ Force re-initialization
+  };
+
+  // ✅ Expose refresh function
+  const refreshAuth = () => {
+    setAuthVersion(prev => prev + 1);
+  };
 
   return (
-    <AuthContext.Provider value={{ currentUser, setCurrentUser, login, logout, loading, setLoading }}>
+    <AuthContext.Provider value={{ currentUser, logout, loading, refreshAuth }}>
       {children}
     </AuthContext.Provider>
   );

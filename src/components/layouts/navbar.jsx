@@ -4,6 +4,14 @@ import { useAuth } from '../../context/AuthContext';
 import { Avatar } from '@/components/ui/avatar';
 import { MdHome, MdDashboard, MdSettings, MdLogout } from 'react-icons/md';
 
+// ✅ Compute initials safely
+const getInitials = (user) => {
+  if (!user) return 'U';
+  const first = user.firstName?.charAt(0) || user.email?.charAt(0) || 'U';
+  const last = user.lastName?.charAt(0) || user.email?.charAt(1) || 'U';
+  return (first + last).toUpperCase();
+};
+
 export default function Header() {
   const { currentUser, logout, loading } = useAuth();
   const location = useLocation();
@@ -44,12 +52,13 @@ export default function Header() {
   // Wait for AuthContext loading
   if (loading) return null;
 
-  // Show displayName and initials from currentUser
-  const displayName = currentUser
+  // ✅ Safe display name with fallbacks
+  const displayName = currentUser?.firstName && currentUser?.lastName
     ? `${currentUser.firstName} ${currentUser.lastName}`
-    : null;
+    : currentUser?.email?.split('@')[0] || 'User';
 
-  const initials = currentUser?.initials || '';
+  // ✅ Compute initials on-the-fly (don't rely on stored initials)
+  const initials = getInitials(currentUser);
 
   return (
     <header className="bg-white border-b border-gray-200 shadow-sm">
@@ -80,7 +89,12 @@ export default function Header() {
                 onClick={() => setDropdownOpen(!dropdownOpen)}
                 className="flex items-center gap-2 focus:outline-none"
               >
-                <Avatar name={displayName} src={currentUser.profilePhoto || null} fallback={initials} size="md" />
+                <Avatar 
+                  name={displayName} 
+                  src={null} 
+                  fallback={initials} 
+                  size="md" 
+                />
                 <span className="hidden md:inline text-gray-900 text-sm font-medium">
                   {displayName}
                 </span>

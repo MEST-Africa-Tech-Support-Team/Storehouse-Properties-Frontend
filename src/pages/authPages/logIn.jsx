@@ -5,10 +5,11 @@ import { toast } from "react-hot-toast";
 import { FcGoogle } from "react-icons/fc";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
+import { authService } from "../../services/authService";
 
 export default function Login() {
   const navigate = useNavigate();
-  const { currentUser, login, setCurrentUser } = useAuth();
+  const { currentUser, refreshAuth } = useAuth(); // ✅ Added refreshAuth
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
 
@@ -42,27 +43,16 @@ export default function Login() {
 
     setLoading(true);
     try {
-      // Login using AuthContext
-      const result = await login({
+      // ✅ Use authService directly
+      const result = await authService.login({
         email: form.email.trim(),
         password: form.password,
       });
 
-      // Backend should return full user object
-      const user = result.user;
-
-      // Compute initials
-      const initials =
-        (user.firstName?.charAt(0) || user.email?.charAt(0) || "U") +
-        (user.lastName?.charAt(0) || user.email?.charAt(1) || "U");
-
-      const userWithInitials = { ...user, initials: initials.toUpperCase() };
-
-      // Update context and localStorage
-      setCurrentUser(userWithInitials);
-      localStorage.setItem("user", JSON.stringify(userWithInitials));
-
-      toast.success(`Welcome back, ${user.firstName || "User"}! 🎉`);
+      // ✅ Refresh auth context to update all components immediately
+      refreshAuth();
+      
+      toast.success(`Welcome back, ${result.user.firstName || "User"}! 🎉`);
       navigate("/dashboard");
     } catch (error) {
       let msg = error.message || "Login failed. Please try again.";

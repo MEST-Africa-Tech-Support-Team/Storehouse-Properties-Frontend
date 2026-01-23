@@ -83,67 +83,76 @@ export const authService = {
     }
   },
 
-  login: async ({ email, password }) => {
-    try {
-      const loginRes = await fetch(`${API_BASE_URL}/users/login`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
-      });
+ login: async ({ email, password }) => {
+  try {
+    // Step 1: Login to get token
+    const loginRes = await fetch(`${API_BASE_URL}/users/login`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password }),
+    });
 
-      const contentType = loginRes.headers.get("content-type");
-      if (!contentType || !contentType.includes("application/json")) {
-        throw new Error("Invalid server response during login");
-      }
-
-      const loginData = await loginRes.json();
-
-      if (!loginRes.ok) {
-        const message = loginData.message || loginData.error || `Login failed (${loginRes.status})`;
-        if (message.toLowerCase().includes("invalid")) {
-          throw new Error("Invalid email or password.");
-        }
-        if (message.toLowerCase().includes("verify")) {
-          throw new Error("Please verify your email before logging in.");
-        }
-        throw new Error(message);
-      }
-
-      if (!loginData.token) {
-        throw new Error("No authentication token received from server");
-      }
-
-      // Save token immediately
-      localStorage.setItem("authToken", loginData.token);
-
-      // Fetch full user profile
-      const profileRes = await fetch(`${API_BASE_URL}/users/me`, {
-        headers: {
-          Authorization: `Bearer ${loginData.token}`,
-          "Content-Type": "application/json"
-        }
-      });
-
-      if (!profileRes.ok) throw new Error("Failed to load user profile");
-
-      const userProfile = await profileRes.json();
-
-      localStorage.setItem("user", JSON.stringify(userProfile));
-
-      return { success: true, token: loginData.token, user: userProfile };
-    } catch (error) {
-      localStorage.removeItem("authToken");
-      localStorage.removeItem("user");
-
-      if (error instanceof SyntaxError && error.message.includes("JSON")) {
-        throw new Error("Unexpected server response. Please try again.");
-      }
-      if (error.message.toLowerCase().includes("network")) {
-        throw new Error("Network error. Please check your connection and try again.");
-      }
-      throw error;
+    let loginData;
+    const contentType = loginRes.headers.get("content-type");
+    if (contentType && contentType.includes("application/json")) {
+      loginData = await loginRes.json();
+    } else {
+      throw new Error("Invalid server response during login");
     }
-  },
+
+    if (!loginRes.ok) {
+      const message = loginData.message || loginData.error || `Login failed (${loginRes.status})`;
+      if (message.toLowerCase().includes("invalid")) {
+        throw new Error("Invalid email or password.");
+      }
+      if (message.toLowerCase().includes("verify")) {
+        throw new Error("Please verify your email before logging in.");
+      }
+      throw new Error(message);
+    }
+
+    if (!loginData.token) {
+      throw new Error("No authentication token received from server");
+    }
+
+    // Step 2: Save token immediately
+    localStorage.setItem("authToken", loginData.token);
+
+    // Step 3: ✅ FETCH FULL PROFILE FROM /users/me
+    const profileRes = await fetch(`${API_BASE_URL}/users/me`, {
+      headers: { 
+        Authorization: `Bearer ${loginData.token}`,
+        "Content-Type": "application/json"
+      }
+    });
+
+    if (!profileRes.ok) {
+      throw new Error("Failed to load user profile");
+    }
+
+    const fullProfile = await profileRes.json();
+
+    // Step 4: ✅ SAVE FULL PROFILE (not login response user)
+    localStorage.setItem("user", JSON.stringify(fullProfile.user));
+
+    return { 
+      success: true, 
+      token: loginData.token, 
+      user: fullProfile.user 
+    };
+  } catch (error) {
+    localStorage.removeItem("authToken");
+    localStorage.removeItem("user");
+    
+    if (error instanceof SyntaxError && error.message.includes("JSON")) {
+      throw new Error("Unexpected server response. Please try again.");
+    }
+    if (error.message.toLowerCase().includes("network")) {
+      throw new Error("Network error. Please check your connection and try again.");
+    }
+    throw error;
+  }
+},
 
   logout: () => {
     localStorage.removeItem("authToken");
