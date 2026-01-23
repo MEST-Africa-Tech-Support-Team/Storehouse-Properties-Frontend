@@ -1,74 +1,67 @@
-import { createContext, useContext, useState, useEffect, useCallback } from 'react';
-import { useNavigate } from 'react-router'; 
+// src/context/AuthContext.js
+import { createContext, useContext, useState, useEffect } from 'react';
+import { authService } from '../services/authService.js';
 
 const AuthContext = createContext();
 
 export const useAuth = () => {
   const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
+  if (!context) throw new Error('useAuth must be used within AuthProvider');
   return context;
 };
 
-const getInitials = (name) => {
-  if (!name) return '?';
-  return name
-    .split(' ')
-    .map(part => part[0]?.toUpperCase())
-    .join('')
-    .substring(0, 2) || '?';
+const getInitials = (user) => {
+  if (!user) return 'U';
+  const first = user.firstName?.charAt(0) || user.email?.charAt(0) || 'U';
+  const last = user.lastName?.charAt(0) || user.email?.charAt(1) || 'U';
+  return (first + last).toUpperCase();
 };
 
 export const AuthProvider = ({ children }) => {
   const [currentUser, setCurrentUser] = useState(null);
   const [loading, setLoading] = useState(true);
-  const navigate = useNavigate();
+  const [authVersion, setAuthVersion] = useState(0); // ✅ Track auth changes
 
-  useEffect(() => {
-    const storedUser = localStorage.getItem('storehouse_user');
-    if (storedUser) {
-      try {
+  const initializeAuth = () => {
+    try {
+      const token = authService.getToken();
+      const storedUser = localStorage.getItem('user');
+      
+      if (token && storedUser) {
         const user = JSON.parse(storedUser);
-        user.initials = getInitials(user.name);
-        setCurrentUser(user);
-      } catch (e) {
-        console.warn('Invalid user data in localStorage. Clearing.');
-        localStorage.removeItem('storehouse_user');
+        setCurrentUser({ ...user, initials: getInitials(user) });
+      } else {
+        authService.logout();
+        setCurrentUser(null);
       }
+    } catch (error) {
+      console.error('Auth init error:', error);
+      authService.logout();
+      setCurrentUser(null);
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
-  }, []);
+  };
 
-  const login = useCallback((email, name, avatar = null) => {
-    const user = {
-      id: Date.now().toString(), 
-      email,
-      name,
-      avatar,
-      initials: getInitials(name),
-      role: 'user',
-    };
-    setCurrentUser(user);
-    localStorage.setItem('storehouse_user', JSON.stringify(user));
-  }, []);
+  // ✅ Re-initialize when authVersion changes
+  useEffect(() => {
+    initializeAuth();
+  }, [authVersion]);
 
-  const logout = useCallback(() => {
+  const logout = () => {
+    authService.logout();
     setCurrentUser(null);
-    localStorage.removeItem('storehouse_user');
-    navigate('/'); 
-  }, [navigate]);
+    setAuthVersion(prev => prev + 1); // ✅ Force re-initialization
+  };
 
-  const value = {
-    currentUser,
-    login,
-    logout,
-    loading,
+  // ✅ Expose refresh function
+  const refreshAuth = () => {
+    setAuthVersion(prev => prev + 1);
   };
 
   return (
-    <AuthContext.Provider value={value}>
-      {!loading && children}
+    <AuthContext.Provider value={{ currentUser, logout, loading, refreshAuth }}>
+      {children}
     </AuthContext.Provider>
   );
 };

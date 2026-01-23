@@ -1,32 +1,30 @@
+// src/pages/auth/Login.jsx
 import { useState, useEffect } from "react";
 import { Eye, EyeOff } from "lucide-react";
 import { toast } from "react-hot-toast";
 import { FcGoogle } from "react-icons/fc";
-import { authService } from "../../services/authService.js";
 import { useNavigate, Link } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext";
+import { authService } from "../../services/authService";
 
 export default function Login() {
   const navigate = useNavigate();
+  const { currentUser, refreshAuth } = useAuth(); // ✅ Added refreshAuth
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  const [form, setForm] = useState({
-    email: "",
-    password: "",
-  });
+  const [form, setForm] = useState({ email: "", password: "" });
 
+  // Redirect if already logged in
   useEffect(() => {
-    if (authService.isAuthenticated()) {
+    if (currentUser) {
       navigate("/dashboard", { replace: true });
     }
-  }, [navigate]);
+  }, [currentUser, navigate]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setForm((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+    setForm((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = async (e) => {
@@ -45,38 +43,33 @@ export default function Login() {
 
     setLoading(true);
     try {
-      const credentials = {
+      // ✅ Use authService directly
+      const result = await authService.login({
         email: form.email.trim(),
         password: form.password,
-      };
+      });
 
-      await authService.login(credentials);
-
-      toast.success("Signed in successfully! 🎉");
+      // ✅ Refresh auth context to update all components immediately
+      refreshAuth();
+      
+      toast.success(`Welcome back, ${result.user.firstName || "User"}! 🎉`);
       navigate("/dashboard");
     } catch (error) {
-      let errorMessage = error.message || "Login failed. Please try again.";
-
-      if (
-        errorMessage.toLowerCase().includes("invalid") ||
-        errorMessage.toLowerCase().includes("credentials") ||
-        errorMessage.includes("401")
-      ) {
-        errorMessage = "Invalid email or password.";
-      } else if (
-        errorMessage.toLowerCase().includes("verify") ||
-        errorMessage.toLowerCase().includes("not verified")
-      ) {
-        errorMessage = "Please verify your email before logging in. Check your inbox for the verification link.";
-      } else if (errorMessage.includes("404")) {
-        errorMessage = "Account not found. Please check your email or sign up.";
-      } else if (errorMessage.includes("429")) {
-        errorMessage = "Too many login attempts. Please try again in a few minutes.";
-      } else if (errorMessage.toLowerCase().includes("network")) {
-        errorMessage = "Network error. Please check your connection and try again.";
+      let msg = error.message || "Login failed. Please try again.";
+      if (msg.toLowerCase().includes("invalid") || msg.includes("401")) {
+        msg = "Invalid email or password.";
+      } else if (msg.toLowerCase().includes("verify")) {
+        msg =
+          "Please verify your email before logging in. Check your inbox for the verification link.";
+      } else if (msg.includes("404")) {
+        msg = "Account not found. Please check your email or sign up.";
+      } else if (msg.includes("429")) {
+        msg = "Too many login attempts. Please try again in a few minutes.";
+      } else if (msg.toLowerCase().includes("network")) {
+        msg = "Network error. Please check your connection and try again.";
       }
 
-      toast.error(errorMessage);
+      toast.error(msg);
       setForm((prev) => ({ ...prev, password: "" }));
     } finally {
       setLoading(false);
@@ -98,6 +91,7 @@ export default function Login() {
           </h2>
 
           <form onSubmit={handleSubmit}>
+            {/* Email */}
             <div className="mb-4">
               <label
                 htmlFor="email"
@@ -113,11 +107,12 @@ export default function Login() {
                 onChange={handleChange}
                 disabled={loading}
                 placeholder="Enter your email"
-                className="w-full px-3 py-2 border border-gray-300 rounded-full focus:outline-none focus:ring-1 focus:ring-blue-500 text-sm text-gray-500 placeholder:text-gray-400 disabled:bg-gray-50 disabled:cursor-not-allowed transition-colors"
+                className="w-full px-3 py-2 border border-gray-300 rounded-full text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 disabled:bg-gray-50 disabled:cursor-not-allowed transition-colors"
                 autoComplete="email"
               />
             </div>
 
+            {/* Password */}
             <div className="relative mb-4">
               <label
                 htmlFor="password"
@@ -133,7 +128,7 @@ export default function Login() {
                 onChange={handleChange}
                 disabled={loading}
                 placeholder="Enter your password"
-                className="w-full px-3 py-2 border border-gray-300 rounded-full focus:outline-none focus:ring-1 focus:ring-blue-500 text-sm text-gray-500 placeholder:text-gray-400 disabled:bg-gray-50 disabled:cursor-not-allowed transition-colors"
+                className="w-full px-3 py-2 border border-gray-300 rounded-full text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 disabled:bg-gray-50 disabled:cursor-not-allowed transition-colors"
                 autoComplete="current-password"
               />
               <button
@@ -146,18 +141,22 @@ export default function Login() {
               </button>
             </div>
 
+            {/* Forgot password */}
             <div className="flex items-center justify-between mb-6">
-              <div></div> 
+              <div></div>
               <Link
                 to="/auth/forgot-password"
                 className={`text-xs hover:underline transition-colors ${
-                  loading ? 'text-gray-400 cursor-not-allowed' : 'text-blue-600 hover:text-blue-800'
+                  loading
+                    ? "text-gray-400 cursor-not-allowed"
+                    : "text-blue-600 hover:text-blue-800"
                 }`}
               >
                 Forgot password?
               </Link>
             </div>
 
+            {/* Submit */}
             <button
               type="submit"
               disabled={loading || !form.email.trim() || !form.password.trim()}
@@ -167,19 +166,10 @@ export default function Login() {
                   : "bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white shadow-sm hover:shadow-md"
               }`}
             >
-              {loading ? (
-                <span className="flex items-center justify-center gap-2">
-                  <svg className="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
-                  Signing in...
-                </span>
-              ) : (
-                'Sign in'
-              )}
+              {loading ? "Signing in..." : "Sign in"}
             </button>
 
+            {/* Social login */}
             <div className="relative mb-4">
               <div className="absolute inset-0 flex items-center">
                 <div className="w-full border-t border-gray-300"></div>
@@ -198,12 +188,15 @@ export default function Login() {
               Sign in with Google
             </button>
 
+            {/* Sign up link */}
             <p className="text-center text-xs mt-5 text-gray-600">
               Don't have an account?{" "}
               <Link
                 to="/auth/signup"
                 className={`font-medium transition-colors ${
-                  loading ? 'text-blue-400 cursor-not-allowed' : 'text-blue-600 hover:text-blue-800 hover:underline'
+                  loading
+                    ? "text-blue-400 cursor-not-allowed"
+                    : "text-blue-600 hover:text-blue-800 hover:underline"
                 }`}
               >
                 Sign up
@@ -212,9 +205,13 @@ export default function Login() {
 
             <p className="text-center text-xs mt-3 text-gray-500">
               By signing in, you agree to our{" "}
-              <Link to="/terms" className="text-blue-600 hover:underline">Terms of Service</Link>{" "}
+              <Link to="/terms" className="text-blue-600 hover:underline">
+                Terms of Service
+              </Link>{" "}
               and{" "}
-              <Link to="/privacy" className="text-blue-600 hover:underline">Privacy Policy</Link>
+              <Link to="/privacy" className="text-blue-600 hover:underline">
+                Privacy Policy
+              </Link>
             </p>
           </form>
         </div>

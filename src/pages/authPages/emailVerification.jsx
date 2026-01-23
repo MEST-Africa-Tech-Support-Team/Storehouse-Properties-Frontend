@@ -10,11 +10,11 @@ export default function EmailVerification() {
   const [verifying, setVerifying] = useState(true);
   const [verified, setVerified] = useState(false);
   const [error, setError] = useState('');
+  const [showConfetti, setShowConfetti] = useState(false);
 
   useEffect(() => {
     const verifyEmail = async () => {
       const token = searchParams.get('token');
-      
       if (!token) {
         setError('Invalid verification link');
         setVerifying(false);
@@ -26,8 +26,9 @@ export default function EmailVerification() {
         await authService.verifyEmail(token);
         setVerified(true);
         toast.success('Email verified successfully!');
-      } catch (error) {
-        setError(error.message || 'Verification failed');
+        setShowConfetti(true);
+      } catch (err) {
+        setError(err.message || 'Verification failed');
         toast.error('Email verification failed. Please try again.');
       } finally {
         setVerifying(false);
@@ -38,14 +39,29 @@ export default function EmailVerification() {
   }, [searchParams]);
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4 py-8">
-      <div className="relative max-w-md w-full">
-        {/* Success Ribbon */}
+    <div className="min-h-screen flex items-center justify-center px-4 py-8 relative overflow-hidden">
+      
+      {showConfetti && (
+        <div className="absolute inset-0 pointer-events-none z-20">
+          {[...Array(30)].map((_, i) => (
+            <div
+              key={i}
+              className={`absolute w-2 h-6 bg-red-500 rounded animate-fall`}
+              style={{
+                left: `${Math.random() * 100}%`,
+                animationDelay: `${Math.random() * 2}s`,
+                backgroundColor: `hsl(${Math.random() * 360}, 70%, 60%)`,
+              }}
+            />
+          ))}
+        </div>
+      )}
+
+      <div className="relative max-w-md w-full z-10">
         {verified && (
           <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 z-10">
             <div className="bg-green-500 text-white text-xs font-bold px-4 py-1 rounded-full shadow-md flex items-center gap-1">
-              <CheckCircle size={14} />
-              Verified
+              <CheckCircle size={14} /> Verified
             </div>
           </div>
         )}
@@ -54,14 +70,12 @@ export default function EmailVerification() {
         {!verifying && !verified && error && (
           <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 z-10">
             <div className="bg-red-500 text-white text-xs font-bold px-4 py-1 rounded-full shadow-md flex items-center gap-1">
-              <XCircle size={14} />
-              Failed
+              <XCircle size={14} /> Failed
             </div>
           </div>
         )}
 
         <div className="bg-white rounded-3xl p-8 shadow-xl border border-gray-100 text-center relative overflow-hidden">
-          {/* Decorative accent */}
           <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 to-indigo-600"></div>
 
           {verifying ? (
@@ -72,7 +86,9 @@ export default function EmailVerification() {
                   <RotateCw className="h-8 w-8 text-blue-600 animate-pulse" />
                 </div>
               </div>
-              <h2 className="text-xl font-semibold text-gray-800 mb-2">Verifying Your Email</h2>
+              <h2 className="text-xl font-semibold text-gray-800 mb-2">
+                Verifying Your Email
+              </h2>
               <p className="text-gray-600 text-sm">
                 Almost there! We’re confirming your email address.
               </p>
@@ -116,6 +132,19 @@ export default function EmailVerification() {
         <div className="absolute -bottom-6 -right-6 w-24 h-24 rounded-full bg-blue-100 opacity-30 blur-xl"></div>
         <div className="absolute -top-6 -left-6 w-20 h-20 rounded-full bg-indigo-100 opacity-30 blur-xl"></div>
       </div>
+
+      {/* Tailwind animation for confetti */}
+      <style>
+        {`
+          @keyframes fall {
+            0% { transform: translateY(0) rotate(0deg); }
+            100% { transform: translateY(500px) rotate(360deg); }
+          }
+          .animate-fall {
+            animation: fall 3s linear forwards;
+          }
+        `}
+      </style>
     </div>
   );
 }
