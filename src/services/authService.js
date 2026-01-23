@@ -17,7 +17,7 @@ export const authService = {
         body: formData,
       });
 
-      if (response.status === 204 || response.ok) {
+      if (response.ok) {
         return {
           success: true,
           message: "Registration successful. Please check your email for verification.",
@@ -50,12 +50,10 @@ export const authService = {
     try {
       const response = await fetch(
         `${API_BASE_URL}/users/verify-email?token=${encodeURIComponent(token.trim())}`,
-        {
-          method: "GET",
-        }
+        { method: "GET" }
       );
 
-      if (response.status === 204 || response.ok) {
+      if (response.ok) {
         return { success: true, message: "Email verified successfully." };
       }
 
@@ -72,10 +70,7 @@ export const authService = {
         }
       } catch {}
 
-      if (
-        errorMessage.toLowerCase().includes("invalid") ||
-        errorMessage.toLowerCase().includes("expired")
-      ) {
+      if (errorMessage.toLowerCase().includes("invalid") || errorMessage.toLowerCase().includes("expired")) {
         throw new Error("Verification link is invalid or expired.");
       }
 
@@ -90,22 +85,21 @@ export const authService = {
 
   login: async ({ email, password }) => {
     try {
-      const response = await fetch(`${API_BASE_URL}/users/login`, {
+      const loginRes = await fetch(`${API_BASE_URL}/users/login`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
       });
 
-      const data = await response.json();
+      const contentType = loginRes.headers.get("content-type");
+      if (!contentType || !contentType.includes("application/json")) {
+        throw new Error("Invalid server response during login");
+      }
 
-      if (!response.ok) {
-        const message =
-          data.message ||
-          data.error ||
-          `Login failed (${response.status})`;
+      const loginData = await loginRes.json();
 
+      if (!loginRes.ok) {
+        const message = loginData.message || loginData.error || `Login failed (${loginRes.status})`;
         if (message.toLowerCase().includes("invalid")) {
           throw new Error("Invalid email or password.");
         }
@@ -115,28 +109,44 @@ export const authService = {
         throw new Error(message);
       }
 
-      // Save token and user if provided
-      if (data.token) {
-        localStorage.setItem("token", data.token);
-      }
-      if (data.user) {
-        localStorage.setItem("user", JSON.stringify(data.user));
+      if (!loginData.token) {
+        throw new Error("No authentication token received from server");
       }
 
-      return { success: true, ...data };
+      // Save token immediately
+      localStorage.setItem("authToken", loginData.token);
+
+      // Fetch full user profile
+      const profileRes = await fetch(`${API_BASE_URL}/users/me`, {
+        headers: {
+          Authorization: `Bearer ${loginData.token}`,
+          "Content-Type": "application/json"
+        }
+      });
+
+      if (!profileRes.ok) throw new Error("Failed to load user profile");
+
+      const userProfile = await profileRes.json();
+
+      localStorage.setItem("user", JSON.stringify(userProfile));
+
+      return { success: true, token: loginData.token, user: userProfile };
     } catch (error) {
+      localStorage.removeItem("authToken");
+      localStorage.removeItem("user");
+
       if (error instanceof SyntaxError && error.message.includes("JSON")) {
         throw new Error("Unexpected server response. Please try again.");
       }
       if (error.message.toLowerCase().includes("network")) {
-        throw new Error("Network error. Please try again.");
+        throw new Error("Network error. Please check your connection and try again.");
       }
       throw error;
     }
   },
 
   logout: () => {
-    localStorage.removeItem("token");
+    localStorage.removeItem("authToken");
     localStorage.removeItem("user");
   },
 
@@ -145,12 +155,27 @@ export const authService = {
     return user ? JSON.parse(user) : null;
   },
 
-  getToken: () => {
-    return localStorage.getItem("token");
-  },
+  getToken: () => localStorage.getItem("authToken"),
 
-  isAuthenticated: () => {
-    return !!localStorage.getItem("token");
+  isAuthenticated: () => !!localStorage.getItem("authToken"),
+
+  // ✅ Refresh token for silent login (optional, implement backend endpoint)
+  refreshToken: async () => {
+    const token = localStorage.getItem("authToken");
+    if (!token) throw new Error("No token available to refresh");
+
+    const res = await fetch(`${API_BASE_URL}/users/refresh-token`, {
+      method: "POST",
+      headers: { "Authorization": `Bearer ${token}` },
+    });
+
+    if (!res.ok) throw new Error("Token refresh failed");
+
+    const data = await res.json();
+    if (!data.token) throw new Error("No token returned from refresh endpoint");
+
+    localStorage.setItem("authToken", data.token);
+    return data.token;
   },
 };
 

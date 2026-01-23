@@ -1,74 +1,63 @@
 import { createContext, useContext, useState, useEffect, useCallback } from 'react';
-import { useNavigate } from 'react-router'; 
+import { authService } from '../services/authService.js';
 
 const AuthContext = createContext();
 
 export const useAuth = () => {
   const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
+  if (!context) throw new Error('useAuth must be used within AuthProvider');
   return context;
 };
 
-const getInitials = (name) => {
-  if (!name) return '?';
-  return name
-    .split(' ')
-    .map(part => part[0]?.toUpperCase())
-    .join('')
-    .substring(0, 2) || '?';
+// Compute initials safely
+const getInitials = (user) => {
+  if (!user) return 'U';
+  const first = user.firstName?.charAt(0) || user.email?.charAt(0) || 'U';
+  const last = user.lastName?.charAt(0) || user.email?.charAt(1) || 'U';
+  return (first + last).toUpperCase();
 };
 
 export const AuthProvider = ({ children }) => {
   const [currentUser, setCurrentUser] = useState(null);
   const [loading, setLoading] = useState(true);
-  const navigate = useNavigate();
 
+  // Initialize from localStorage
   useEffect(() => {
-    const storedUser = localStorage.getItem('storehouse_user');
-    if (storedUser) {
-      try {
+    const init = () => {
+      const token = authService.getToken();
+      const storedUser = localStorage.getItem('user');
+      if (token && storedUser) {
         const user = JSON.parse(storedUser);
-        user.initials = getInitials(user.name);
-        setCurrentUser(user);
-      } catch (e) {
-        console.warn('Invalid user data in localStorage. Clearing.');
-        localStorage.removeItem('storehouse_user');
+        setCurrentUser({ ...user, initials: getInitials(user) });
       }
-    }
-    setLoading(false);
+      setLoading(false);
+    };
+    init();
   }, []);
 
-  const login = useCallback((email, name, avatar = null) => {
-    const user = {
-      id: Date.now().toString(), 
-      email,
-      name,
-      avatar,
-      initials: getInitials(name),
-      role: 'user',
-    };
-    setCurrentUser(user);
-    localStorage.setItem('storehouse_user', JSON.stringify(user));
+  const login = useCallback(async (credentials) => {
+    setLoading(true);
+    try {
+      const result = await authService.login(credentials); // returns { user, token }
+      const user = result.user;
+      const userWithInitials = { ...user, initials: getInitials(user) };
+      setCurrentUser(userWithInitials);
+      localStorage.setItem('user', JSON.stringify(user));
+      return { user: userWithInitials };
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
   const logout = useCallback(() => {
+    authService.logout();
     setCurrentUser(null);
-    localStorage.removeItem('storehouse_user');
-    navigate('/'); 
-  }, [navigate]);
-
-  const value = {
-    currentUser,
-    login,
-    logout,
-    loading,
-  };
+    localStorage.removeItem('user');
+  }, []);
 
   return (
-    <AuthContext.Provider value={value}>
-      {!loading && children}
+    <AuthContext.Provider value={{ currentUser, setCurrentUser, login, logout, loading, setLoading }}>
+      {children}
     </AuthContext.Provider>
   );
 };

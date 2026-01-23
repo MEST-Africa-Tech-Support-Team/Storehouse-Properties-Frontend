@@ -1,4 +1,3 @@
-// src/pages/auth/Signup.jsx
 import { useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
 import { toast } from "react-hot-toast";
@@ -12,6 +11,7 @@ import { useNavigate } from "react-router";
 export default function Signup() {
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [states, setStates] = useState([]);
   const [showPasswordRules, setShowPasswordRules] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -35,13 +35,19 @@ export default function Signup() {
     special: /[^A-Za-z0-9]/.test(form.password),
   };
 
+  // ✅ Fully functional country → state logic
   const handleChange = (e) => {
     const { name, value } = e.target;
 
     if (name === "country") {
       const selectedStates = State.getStatesOfCountry(value);
-      setStates(selectedStates);
-      setForm({ ...form, country: value, state: "" });
+      setStates(selectedStates || []);
+      setForm({ ...form, country: value, state: "" }); // reset state
+      return;
+    }
+
+    if (name === "state") {
+      setForm({ ...form, state: value });
       return;
     }
 
@@ -101,7 +107,6 @@ export default function Signup() {
     try {
       await authService.signup(userData);
       toast.success("Registration successful! Please check your email to verify your account.");
-     
     } catch (error) {
       toast.error(error.message || "Signup failed. Please try again.");
     } finally {
@@ -115,7 +120,7 @@ export default function Signup() {
         Sign up
       </h1>
 
-      <div className="flex flex-col items-center justify-between min-h-screen py-2 px-4">
+      <div className="flex flex-col items-center justify-between min-h-screen py-2 px-4 sm:px-6">
         <div className="flex-grow"></div>
 
         <div className="w-full max-w-md bg-white rounded-3xl p-6 border border-gray-50 shadow-xl z-10">
@@ -123,11 +128,10 @@ export default function Signup() {
             Get started with Storehouse
           </h2>
 
-          <div className="grid grid-cols-2 gap-3 mb-4">
+          {/* Name Fields */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
             <div>
-              <label className="block text-xs font-medium text-gray-700 mb-1">
-                First Name
-              </label>
+              <label className="block text-xs font-medium text-gray-700 mb-1">First Name</label>
               <input
                 name="firstName"
                 value={form.firstName}
@@ -138,9 +142,7 @@ export default function Signup() {
             </div>
 
             <div>
-              <label className="block text-xs font-medium text-gray-700 mb-1">
-                Last Name
-              </label>
+              <label className="block text-xs font-medium text-gray-700 mb-1">Last Name</label>
               <input
                 name="lastName"
                 value={form.lastName}
@@ -151,10 +153,9 @@ export default function Signup() {
             </div>
           </div>
 
+          {/* Email */}
           <div className="mb-4">
-            <label className="block text-xs font-medium text-gray-700 mb-1">
-              Email
-            </label>
+            <label className="block text-xs font-medium text-gray-700 mb-1">Email</label>
             <input
               name="email"
               type="email"
@@ -165,10 +166,9 @@ export default function Signup() {
             />
           </div>
 
+          {/* Phone */}
           <div className="mb-4">
-            <label className="block text-xs font-medium text-gray-700 mb-1">
-              Phone Number
-            </label>
+            <label className="block text-xs font-medium text-gray-700 mb-1">Phone Number</label>
             <PhoneInput
               international
               value={form.phone}
@@ -178,7 +178,8 @@ export default function Signup() {
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-3 mb-4">
+          {/* Country / State */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
             <select
               name="country"
               value={form.country}
@@ -188,9 +189,7 @@ export default function Signup() {
             >
               <option value="">Select country</option>
               {Country.getAllCountries().map((c) => (
-                <option key={c.isoCode} value={c.isoCode}>
-                  {c.name}
-                </option>
+                <option key={c.isoCode} value={c.isoCode}>{c.name}</option>
               ))}
             </select>
 
@@ -198,18 +197,17 @@ export default function Signup() {
               name="state"
               value={form.state}
               onChange={handleChange}
-              disabled={!form.country || loading}
+              disabled={!form.country || states.length === 0 || loading}
               className="w-full px-3 py-2 border border-gray-300 rounded-full text-sm"
             >
-              <option value="">Select state</option>
+              <option value="">{states.length ? "Select state" : "No states available"}</option>
               {states.map((s) => (
-                <option key={s.isoCode} value={s.name}>
-                  {s.name}
-                </option>
+                <option key={s.isoCode} value={s.name}>{s.name}</option>
               ))}
             </select>
           </div>
 
+          {/* Password */}
           <div className="relative mb-3">
             <input
               name="password"
@@ -219,7 +217,7 @@ export default function Signup() {
               onFocus={() => setShowPasswordRules(true)}
               onBlur={() => setShowPasswordRules(false)}
               disabled={loading}
-              className="w-full px-3 py-2 border border-gray-300 rounded-full text-sm"
+              className="w-full px-3 py-2 border border-gray-300 rounded-full text-sm pr-10"
             />
             <button
               type="button"
@@ -240,15 +238,26 @@ export default function Signup() {
             </div>
           )}
 
-          <input
-            name="confirmPassword"
-            type="password"
-            value={form.confirmPassword}
-            onChange={handleChange}
-            disabled={loading}
-            className="w-full px-3 py-2 border border-gray-300 rounded-full text-sm mb-5"
-          />
+          {/* Confirm Password */}
+          <div className="relative mb-5">
+            <input
+              name="confirmPassword"
+              type={showConfirmPassword ? "text" : "password"}
+              value={form.confirmPassword}
+              onChange={handleChange}
+              disabled={loading}
+              className="w-full px-3 py-2 border border-gray-300 rounded-full text-sm pr-10"
+            />
+            <button
+              type="button"
+              onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+              className="absolute right-3 top-2.5 text-gray-400"
+            >
+              {showConfirmPassword ? <EyeOff size={14} /> : <Eye size={14} />}
+            </button>
+          </div>
 
+          {/* Buttons */}
           <button
             onClick={handleSubmit}
             disabled={loading}
