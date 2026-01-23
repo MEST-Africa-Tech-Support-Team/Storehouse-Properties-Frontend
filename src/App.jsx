@@ -18,19 +18,16 @@ import PropertyDetails from "./pages/propertyDetails.jsx";
 import TermsConditions from "./pages/termsAndConditions.jsx";
 import CompleteBookingPage from "./pages/confirmBooking.jsx";
 
-// Auth Pages
 import Signup from "./pages/authPages/signUp.jsx";
 import Login from "./pages/authPages/logIn.jsx";
 import EmailVerification from "./pages/authPages/emailVerification.jsx";
 
-// User Dashboard Pages
 import UserDashboardOverview from "./pages/userDashboard/overview.jsx";
 import BookingsPage from "./pages/userDashboard/booking.jsx";
 import FavoritesPage from "./pages/userDashboard/favorites.jsx";
 import ProfilePage from "./pages/userDashboard/profile.jsx";
 import SupportPage from "./pages/userDashboard/support.jsx";
 
-// Admin Dashboard Pages
 import AdminOverviewPage from "./pages/adminDashboard/overview.jsx";
 import AdminAnalyticsPage from "./pages/adminDashboard/analytics.jsx";
 import AdminBookingsPage from "./pages/adminDashboard/bookings.jsx";
