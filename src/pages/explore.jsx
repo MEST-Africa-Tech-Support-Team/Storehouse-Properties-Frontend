@@ -4,20 +4,18 @@ import {
 } from "react-icons/fa";
 import PropertyCard from "../components/ui/propertyCard";
 import FavoritesFilterBar from "../components/userDashboard/favouritesFilterBar.jsx"; 
-import { propertyService } from "../services/propertyService"; // ✅ Added service
-import { toast } from "react-hot-toast"; // ✅ Added for error handling
+import { propertyService } from "../services/propertyService"; 
+import { toast } from "react-hot-toast"; 
 
 const ExplorePage = () => {
   const [allProperties, setAllProperties] = useState([]);
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(false);
   const [activeCategory, setActiveCategory] = useState("All");
-  const [initialLoad, setInitialLoad] = useState(true); // ✅ Track initial load
+  const [initialLoad, setInitialLoad] = useState(true); 
 
-  // State for filter values (managed by FavoritesFilterBar)
   const [appliedFilters, setAppliedFilters] = useState({});
 
-  // ✅ Fetch properties from backend
   const fetchProperties = async (filters = {}) => {
     setLoading(true);
     try {
@@ -33,62 +31,52 @@ const ExplorePage = () => {
     }
   };
 
-  // ✅ Fetch on mount
   useEffect(() => {
     fetchProperties();
   }, []);
 
-  // Handle filters from FavoritesFilterBar
   const handleApplyFilters = (filters) => {
     setAppliedFilters(filters);
     setPage(1);
-    fetchProperties(filters); // ✅ Fetch filtered properties
+    fetchProperties(filters); 
   };
 
   const handleResetFilters = () => {
     setAppliedFilters({});
     setActiveCategory("All");
     setPage(1);
-    fetchProperties(); // ✅ Reset to all properties
+    fetchProperties(); 
   };
 
   const handleLoadMore = () => {
-    // ✅ Since we're fetching all properties at once, 
-    // just increment page to show more items
     setPage((prev) => prev + 1);
   };
 
-  // Apply filters from FavoritesFilterBar + category
   const filteredProperties = useMemo(() => {
     let result = allProperties.filter(prop => {
-      // Category filter
-      const matchCategory = activeCategory === "All" || prop.category === activeCategory;
+      const matchCategory = activeCategory === "All" || prop.propertyType === activeCategory;
       
-      // Location filter (from city param)
+      // ✅ Fix location filtering - use location.city instead of location string
       const matchLocation = !appliedFilters.city || 
-        prop.location.toLowerCase().includes(appliedFilters.city.toLowerCase());
+        (prop.location?.city && prop.location.city.toLowerCase().includes(appliedFilters.city.toLowerCase()));
       
-      // Price filters
-      const matchMinPrice = !appliedFilters.minPrice || prop.price >= appliedFilters.minPrice;
-      const matchMaxPrice = !appliedFilters.maxPrice || prop.price <= appliedFilters.maxPrice;
+      // ✅ Use pricePerNight instead of price
+      const matchMinPrice = !appliedFilters.minPrice || prop.pricePerNight >= appliedFilters.minPrice;
+      const matchMaxPrice = !appliedFilters.maxPrice || prop.pricePerNight <= appliedFilters.maxPrice;
       
-      // Child policy
+      // ✅ Fix rules filtering - access rules object properly
       const matchChildren = appliedFilters.childrenAllowed === undefined || 
-        (prop.childrenAllowed === appliedFilters.childrenAllowed);
+        (prop.rules?.childrenAllowed === appliedFilters.childrenAllowed);
       
-      // Pet policy
       const matchPets = appliedFilters.petsAllowed === undefined || 
-        (prop.petsAllowed === appliedFilters.petsAllowed);
+        (prop.rules?.petsAllowed === appliedFilters.petsAllowed);
       
-      // Property type
       const matchType = !appliedFilters.propertyType || 
         (prop.propertyType?.toLowerCase() === appliedFilters.propertyType.toLowerCase());
       
-      // Title/keyword
       const matchTitle = !appliedFilters.title || 
         prop.title.toLowerCase().includes(appliedFilters.title.toLowerCase());
       
-      // Featured only
       const matchFeatured = !appliedFilters.featured || prop.featured === true;
 
       return matchCategory && 
@@ -102,17 +90,16 @@ const ExplorePage = () => {
              matchFeatured;
     });
 
-    // Sorting
+    // ✅ Sort by pricePerNight instead of price
     if (appliedFilters.sortBy === "Price: Low to High") {
-      result.sort((a, b) => a.price - b.price);
+      result.sort((a, b) => a.pricePerNight - b.pricePerNight);
     } else if (appliedFilters.sortBy === "Price: High to Low") {
-      result.sort((a, b) => b.price - a.price);
+      result.sort((a, b) => b.pricePerNight - a.pricePerNight);
     }
 
     return result;
   }, [allProperties, activeCategory, appliedFilters]);
 
-  // ✅ Simple pagination (show 20 items per page)
   const visibleProperties = filteredProperties.slice(0, page * 20);
 
   return (
@@ -143,17 +130,20 @@ const ExplorePage = () => {
 
       <section className="max-w-[1440px] mx-auto px-4 sm:px-16 pt-16 pb-20">
         <div className="flex gap-3 mb-12 overflow-x-auto no-scrollbar">
-          {["All", "Apartments", "Short Stays", "Family Homes", "Luxury"].map((cat) => (
+          {["All", "apartment", "short-stay", "family-home", "luxury"].map((cat) => (
             <button
               key={cat}
-              onClick={() => setActiveCategory(cat)}
+              onClick={() => setActiveCategory(cat === "All" ? "All" : cat)}
               className={`px-8 py-2.5 rounded-full text-[12px] font-bold transition-all border ${
-                activeCategory === cat 
+                activeCategory === cat || (activeCategory === "All" && cat === "All")
                 ? "bg-blue-600 text-white border-blue-600 shadow-lg shadow-blue-100" 
                 : "bg-gray-50 text-gray-400 border-transparent hover:bg-gray-100"
               }`}
             >
-              {cat}
+              {cat === "apartment" ? "Apartments" :
+               cat === "short-stay" ? "Short Stays" :
+               cat === "family-home" ? "Family Homes" :
+               cat === "luxury" ? "Luxury" : "All"}
             </button>
           ))}
         </div>
@@ -180,15 +170,15 @@ const ExplorePage = () => {
                   )}
                   <PropertyCard 
                     id={prop._id || prop.id}
-                    image={prop.image}
-                    title={prop.title}
-                    location={prop.location}
-                    rating={prop.rating || 4.5}
-                    price={prop.price}
-                    description={prop.description}
-                    badge={prop.badge}
-                    category={prop.category}
                     images={prop.images}
+                    title={prop.title}
+                    description={prop.description}
+                    propertyType={prop.propertyType}
+                    pricePerNight={prop.pricePerNight}
+                    maxGuests={prop.maxGuests}
+                    amenities={prop.amenities}
+                    rules={prop.rules}
+                    location={prop.location}
                     isFavorite={prop.isFavorite || false}
                   />
                 </div>

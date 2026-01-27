@@ -1,4 +1,3 @@
-// src/services/propertyService.js
 import { authService } from './authService';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
@@ -31,22 +30,18 @@ export const propertyService = {
 
     const data = await response.json();
     
-    // ✅ Ensure we always return an array
     if (Array.isArray(data)) {
       return data;
     }
     
-    // Handle case where backend returns { properties: [...] }
     if (data && Array.isArray(data.properties)) {
       return data.properties;
     }
     
-    // Handle case where backend returns { data: [...] }
     if (data && Array.isArray(data.data)) {
       return data.data;
     }
     
-    // Fallback to empty array
     console.warn('Unexpected properties response format:', data);
     return [];
   }

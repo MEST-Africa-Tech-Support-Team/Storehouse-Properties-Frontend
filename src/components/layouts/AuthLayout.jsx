@@ -5,7 +5,6 @@ import { Link } from 'react-router-dom';
 export default function AuthLayout() {
   return (
     <div className="min-h-screen w-full relative">
-      {/* Background with blue overlay */}
       <div
         className="absolute inset-0 bg-cover bg-center"
         style={{

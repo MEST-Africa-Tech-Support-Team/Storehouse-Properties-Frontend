@@ -4,7 +4,6 @@ import { useAuth } from '../../context/AuthContext';
 import { Avatar } from '@/components/ui/avatar';
 import { MdHome, MdDashboard, MdSettings, MdLogout } from 'react-icons/md';
 
-// ✅ Compute initials safely
 const getInitials = (user) => {
   if (!user) return 'U';
   const first = user.firstName?.charAt(0) || user.email?.charAt(0) || 'U';
@@ -49,15 +48,12 @@ export default function Header() {
     setDropdownOpen(false);
   };
 
-  // Wait for AuthContext loading
   if (loading) return null;
 
-  // ✅ Safe display name with fallbacks
   const displayName = currentUser?.firstName && currentUser?.lastName
     ? `${currentUser.firstName} ${currentUser.lastName}`
     : currentUser?.email?.split('@')[0] || 'User';
 
-  // ✅ Compute initials on-the-fly (don't rely on stored initials)
   const initials = getInitials(currentUser);
 
   return (
