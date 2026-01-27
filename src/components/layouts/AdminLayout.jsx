@@ -12,20 +12,17 @@ const AdminLayout = () => {
     if (stored) setAdmin(stored);
   }, []);
 
-  // Configuration for each route's header content
  const getHeaderContent = () => {
   const path = location.pathname;
 
-  // 1. Specific "Add Property" Header
   if (path.includes("properties/add")) {
     return {
       title: "Add New Property",
       subtitle: "List a new property by filling out the information below",
-      action: null, // No button needed here
+      action: null, 
     };
   }
 
-  // 2. Standard Properties List Header
   if (path.includes("properties")) {
     return {
       title: "Properties",
@@ -79,7 +76,6 @@ const AdminLayout = () => {
       };
     }
 
-    // Default: Dashboard Overview
     return {
       title: "Dashboard Overview",
       subtitle: "Monitor platform activity and performance at a glance",
@@ -96,12 +92,9 @@ const AdminLayout = () => {
 
   return (
     <div className="flex min-h-screen bg-[#F4F8FF]">
-      {/* Sidebar - Fixed to left */}
       <AdminSidebar userName={admin.name} userEmail={admin.email} />
 
-      {/* Content Area */}
       <div className="flex-1 lg:pl-64 flex flex-col">
-        {/* SHARED HEADER */}
         <header className="sticky top-0 z-20 bg-white border-b border-[#E5E7EB] px-6 py-5">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div>
@@ -111,12 +104,10 @@ const AdminLayout = () => {
               </p>
             </div>
 
-            {/* Dynamic Action Button Area */}
             <div className="flex items-center gap-3">{action}</div>
           </div>
         </header>
 
-        {/* PAGE CONTENT */}
         <main className="p-6 md:p-8">
           <Outlet
             context={{ adminName: admin.name, adminEmail: admin.email }}

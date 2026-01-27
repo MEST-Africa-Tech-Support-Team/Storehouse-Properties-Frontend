@@ -7,25 +7,28 @@ import { favoriteService } from '../../services/favoriteService';
 
 const PropertyCard = ({
   id,
-  image,
+  images = [],
   title,
+  description,
+  propertyType,
+  pricePerNight,
+  maxGuests,
+  amenities,
+  rules,
   location,
-  rating,
-  price,
-  description = '',
-  badge = '',
-  category = '',
-  images = [image],
-  isFavorite: initialIsLiked = false, 
+  isFavorite: initialIsLiked = false,
 }) => {
   const navigate = useNavigate();
   const [isLiked, setIsLiked] = useState(initialIsLiked);
   const [loading, setLoading] = useState(false);
 
-  // ✅ Handle location object vs string
-  const locationString = typeof location === 'object' && location !== null
-    ? location.city || location.address || 'Location not available'
-    : location || 'Location not available';
+  // ✅ Use first image from images array or fallback
+  const image = images[0] || 'https://placehold.co/340x180/e2e8f0/64748b?text=No+Image';
+  
+  // ✅ Handle location object properly (matches your backend structure)
+  const locationString = location?.city 
+    ? `${location.city}, ${location.region || ''}`.trim()
+    : location?.address || 'Location not available';
 
   // Sync local state with prop changes
   useEffect(() => {
@@ -38,17 +41,18 @@ const PropertyCard = ({
         property: {
           id,
           title,
-          location,
-          rating,
-          price,
           description,
-          badge,
-          category,
+          propertyType,
+          pricePerNight,
+          maxGuests,
+          amenities,
+          rules,
+          location,
           images,
         },
       },
     });
-  }, [navigate, id, title, location, rating, price, description, badge, category, images]);
+  }, [navigate, id, title, description, propertyType, pricePerNight, maxGuests, amenities, rules, location, images]);
 
   const toggleLike = useCallback(async (e) => {
     e.stopPropagation();
@@ -113,7 +117,7 @@ const PropertyCard = ({
       onKeyDown={(e) => {
         if (e.key === "Enter" || e.key === " ") handleNavigation();
       }}
-      aria-label={`View ${title}. ${rating} stars. $${price} per night.`}
+      aria-label={`View ${title}. ${locationString}. $${pricePerNight} per night.`}
     >
       <div className="relative h-[180px] w-full bg-gray-100 overflow-hidden">
         <img
@@ -152,7 +156,7 @@ const PropertyCard = ({
           </h3>
           <div className="flex items-center gap-1 flex-shrink-0">
             <FaStar className="text-yellow-400 text-xs" aria-hidden="true" />
-            <span className="text-xs font-medium text-gray-700">{rating}</span>
+            <span className="text-xs font-medium text-gray-700">4.8</span>
           </div>
         </div>
 
@@ -163,7 +167,7 @@ const PropertyCard = ({
 
         <div className="flex items-center justify-between pt-2 border-t border-gray-100">
           <div className="flex items-baseline gap-1">
-            <span className="text-xl font-bold text-blue-600">${price}</span>
+            <span className="text-xl font-bold text-blue-600">${pricePerNight}</span>
             <span className="text-xs text-gray-500">/night</span>
           </div>
           <button

@@ -85,7 +85,6 @@ export const authService = {
 
  login: async ({ email, password }) => {
   try {
-    // Step 1: Login to get token
     const loginRes = await fetch(`${API_BASE_URL}/users/login`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -115,10 +114,8 @@ export const authService = {
       throw new Error("No authentication token received from server");
     }
 
-    // Step 2: Save token immediately
     localStorage.setItem("authToken", loginData.token);
 
-    // Step 3: ✅ FETCH FULL PROFILE FROM /users/me
     const profileRes = await fetch(`${API_BASE_URL}/users/me`, {
       headers: { 
         Authorization: `Bearer ${loginData.token}`,
@@ -132,7 +129,6 @@ export const authService = {
 
     const fullProfile = await profileRes.json();
 
-    // Step 4: ✅ SAVE FULL PROFILE (not login response user)
     localStorage.setItem("user", JSON.stringify(fullProfile.user));
 
     return { 
@@ -168,7 +164,6 @@ export const authService = {
 
   isAuthenticated: () => !!localStorage.getItem("authToken"),
 
-  // ✅ Refresh token for silent login (optional, implement backend endpoint)
   refreshToken: async () => {
     const token = localStorage.getItem("authToken");
     if (!token) throw new Error("No token available to refresh");

@@ -1,4 +1,4 @@
-import { useLocation, useNavigate } from 'react-router';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { toast } from 'react-hot-toast';
 
@@ -14,22 +14,73 @@ import SimilarProperties from '../components/property/similarProperty';
 export default function PropertyDetails() {
   const location = useLocation();
   const navigate = useNavigate();
+  const { id } = useParams(); // ✅ Get property ID from URL
   const [isFavorite, setIsFavorite] = useState(false);
+  const [property, setProperty] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  const property = location.state?.property;
+  // ✅ Fetch property from API using ID from URL
+  const fetchProperty = async (propertyId) => {
+    try {
+      setLoading(true);
+      setError(null);
+      
+      const response = await fetch(`/api/properties/${propertyId}`, {
+        method: 'GET',
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        const errorMessage = errorData.message || `Failed to load property (${response.status})`;
+        throw new Error(errorMessage);
+      }
+
+      const propertyData = await response.json();
+      setProperty(propertyData);
+      
+      // Check if it's a favorite
+      const saved = localStorage.getItem(`favorite_${propertyId}`);
+      setIsFavorite(saved === 'true');
+      
+    } catch (error) {
+      console.error('Fetch property error:', error);
+      setError(error.message || 'Failed to load property details.');
+      toast.error(error.message || 'Failed to load property details.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    if (property?.id) {
-      const saved = localStorage.getItem(`favorite_${property.id}`);
+    // ✅ Priority 1: Use ID from URL params
+    if (id) {
+      fetchProperty(id);
+    } 
+    // ✅ Fallback: Use property from location state (for navigation from ExplorePage)
+    else if (location.state?.property) {
+      const propFromState = location.state.property;
+      setProperty(propFromState);
+      
+      // Check if it's a favorite
+      const saved = localStorage.getItem(`favorite_${propFromState._id || propFromState.id}`);
       setIsFavorite(saved === 'true');
+      
+      setLoading(false);
+    } 
+    // ✅ No property data available
+    else {
+      setLoading(false);
+      setError('Property not found');
     }
-  }, [property?.id]);
+  }, [id, location.state?.property]);
 
   const handleToggleFavorite = () => {
     const newState = !isFavorite;
     setIsFavorite(newState);
-    if (property?.id) {
-      localStorage.setItem(`favorite_${property.id}`, String(newState));
+    const propertyId = property?._id || property?.id || id;
+    if (propertyId) {
+      localStorage.setItem(`favorite_${propertyId}`, String(newState));
     }
     toast(newState ? 'Added to favorites' : 'Removed from favorites', {
       icon: '❤️',
@@ -38,13 +89,21 @@ export default function PropertyDetails() {
     });
   };
 
-  if (!property) {
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-white px-4">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      </div>
+    );
+  }
+
+  if (error || !property) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-white px-4">
         <div className="text-center max-w-md">
           <h2 className="text-2xl font-bold text-gray-800 mb-2">Property not found</h2>
           <p className="text-gray-600 mb-6">
-            The property you're looking for doesn’t exist or wasn’t loaded properly.
+            {error || "The property you're looking for doesn’t exist or wasn’t loaded properly."}
           </p>
           <button
             onClick={() => navigate(-1)}
@@ -112,7 +171,7 @@ export default function PropertyDetails() {
           <div className="lg:col-span-1">
             <div className="sticky top-6">
               <BookingForm 
-                price={property.price || 0} 
+                price={property.pricePerNight || property.price || 0} 
               />
             </div>
           </div>
