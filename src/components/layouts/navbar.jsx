@@ -1,13 +1,13 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { useAuth } from '../../context/AuthContext';
-import { Avatar } from '@/components/ui/avatar';
-import { MdHome, MdDashboard, MdSettings, MdLogout } from 'react-icons/md';
+import React, { useState, useRef, useEffect } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext";
+import { Avatar } from "@/components/ui/avatar";
+import { MdHome, MdDashboard, MdSettings, MdLogout } from "react-icons/md";
 
 const getInitials = (user) => {
-  if (!user) return 'U';
-  const first = user.firstName?.charAt(0) || user.email?.charAt(0) || 'U';
-  const last = user.lastName?.charAt(0) || user.email?.charAt(1) || 'U';
+  if (!user) return "U";
+  const first = user.firstName?.charAt(0) || user.email?.charAt(0) || "U";
+  const last = user.lastName?.charAt(0) || user.email?.charAt(1) || "U";
   return (first + last).toUpperCase();
 };
 
@@ -19,16 +19,16 @@ export default function Header() {
   const dropdownRef = useRef(null);
 
   const publicRoutes = [
-    { path: '/', label: 'Home' },
-    { path: '/explore', label: 'Explore' },
-    { path: '/about', label: 'About' },
-    { path: '/contact', label: 'Contact' },
+    { path: "/", label: "Home" },
+    { path: "/explore", label: "Explore" },
+    { path: "/about", label: "About" },
+    { path: "/contact", label: "Contact" },
   ];
 
   const buttonClasses =
-    'px-4 py-1.5 bg-blue-600 text-white text-sm font-medium ' +
-    'rounded-full hover:bg-blue-700 transition duration-200 ' +
-    'focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2';
+    "px-4 py-1.5 bg-blue-600 text-white text-sm font-medium " +
+    "rounded-full hover:bg-blue-700 transition duration-200 " +
+    "focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2";
 
   const isActive = (path) => location.pathname === path;
 
@@ -38,28 +38,32 @@ export default function Header() {
         setDropdownOpen(false);
       }
     };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   const handleLogout = async () => {
     await logout();
-    navigate('/');
+    navigate("/");
     setDropdownOpen(false);
   };
 
   if (loading) return null;
 
-  const displayName = currentUser?.firstName && currentUser?.lastName
-    ? `${currentUser.firstName} ${currentUser.lastName}`
-    : currentUser?.email?.split('@')[0] || 'User';
+  const displayName =
+    currentUser?.firstName && currentUser?.lastName
+      ? `${currentUser.firstName} ${currentUser.lastName}`
+      : currentUser?.email?.split("@")[0] || "User";
 
   const initials = getInitials(currentUser);
 
   return (
     <header className="bg-white border-b border-gray-200 shadow-sm">
       <div className="container mx-auto px-4 py-3 flex items-center justify-between">
-        <Link to="/" className="flex items-center gap-1.5 text-xl font-bold text-gray-900">
+        <Link
+          to="/"
+          className="flex items-center gap-1.5 text-xl font-bold text-gray-900"
+        >
           <MdHome className="h-6 w-6 text-blue-600" />
           Storehouse
         </Link>
@@ -70,7 +74,9 @@ export default function Header() {
               key={path}
               to={path}
               className={`text-sm font-medium transition-colors ${
-                isActive(path) ? 'text-gray-950 font-bold' : 'text-gray-500 hover:text-blue-600'
+                isActive(path)
+                  ? "text-gray-950 font-bold"
+                  : "text-gray-500 hover:text-blue-600"
               }`}
             >
               {label}
@@ -85,12 +91,13 @@ export default function Header() {
                 onClick={() => setDropdownOpen(!dropdownOpen)}
                 className="flex items-center gap-2 focus:outline-none"
               >
-                <Avatar 
-                  name={displayName} 
-                  src={null} 
-                  fallback={initials} 
-                  size="md" 
+                <Avatar
+                  name={displayName}
+                  src={currentUser?.profilePhoto || null}
+                  fallback={initials}
+                  size="md"
                 />
+
                 <span className="hidden md:inline text-gray-900 text-sm font-medium">
                   {displayName}
                 </span>
@@ -126,7 +133,10 @@ export default function Header() {
             </div>
           ) : (
             <>
-              <Link to="/auth/login" className="text-gray-700 hover:text-blue-600 text-sm font-medium">
+              <Link
+                to="/auth/login"
+                className="text-gray-700 hover:text-blue-600 text-sm font-medium"
+              >
                 Sign In
               </Link>
               <Link to="/auth/signup" className={buttonClasses}>

@@ -78,8 +78,8 @@ const router = createBrowserRouter([
       { path: "settings", element: <AdminSettingsPage /> },
     ],
   },
-  { path: "/property/:id/terms&conditions", element: <TermsConditions /> },
-  { path: "/property/:id/booking/confirm", element: <CompleteBookingPage /> },
+  { path: "/property/terms&conditions", element: <TermsConditions /> },
+  { path: "/property/booking/confirmation", element: <CompleteBookingPage /> },
   {
     element: (
       <AuthProvider>

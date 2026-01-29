@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useOutletContext } from "react-router";
-import { toast } from 'react-hot-toast';
+import { toast } from "react-hot-toast";
 
 import UserSidebar from "../../components/userDashboard/userSidebar";
 import ProfileInfoForm from "../../components/userDashboard/profileInfoForm";
@@ -9,224 +9,213 @@ import ChangePasswordForm from "../../components/userDashboard/changePasswordFor
 import LastLoginInfo from "../../components/userDashboard/lastLoginInfo";
 import DangerZone from "../../components/userDashboard/dangerZone";
 
+import authService from "../../services/authService";
+
 const ProfilePage = () => {
   const { userName } = useOutletContext();
 
   const [user, setUser] = useState({
-    fullName: "",
+    firstName: "",
+    surname: "",
     email: "",
     phoneNumber: "",
-    profilePicture:
-      "https://images.unsplash.com/photo-1580480716042-9a4b3d53c3e6?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80",
-    oldPassword: "",
-    newPassword: "",
-    confirmPassword: "",
+    profilePicture: null,
   });
 
   const [isSaving, setIsSaving] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
+  // Load user from authService
   useEffect(() => {
-    const fetchUserData = () => {
-      try {
-        const savedUser = JSON.parse(localStorage.getItem("user"));
-        if (savedUser) {
-          setUser((prev) => ({ ...prev, ...savedUser }));
-        }
-      } catch (e) {
-        console.error("Failed to load user data", e);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    fetchUserData();
+    const currentUser = authService.getCurrentUser();
+
+    if (currentUser) {
+      setUser({
+        firstName: currentUser.firstName || "",
+        surname: currentUser.surname || "",
+        email: currentUser.email || "",
+        phoneNumber: currentUser.phoneNumber || "",
+        profilePicture: currentUser.profilePicture || null,
+      });
+    }
+
+    setIsLoading(false);
   }, []);
 
   const handleInputChange = (field, value) => {
     setUser((prev) => ({ ...prev, [field]: value }));
   };
 
-  const handleSaveChanges = () => {
+  // Save profile (name, email, phone, avatar)
+  const handleSaveChanges = async () => {
     setIsSaving(true);
-    setTimeout(() => {
-      localStorage.setItem("user", JSON.stringify(user));
+
+    try {
+      const token = authService.getToken();
+      if (!token) throw new Error("Authentication required");
+
+      const formData = new FormData();
+      formData.append("firstName", user.firstName);
+      formData.append("surname", user.surname);
+      formData.append("email", user.email);
+      formData.append("phoneNumber", user.phoneNumber);
+
+      if (user.profilePicture instanceof File) {
+        formData.append("profilePicture", user.profilePicture);
+      }
+
+      const res = await fetch(
+        `${import.meta.env.VITE_API_BASE_URL}/users/me`,
+        {
+          method: "PATCH",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          body: formData,
+        }
+      );
+
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.message || "Failed to update profile");
+      }
+
+      const data = await res.json();
+      const updatedUser = data.user || data;
+
+      // 🔥 Persist updated user
+      const existingUser = authService.getCurrentUser();
+      const mergedUser = { ...existingUser, ...updatedUser };
+      localStorage.setItem("user", JSON.stringify(mergedUser));
+
+      // 🔥 Sync UI
+      setUser({
+        firstName: mergedUser.firstName,
+        surname: mergedUser.surname,
+        email: mergedUser.email,
+        phoneNumber: mergedUser.phoneNumber,
+        profilePicture: mergedUser.profilePicture,
+      });
+
+      toast.success("Profile updated successfully");
+    } catch (err) {
+      toast.error(err.message || "Failed to update profile");
+    } finally {
       setIsSaving(false);
-      toast.success("Profile updated successfully!");
-    }, 800);
+    }
   };
 
   const handleSavePassword = () => {
-    if (user.newPassword !== user.confirmPassword) {
-      toast.error("New password and confirm password do not match");
-      return;
-    }
-    toast.success("Password changed successfully!");
+    toast.success("Password updated successfully");
   };
 
   const handleDeactivate = () => {
-    toast(
-      (t) => (
-        <div className="flex flex-col gap-3">
-          <span className="font-medium">Deactivate account?</span>
-          <span className="text-sm text-gray-600">
-            Are you sure you want to deactivate your account?
-          </span>
-          <div className="flex gap-2 justify-end">
-            <button
-              onClick={() => toast.dismiss(t.id)}
-              className="px-3 py-1 text-sm text-gray-600 hover:bg-gray-100 rounded"
-            >
-              Cancel
-            </button>
-            <button
-              onClick={() => {
-                toast.dismiss(t.id);
-                toast.success("Account deactivated.");
-              }}
-              className="px-3 py-1 text-sm bg-red-600 text-white rounded hover:bg-red-700"
-            >
-              Deactivate
-            </button>
-          </div>
-        </div>
-      ),
-      { duration: 10000 }
-    );
+    toast.success("Your account has been deactivated");
   };
 
   const handleDelete = () => {
-    toast(
-      (t) => (
-        <div className="flex flex-col gap-3">
-          <span className="font-medium text-red-600">Delete account?</span>
-          <span className="text-sm text-gray-600">
-            This action cannot be undone. All your data will be permanently deleted.
-          </span>
-          <div className="flex gap-2 justify-end">
-            <button
-              onClick={() => toast.dismiss(t.id)}
-              className="px-3 py-1 text-sm text-gray-600 hover:bg-gray-100 rounded"
-            >
-              Cancel
-            </button>
-            <button
-              onClick={() => {
-                toast.dismiss(t.id);
-                toast.success("Account deleted.");
-              }}
-              className="px-3 py-1 text-sm bg-red-600 text-white rounded hover:bg-red-700"
-            >
-              Delete
-            </button>
-          </div>
-        </div>
-      ),
-      { duration: 10000 }
-    );
+    toast.success("Your account has been deleted");
   };
 
   if (isLoading) {
     return (
       <div className="flex">
         <UserSidebar />
-        <div className="ml-64 p-6 max-w-[1400px] w-full">
-          <div className="bg-white rounded-xl p-6 shadow-sm animate-pulse">
-            <div className="h-6 bg-gray-200 rounded w-1/3 mb-6"></div>
-            <div className="space-y-4">
-              <div className="h-4 bg-gray-200 rounded w-full"></div>
-              <div className="h-4 bg-gray-200 rounded w-2/3"></div>
-            </div>
-          </div>
+        <div className="ml-0 lg:ml-64 p-6 w-full animate-pulse">
+          <div className="bg-white rounded-xl h-96" />
         </div>
       </div>
     );
   }
 
   return (
-    <div className="flex">
+    <div className="flex flex-col lg:flex-row">
       <UserSidebar />
-      <div className="ml-64 p-6 max-w-[1400px] w-full">
-        <div className="mb-6">
+
+      <div className="ml-0 lg:ml-64 p-6 flex-1 max-w-[1400px] w-full space-y-6">
+        {/* Header */}
+        <div>
           <h1 className="text-3xl font-extrabold text-gray-900">
             Profile Settings
           </h1>
           <p className="text-gray-600 mt-1">
-            You have 4 favorite properties for your next trip
+            Manage your personal information and security
           </p>
         </div>
 
+        {/* Profile + Password */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Profile Info */}
           <div className="bg-white rounded-xl p-6 shadow-sm">
             <h2 className="text-xl font-bold text-blue-600 mb-6">
               Profile Information
             </h2>
 
             <ProfileInfoForm
-              fullName={user.fullName}
+              firstName={user.firstName}
+              surname={user.surname}
               email={user.email}
               phoneNumber={user.phoneNumber}
               onChange={handleInputChange}
             />
 
             <ProfilePictureUpload
-              userName={user.fullName}
-              currentImage={user.profilePicture}
-              onUpload={(newImage) =>
-                handleInputChange("profilePicture", newImage)
+              userName={`${user.firstName} ${user.surname}`}
+              currentImage={
+                user.profilePicture instanceof File
+                  ? URL.createObjectURL(user.profilePicture)
+                  : user.profilePicture
+              }
+              onUpload={(file) =>
+                handleInputChange("profilePicture", file)
               }
             />
 
-            <div className="border-t border-gray-200 pt-6 mt-6">
-              <div className="flex justify-end gap-3">
-                <button
-                  onClick={() => console.log("Cancelled")}
-                  className="px-6 py-2 border border-blue-600 text-blue-600 text-sm font-medium rounded-lg hover:bg-blue-50 transition-colors"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={handleSaveChanges}
-                  disabled={isSaving}
-                  className={`px-6 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg transition-colors ${
-                    isSaving
-                      ? "opacity-50 cursor-not-allowed"
-                      : "hover:bg-blue-700"
-                  }`}
-                >
-                  {isSaving ? "Saving..." : "Save Changes"}
-                </button>
-              </div>
+            <div className="border-t border-gray-200 pt-6 mt-6 flex justify-end gap-3">
+              <button
+                onClick={() => toast("Changes discarded")}
+                className="px-6 py-2 border border-blue-600 text-blue-600 text-sm font-medium rounded-lg hover:bg-blue-50"
+              >
+                Cancel
+              </button>
+
+              <button
+                onClick={handleSaveChanges}
+                disabled={isSaving}
+                className={`px-6 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg ${
+                  isSaving
+                    ? "opacity-50 cursor-not-allowed"
+                    : "hover:bg-blue-700"
+                }`}
+              >
+                {isSaving ? "Saving..." : "Save Changes"}
+              </button>
             </div>
           </div>
 
+          {/* Change Password */}
           <div className="bg-white rounded-xl p-6 shadow-sm">
             <h2 className="text-xl font-bold text-blue-600 mb-6">
               Change Password
             </h2>
-
-            <ChangePasswordForm
-              oldPassword={user.oldPassword}
-              newPassword={user.newPassword}
-              confirmPassword={user.confirmPassword}
-              onOldPasswordChange={(value) =>
-                handleInputChange("oldPassword", value)
-              }
-              onNewPasswordChange={(value) =>
-                handleInputChange("newPassword", value)
-              }
-              onConfirmPasswordChange={(value) =>
-                handleInputChange("confirmPassword", value)
-              }
-              onSave={handleSavePassword}
-            />
+            <ChangePasswordForm onSave={handleSavePassword} />
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
-          <DangerZone onDeactivate={handleDeactivate} onDelete={handleDelete} />
+        {/* Danger + Last Login */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <DangerZone
+            onDeactivate={handleDeactivate}
+            onDelete={handleDelete}
+          />
+
           <LastLoginInfo
-            lastLoginDate="December 2, 2024 at 2:30 PM"
-            deviceIP="MacBook Pro - 192.168.1.100"
+            lastLoginDate={new Date().toLocaleString()}
+            deviceIP={
+              <span className="text-blue-600 cursor-pointer hover:underline">
+                Unknown device
+              </span>
+            }
           />
         </div>
       </div>

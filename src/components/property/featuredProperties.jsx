@@ -1,123 +1,88 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { FaArrowRight } from "react-icons/fa";
 import { Link } from "react-router";
 import PropertyCard from "../ui/propertyCard";
+import { propertyService } from "../../services/propertyService";
 
 const FeaturedStays = () => {
-  const featuredProperties = [
-    {
-      id: 1,
-      title: "Sky View Studio",
-      location: "Downtown, New York",
-      rating: 4.9,
-      price: 120,
-      description:
-        "A sleek modern studio with panoramic city views and premium finishes.",
-      badge: "Top Rated",
-      category: "Studio",
-      images: [
-        "https://images.unsplash.com/photo-1554995207-c18c203602cb?auto=format&fit=crop&w=500&q=60",
-        "https://images.unsplash.com/photo-1512918728675-ed5a9ecdebfd?auto=format&fit=crop&w=500&q=60",
-      ],
-    },
-    {
-      id: 2,
-      title: "Ocean Breeze Penthouse",
-      location: "Miami Beach, FL",
-      rating: 5.0,
-      price: 350,
-      description:
-        "Luxury penthouse steps from the beach with private terrace and ocean views.",
-      badge: "Luxury",
-      category: "Penthouse",
-      images: [
-        "https://images.unsplash.com/photo-1512918728675-ed5a9ecdebfd?auto=format&fit=crop&w=500&q=60",
-      ],
-    },
-    {
-      id: 3,
-      title: "Garden Family Home",
-      location: "Austin, Texas",
-      rating: 4.8,
-      price: 180,
-      description:
-        "Spacious family home with backyard garden, perfect for groups and kids.",
-      badge: "Family Friendly",
-      category: "House",
-      images: [
-        "https://images.unsplash.com/photo-1605276374104-dee2a0ed3cd6?auto=format&fit=crop&w=500&q=60",
-      ],
-    },
-    {
-      id: 4,
-      title: "Industrial Loft",
-      location: "Brooklyn, NY",
-      rating: 4.7,
-      price: 145,
-      description:
-        "Raw concrete, exposed beams, and artistic vibes in the heart of Brooklyn.",
-      badge: "Trendy",
-      category: "Loft",
-      images: [
-        "https://images.unsplash.com/photo-1513584684374-8bab748fbf90?auto=format&fit=crop&w=500&q=60",
-      ],
-    },
-    {
-      id: 5,
-      title: "Modern Downtown Loft",
-      location: "Chicago, IL",
-      rating: 4.6,
-      price: 160,
-      description: "Urban loft with skyline views and designer furnishings.",
-      badge: "New",
-      category: "Loft",
-      images: [
-        "https://images.unsplash.com/photo-1583847268964-b28dc8f51f92?auto=format&fit=crop&w=500&q=60",
-      ],
-    },
-    {
-      id: 6,
-      title: "Mountain Cabin Retreat",
-      location: "Aspen, CO",
-      rating: 4.9,
-      price: 290,
-      description:
-        "Cozy cabin surrounded by pines with fireplace and hot tub.",
-      badge: "Scenic",
-      category: "Cabin",
-      images: [
-        "https://images.unsplash.com/photo-1605276374104-dee2a0ed3cd6?auto=format&fit=crop&w=500&q=60",
-      ],
-    },
-    {
-      id: 7,
-      title: "Beachfront Bungalow",
-      location: "Malibu, CA",
-      rating: 4.8,
-      price: 420,
-      description:
-        "Steps from the surf with open-plan living and ocean deck.",
-      badge: "Beachfront",
-      category: "Bungalow",
-      images: [
-        "https://images.unsplash.com/photo-1513584684374-8bab748fbf90?auto=format&fit=crop&w=500&q=60",
-      ],
-    },
-    {
-      id: 8,
-      title: "Historic Townhouse",
-      location: "Charleston, SC",
-      rating: 4.7,
-      price: 210,
-      description:
-        "Charming 19th-century townhouse with courtyard and period details.",
-      badge: "Historic",
-      category: "Townhouse",
-      images: [
-        "https://images.unsplash.com/photo-1605276374104-dee2a0ed3cd6?auto=format&fit=crop&w=500&q=60",
-      ],
-    },
-  ];
+  const [featuredProperties, setFeaturedProperties] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    // ✅ Fetch featured properties from API endpoint
+    const fetchFeaturedProperties = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        
+        // ✅ Call endpoint: GET /properties?featured=true
+        const data = await propertyService.getProperties({ featured: true });
+        
+        // ✅ Limit to max 8 properties
+        const limitedProperties = data.slice(0, 8);
+        setFeaturedProperties(limitedProperties);
+      } catch (err) {
+        console.error('Failed to fetch featured properties:', err);
+        setError('Failed to load featured properties');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchFeaturedProperties();
+  }, []);
+
+  // ✅ Loading state - show skeleton while fetching
+  if (loading) {
+    return (
+      <section className="bg-white py-20 px-4 md:px-20">
+        <div className="mx-auto max-w-[1400px]">
+          <div className="mb-10 flex items-center justify-between">
+            <h2 className="text-[36px] font-extrabold tracking-tight text-[#0f1d37]">
+              Featured Stays
+            </h2>
+            <div className="animate-pulse h-6 w-24 bg-gray-200 rounded"></div>
+          </div>
+          
+          <div className="grid gap-6 grid-flow-col grid-rows-2 auto-cols-[85%] overflow-x-auto pb-4 sm:grid-flow-row sm:grid-cols-2 sm:auto-cols-auto sm:overflow-visible lg:grid-cols-4">
+            {[...Array(8)].map((_, i) => (
+              <div key={i} className="animate-pulse">
+                <div className="h-48 bg-gray-200 rounded-xl mb-3"></div>
+                <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
+                <div className="h-3 bg-gray-200 rounded w-1/2 mb-2"></div>
+                <div className="h-3 bg-gray-200 rounded w-1/4"></div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  // ✅ Error state - show error message
+  if (error) {
+    return (
+      <section className="bg-white py-20 px-4 md:px-20">
+        <div className="mx-auto max-w-[1400px]">
+          <div className="mb-10 flex items-center justify-between">
+            <h2 className="text-[36px] font-extrabold tracking-tight text-[#0f1d37]">
+              Featured Stays
+            </h2>
+          </div>
+          
+          <div className="text-center py-12">
+            <p className="text-gray-600 text-lg">{error}</p>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  // ✅ No featured properties found
+  if (featuredProperties.length === 0) {
+    return null;
+  }
 
   return (
     <section className="bg-white py-20 px-4 md:px-20">
@@ -149,21 +114,29 @@ const FeaturedStays = () => {
             [&::-webkit-scrollbar]:hidden
           "
         >
-          {featuredProperties.map((property) => (
-            <PropertyCard
-              key={property.id}
-              id={property.id}
-              image={property.images[0]}
-              images={property.images}
-              title={property.title}
-              location={property.location}
-              rating={property.rating}
-              price={property.price}
-              description={property.description}
-              badge={property.badge}
-              category={property.category}
-            />
-          ))}
+          {featuredProperties.map((property) => {
+            // ✅ Normalize property data to match PropertyCard props
+            const locationString = property.location?.city 
+              ? `${property.location.city}, ${property.location.region || ''}`.trim()
+              : property.location?.address || 'Location not available';
+
+            return (
+              <PropertyCard
+                key={property._id || property.id}
+                id={property._id || property.id}
+                images={property.images || []}
+                title={property.title}
+                location={locationString}
+                pricePerNight={property.pricePerNight}
+                description={property.description}
+                propertyType={property.propertyType}
+                maxGuests={property.maxGuests}
+                amenities={property.amenities}
+                rules={property.rules}
+                isFavorite={property.isFavorite || false}
+              />
+            );
+          })}
         </div>
       </div>
     </section>

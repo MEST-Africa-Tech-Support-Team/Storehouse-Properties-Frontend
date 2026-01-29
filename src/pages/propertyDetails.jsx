@@ -14,20 +14,25 @@ import SimilarProperties from '../components/property/similarProperty';
 export default function PropertyDetails() {
   const location = useLocation();
   const navigate = useNavigate();
-  const { id } = useParams(); // ✅ Get property ID from URL
+  const { id } = useParams();
   const [isFavorite, setIsFavorite] = useState(false);
   const [property, setProperty] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // ✅ Fetch property from API using ID from URL
+  // ✅ Fetch property from correct API endpoint: GET /properties/:id
   const fetchProperty = async (propertyId) => {
     try {
       setLoading(true);
       setError(null);
       
-      const response = await fetch(`/api/properties/${propertyId}`, {
+      // ✅ Use correct endpoint with environment variable
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/properties/${propertyId}`, {
         method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        }
       });
 
       if (!response.ok) {
@@ -37,7 +42,10 @@ export default function PropertyDetails() {
       }
 
       const propertyData = await response.json();
-      setProperty(propertyData);
+      
+      // ✅ Normalize property data to match exact API structure
+      const normalizedProperty = normalizePropertyData(propertyData);
+      setProperty(normalizedProperty);
       
       // Check if it's a favorite
       const saved = localStorage.getItem(`favorite_${propertyId}`);
@@ -52,6 +60,57 @@ export default function PropertyDetails() {
     }
   };
 
+  // ✅ Normalize property data to handle exact API response format
+  const normalizePropertyData = (data) => {
+    // Handle different response structures
+    const propertyData = data.property || data.data || data;
+    
+    // ✅ Parse amenities string into array: "WiFi,Kitchen Cabinet,Air condition" → ["WiFi", "Kitchen Cabinet", "Air condition"]
+    const amenitiesArray = propertyData.amenities 
+      ? (Array.isArray(propertyData.amenities) 
+          ? propertyData.amenities 
+          : propertyData.amenities.split(',').map(item => item.trim()))
+      : [];
+    
+    // ✅ Parse rules object
+    const rules = propertyData.rules || {};
+    
+    // ✅ Parse location object
+    const location = propertyData.location || {};
+    
+    return {
+      _id: propertyData._id || propertyData.id,
+      id: propertyData._id || propertyData.id,
+      title: propertyData.title || 'Untitled Property',
+      description: propertyData.description || '',
+      propertyType: propertyData.propertyType || 'house',
+      pricePerNight: propertyData.pricePerNight || 0,
+      maxGuests: propertyData.maxGuests || 2,
+      amenities: amenitiesArray, // ✅ Array format for AmenitiesSection
+      rules: {
+        childrenAllowed: rules.childrenAllowed || false,
+        petsAllowed: rules.petsAllowed || false,
+        minimumAge: rules.minimumAge || 0,
+        ...rules
+      },
+      location: {
+        address: location.address || '',
+        city: location.city || 'Unknown',
+        region: location.region || '',
+        country: location.country || '',
+        ...location
+      },
+      featured: propertyData.featured || false,
+      images: Array.isArray(propertyData.images) ? propertyData.images : [propertyData.image].filter(Boolean),
+      rating: propertyData.rating || propertyData.averageRating || 4.5,
+      reviewCount: propertyData.reviewCount || propertyData.reviews?.length || 0,
+      isSuperhost: propertyData.isSuperhost || false,
+      reviews: propertyData.reviews || [],
+      createdAt: propertyData.createdAt,
+      updatedAt: propertyData.updatedAt
+    };
+  };
+
   useEffect(() => {
     // ✅ Priority 1: Use ID from URL params
     if (id) {
@@ -60,7 +119,9 @@ export default function PropertyDetails() {
     // ✅ Fallback: Use property from location state (for navigation from ExplorePage)
     else if (location.state?.property) {
       const propFromState = location.state.property;
-      setProperty(propFromState);
+      // ✅ Normalize state property too
+      const normalizedProperty = normalizePropertyData(propFromState);
+      setProperty(normalizedProperty);
       
       // Check if it's a favorite
       const saved = localStorage.getItem(`favorite_${propFromState._id || propFromState.id}`);
@@ -103,7 +164,7 @@ export default function PropertyDetails() {
         <div className="text-center max-w-md">
           <h2 className="text-2xl font-bold text-gray-800 mb-2">Property not found</h2>
           <p className="text-gray-600 mb-6">
-            {error || "The property you're looking for doesn’t exist or wasn’t loaded properly."}
+            {error || "The property you're looking for doesn't exist or wasn't loaded properly."}
           </p>
           <button
             onClick={() => navigate(-1)}
@@ -132,10 +193,17 @@ export default function PropertyDetails() {
     },
   ];
 
+  // ✅ Generate location string from exact API structure
+  const locationString = property.location?.city && property.location?.region && property.location?.country
+    ? `${property.location.city}, ${property.location.region}, ${property.location.country}`
+    : property.location?.city && property.location?.region
+    ? `${property.location.city}, ${property.location.region}`
+    : property.location?.city || 'Location not available';
+
   return (
     <div className="bg-white min-h-screen px-4 sm:px-6 md:px-8 py-6">
       <div className="mb-8">
-        <PropertyImageGallery images={property.images || [property.image]} />
+        <PropertyImageGallery images={property.images.length > 0 ? property.images : ['https://placehold.co/600x400/e2e8f0/64748b?text=No+Image']} />
       </div>
 
       <div className="max-w-6xl mx-auto">
@@ -143,7 +211,7 @@ export default function PropertyDetails() {
           <div className="lg:col-span-2 space-y-20">
             <PropertyHeader
               title={property.title}
-              location={property.location}
+              location={locationString} // ✅ Pass formatted location string
               rating={property.rating || 4.5}
               reviewCount={property.reviewCount || 0}
               isSuperhost={property.isSuperhost || false}
@@ -155,14 +223,16 @@ export default function PropertyDetails() {
               description={property.description || 'No description available.'} 
             />
 
+            {/* ✅ AmenitiesSection receives array: ["WiFi", "Kitchen Cabinet", "Air condition"] */}
             <AmenitiesSection 
-              amenities={property.amenities || fallbackAmenities} 
+              amenities={property.amenities.length > 0 ? property.amenities : fallbackAmenities} 
             />
 
             <ReviewsSection 
-              reviews={property.reviews || fallbackReviews} 
+              reviews={property.reviews.length > 0 ? property.reviews : fallbackReviews} 
             />
 
+            {/* ✅ LocationSection receives full location object */}
             <LocationSection 
               location={property.location} 
             />
@@ -171,7 +241,7 @@ export default function PropertyDetails() {
           <div className="lg:col-span-1">
             <div className="sticky top-6">
               <BookingForm 
-                price={property.pricePerNight || property.price || 0} 
+                price={property.pricePerNight || 0} 
               />
             </div>
           </div>

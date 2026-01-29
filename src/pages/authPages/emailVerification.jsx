@@ -29,7 +29,7 @@ export default function EmailVerification() {
         setShowConfetti(true);
       } catch (err) {
         setError(err.message || 'Verification failed');
-        toast.error('Email verification failed. Please try again.');
+       
       } finally {
         setVerifying(false);
       }
