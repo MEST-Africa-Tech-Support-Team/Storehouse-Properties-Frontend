@@ -1,87 +1,111 @@
-import React, { useState, useEffect, useMemo, useRef } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { 
-  FaChevronDown, FaPlus, FaMinus, FaSearch, 
-  FaHeart, FaSpinner, FaCheck 
+  FaChevronDown, FaPlus, FaMinus, FaHeart, FaSpinner, FaCheck 
 } from "react-icons/fa";
-
-import { Property, PropertyService } from "../lib/property";
 import PropertyCard from "../components/ui/propertyCard";
+import FavoritesFilterBar from "../components/userDashboard/favouritesFilterBar.jsx"; 
+import { propertyService } from "../services/propertyService"; 
+import { toast } from "react-hot-toast"; 
 
 const ExplorePage = () => {
   const [allProperties, setAllProperties] = useState([]);
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(false);
   const [activeCategory, setActiveCategory] = useState("All");
+  const [initialLoad, setInitialLoad] = useState(true); 
 
-  const [searchLocation, setSearchLocation] = useState("");
-  const [tempSearch, setTempSearch] = useState(""); 
-  const [guests, setGuests] = useState(2);
-  const [childIncluded, setChildIncluded] = useState("Yes");
-  const [propertyType, setPropertyType] = useState("All Types");
-  const [sortBy, setSortBy] = useState("Popularity");
+  const [appliedFilters, setAppliedFilters] = useState({});
 
-  useEffect(() => {
-    const rawData = Array.from({ length: 80 }).map((_, i) => ({
-      id: i,
-      image: `https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=60&sig=${i}`,
-      title: "The Avery Apartment",
-      location: i % 2 === 0 ? "Greater Accra, Ghana" : "Lagos, Nigeria",
-      rating: 4.9,
-      price: 180 + (i * 5),
-      badge: i % 6 === 0 ? "Price Drop" : i % 4 === 0 ? "New Listing" : null,
-      category: ["Apartments", "Luxury", "Short Stays", "Family Homes"][i % 4]
-    }));
-
-    setAllProperties(rawData.map(item => new Property(item)));
-  }, []);
-
-  const handleApply = () => {
+  const fetchProperties = async (filters = {}) => {
     setLoading(true);
-    setTimeout(() => {
-      setSearchLocation(tempSearch);
-      setPage(1); 
+    try {
+      const data = await propertyService.getProperties(filters);
+      setAllProperties(data || []);
+      if (initialLoad) setInitialLoad(false);
+    } catch (error) {
+      console.error("Fetch properties error:", error);
+      toast.error("Failed to load properties. Please try again.");
+      setAllProperties([]);
+    } finally {
       setLoading(false);
-    }, 600);
+    }
   };
 
-  const handleReset = () => {
-    setTempSearch("");
-    setSearchLocation("");
-    setGuests(2);
-    setChildIncluded("Yes");
-    setPropertyType("All Types");
-    setSortBy("Popularity");
+  useEffect(() => {
+    fetchProperties();
+  }, []);
+
+  const handleApplyFilters = (filters) => {
+    setAppliedFilters(filters);
+    setPage(1);
+    fetchProperties(filters); 
+  };
+
+  const handleResetFilters = () => {
+    setAppliedFilters({});
     setActiveCategory("All");
     setPage(1);
+    fetchProperties(); 
   };
 
   const handleLoadMore = () => {
-    setLoading(true);
-    setTimeout(() => {
-      setPage((prev) => prev + 1);
-      setLoading(false);
-    }, 800);
+    setPage((prev) => prev + 1);
   };
 
   const filteredProperties = useMemo(() => {
     let result = allProperties.filter(prop => {
-      const matchCategory = activeCategory === "All" || prop.category === activeCategory;
-      const matchLocation = prop.location.toLowerCase().includes(searchLocation.toLowerCase());
-      return matchCategory && matchLocation;
+      const matchCategory = activeCategory === "All" || prop.propertyType === activeCategory;
+      
+      // ✅ Fix location filtering - use location.city instead of location string
+      const matchLocation = !appliedFilters.city || 
+        (prop.location?.city && prop.location.city.toLowerCase().includes(appliedFilters.city.toLowerCase()));
+      
+      // ✅ Use pricePerNight instead of price
+      const matchMinPrice = !appliedFilters.minPrice || prop.pricePerNight >= appliedFilters.minPrice;
+      const matchMaxPrice = !appliedFilters.maxPrice || prop.pricePerNight <= appliedFilters.maxPrice;
+      
+      // ✅ Fix rules filtering - access rules object properly
+      const matchChildren = appliedFilters.childrenAllowed === undefined || 
+        (prop.rules?.childrenAllowed === appliedFilters.childrenAllowed);
+      
+      const matchPets = appliedFilters.petsAllowed === undefined || 
+        (prop.rules?.petsAllowed === appliedFilters.petsAllowed);
+      
+      const matchType = !appliedFilters.propertyType || 
+        (prop.propertyType?.toLowerCase() === appliedFilters.propertyType.toLowerCase());
+      
+      const matchTitle = !appliedFilters.title || 
+        prop.title.toLowerCase().includes(appliedFilters.title.toLowerCase());
+      
+      const matchFeatured = !appliedFilters.featured || prop.featured === true;
+
+      return matchCategory && 
+             matchLocation && 
+             matchMinPrice && 
+             matchMaxPrice && 
+             matchChildren && 
+             matchPets && 
+             matchType && 
+             matchTitle && 
+             matchFeatured;
     });
 
-    if (sortBy === "Price: Low to High") result.sort((a, b) => a.price - b.price);
-    if (sortBy === "Price: High to Low") result.sort((a, b) => b.price - a.price);
-    
-    return result;
-  }, [allProperties, activeCategory, searchLocation, sortBy]);
+    // ✅ Sort by pricePerNight instead of price
+    if (appliedFilters.sortBy === "Price: Low to High") {
+      result.sort((a, b) => a.pricePerNight - b.pricePerNight);
+    } else if (appliedFilters.sortBy === "Price: High to Low") {
+      result.sort((a, b) => b.pricePerNight - a.pricePerNight);
+    }
 
-  const visibleProperties = PropertyService.getPaginatedItems(filteredProperties, page);
+    return result;
+  }, [allProperties, activeCategory, appliedFilters]);
+
+  const visibleProperties = filteredProperties.slice(0, page * 20);
 
   return (
     <div className="bg-white min-h-screen">
       <section 
-        className="relative h-[400px] w-full flex items-center px-16 bg-cover bg-center"
+        className="relative h-[400px] w-full flex items-center px-4 sm:px-16 bg-cover bg-center"
         style={{ backgroundImage: `url('https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=1920&q=80')` }}
       >
         <div className="absolute inset-0 bg-black/40" /> 
@@ -95,165 +119,93 @@ const ExplorePage = () => {
         </div>
       </section>
 
-      <section className="px-16 -mt-10 relative z-30">
-        <div className="max-w-[1440px] mx-auto bg-white rounded-[20px] shadow-[0_15px_60px_-15px_rgba(0,0,0,0.12)] border border-gray-100 p-5 flex items-end gap-4">
-          
-          <div className="flex-[1.5] min-w-[180px]">
-            <label className="block text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-2 ml-1">Location</label>
-            <div className="relative">
-              <input 
-                type="text" 
-                value={tempSearch}
-                onChange={(e) => setTempSearch(e.target.value)}
-                placeholder="Where are you going?" 
-                className="w-full bg-gray-50 rounded-xl px-4 py-3 text-[13px] font-semibold focus:outline-none focus:ring-2 focus:ring-blue-100 transition-all" 
-              />
-              <FaSearch className="absolute right-4 top-3.5 text-gray-300 text-xs" />
-            </div>
-          </div>
-
-          <CustomDropdown 
-            label="Child Included" 
-            options={["Yes", "No"]} 
-            value={childIncluded} 
-            onChange={setChildIncluded} 
+      <section className="px-4 sm:px-16 -mt-10 relative z-30">
+        <div className="max-w-[1440px] mx-auto">
+          <FavoritesFilterBar 
+            onApply={handleApplyFilters} 
+            onReset={handleResetFilters} 
           />
-
-          <CustomDropdown 
-            label="Property Type" 
-            options={["All Types", "Apartments", "Houses", "Luxury Villas"]} 
-            value={propertyType} 
-            onChange={setPropertyType} 
-          />
-
-          <div className="min-w-[110px]">
-            <label className="block text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-2 ml-1">Guests</label>
-            <div className="flex items-center justify-between bg-gray-50 rounded-xl px-4 py-3 border border-transparent">
-              <button onClick={() => setGuests(Math.max(1, guests - 1))} className="text-gray-400 hover:text-blue-600"><FaMinus size={8}/></button>
-              <span className="font-bold text-[13px] text-[#0f172a]">{guests}</span>
-              <button onClick={() => setGuests(guests + 1)} className="text-gray-400 hover:text-blue-600"><FaPlus size={8}/></button>
-            </div>
-          </div>
-
-          <CustomDropdown 
-            label="Sort By" 
-            options={["Popularity", "Price: Low to High", "Price: High to Low"]} 
-            value={sortBy} 
-            onChange={setSortBy} 
-          />
-
-          <div className="flex items-center gap-2">
-            <button 
-              onClick={handleApply}
-              className="bg-blue-600 text-white h-[46px] px-8 rounded-xl font-bold text-[13px] hover:bg-blue-700 transition-all flex items-center justify-center min-w-[100px]"
-            >
-              {loading && searchLocation !== tempSearch ? <FaSpinner className="animate-spin" /> : "Apply"}
-            </button>
-            <button 
-              onClick={handleReset}
-              className="text-gray-400 font-bold text-[13px] h-[46px] px-4 hover:text-blue-600 transition-colors"
-            >
-              Reset
-            </button>
-          </div>
         </div>
       </section>
 
-      <section className="max-w-[1440px] mx-auto px-16 pt-16 pb-20">
-        
+      <section className="max-w-[1440px] mx-auto px-4 sm:px-16 pt-16 pb-20">
         <div className="flex gap-3 mb-12 overflow-x-auto no-scrollbar">
-          {["All", "Apartments", "Short Stays", "Family Homes", "Luxury"].map((cat) => (
+          {["All", "apartment", "short-stay", "family-home", "luxury"].map((cat) => (
             <button
               key={cat}
-              onClick={() => setActiveCategory(cat)}
+              onClick={() => setActiveCategory(cat === "All" ? "All" : cat)}
               className={`px-8 py-2.5 rounded-full text-[12px] font-bold transition-all border ${
-                activeCategory === cat 
+                activeCategory === cat || (activeCategory === "All" && cat === "All")
                 ? "bg-blue-600 text-white border-blue-600 shadow-lg shadow-blue-100" 
                 : "bg-gray-50 text-gray-400 border-transparent hover:bg-gray-100"
               }`}
             >
-              {cat}
+              {cat === "apartment" ? "Apartments" :
+               cat === "short-stay" ? "Short Stays" :
+               cat === "family-home" ? "Family Homes" :
+               cat === "luxury" ? "Luxury" : "All"}
             </button>
           ))}
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-6 gap-y-10">
-          {visibleProperties.map((prop) => (
-            <div key={prop.id} className="relative group animate-fadeIn">
-              {prop.badge && (
-                <div className={`absolute top-4 left-4 z-10 px-3 py-1 rounded-full text-[9px] font-bold text-white uppercase shadow-sm ${
-                  prop.badge === 'Price Drop' ? 'bg-[#22c55e]' : 'bg-blue-600'
-                }`}>
-                  {prop.badge}
+        {initialLoad && loading ? (
+          <div className="flex justify-center py-12">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+          </div>
+        ) : filteredProperties.length === 0 ? (
+          <div className="text-center py-12">
+            <p className="text-gray-600 text-lg">No properties found matching your criteria</p>
+          </div>
+        ) : (
+          <>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-6 gap-y-10">
+              {visibleProperties.map((prop) => (
+                <div key={prop._id || prop.id} className="relative group animate-fadeIn">
+                  {prop.badge && (
+                    <div className={`absolute top-4 left-4 z-10 px-3 py-1 rounded-full text-[9px] font-bold text-white uppercase shadow-sm ${
+                      prop.badge === 'Price Drop' ? 'bg-[#22c55e]' : 'bg-blue-600'
+                    }`}>
+                      {prop.badge}
+                    </div>
+                  )}
+                  <PropertyCard 
+                    id={prop._id || prop.id}
+                    images={prop.images}
+                    title={prop.title}
+                    description={prop.description}
+                    propertyType={prop.propertyType}
+                    pricePerNight={prop.pricePerNight}
+                    maxGuests={prop.maxGuests}
+                    amenities={prop.amenities}
+                    rules={prop.rules}
+                    location={prop.location}
+                    isFavorite={prop.isFavorite || false}
+                  />
                 </div>
-              )}
-              <button className="absolute top-4 right-4 z-10 w-8 h-8 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center text-white border border-white/20 hover:bg-white hover:text-red-500 transition-all">
-                <FaHeart size={12} />
-              </button>
-              
-              <PropertyCard {...prop} />
+              ))}
             </div>
-          ))}
-        </div>
 
-        <div className="flex flex-col items-center gap-4 mt-20">
-          <button 
-            onClick={handleLoadMore}
-            disabled={loading || visibleProperties.length >= filteredProperties.length}
-            className="group flex items-center gap-3 px-12 py-3.5 border-2 border-blue-600 text-blue-600 font-black rounded-2xl hover:bg-blue-600 hover:text-white transition-all disabled:opacity-30 disabled:cursor-not-allowed text-[14px]"
-          >
-            {loading ? (
-              <FaSpinner className="animate-spin text-lg" />
-            ) : (
-              "Load More Properties"
+            {visibleProperties.length < filteredProperties.length && (
+              <div className="flex flex-col items-center gap-4 mt-20">
+                <button 
+                  onClick={handleLoadMore}
+                  disabled={loading}
+                  className="group flex items-center gap-3 px-12 py-3.5 border-2 border-blue-600 text-blue-600 font-black rounded-2xl hover:bg-blue-600 hover:text-white transition-all disabled:opacity-30 disabled:cursor-not-allowed text-[14px]"
+                >
+                  {loading ? (
+                    <FaSpinner className="animate-spin text-lg" />
+                  ) : (
+                    "Load More Properties"
+                  )}
+                </button>
+                <p className="text-gray-400 text-[12px] font-semibold">
+                  Showing <span className="text-[#0f172a] font-bold">{visibleProperties.length}</span> of {filteredProperties.length} properties
+                </p>
+              </div>
             )}
-          </button>
-          <p className="text-gray-400 text-[12px] font-semibold">
-            Showing <span className="text-[#0f172a] font-bold">{visibleProperties.length}</span> of {filteredProperties.length} properties
-          </p>
-        </div>
+          </>
+        )}
       </section>
-    </div>
-  );
-};
-
-const CustomDropdown = ({ label, options, value, onChange }) => {
-  const [isOpen, setIsOpen] = useState(false);
-  const dropdownRef = useRef(null);
-
-  useEffect(() => {
-    const handleClickOutside = (e) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) setIsOpen(false);
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
-
-  return (
-    <div className="min-w-[140px] relative" ref={dropdownRef}>
-      <label className="block text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-2 ml-1">{label}</label>
-      <div 
-        onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center justify-between bg-gray-50 rounded-xl px-4 py-3 cursor-pointer hover:bg-gray-100 transition-colors border border-transparent select-none"
-      >
-        <span className="font-bold text-[13px] text-[#0f172a] truncate mr-2">{value}</span>
-        <FaChevronDown className={`text-[9px] text-gray-400 transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`} />
-      </div>
-
-      {isOpen && (
-        <div className="absolute z-50 w-full mt-2 bg-white border border-gray-100 shadow-xl rounded-xl py-2 overflow-hidden animate-slideDown">
-          {options.map((opt) => (
-            <div 
-              key={opt}
-              onClick={() => { onChange(opt); setIsOpen(false); }}
-              className="px-4 py-2 text-[13px] font-semibold text-gray-600 hover:bg-blue-50 hover:text-blue-600 cursor-pointer flex items-center justify-between"
-            >
-              {opt}
-              {value === opt && <FaCheck className="text-[10px]" />}
-            </div>
-          ))}
-        </div>
-      )}
     </div>
   );
 };

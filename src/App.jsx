@@ -18,18 +18,16 @@ import PropertyDetails from "./pages/propertyDetails.jsx";
 import TermsConditions from "./pages/termsAndConditions.jsx";
 import CompleteBookingPage from "./pages/confirmBooking.jsx";
 
-// Auth Pages
 import Signup from "./pages/authPages/signUp.jsx";
 import Login from "./pages/authPages/logIn.jsx";
+import EmailVerification from "./pages/authPages/emailVerification.jsx";
 
-// User Dashboard Pages
 import UserDashboardOverview from "./pages/userDashboard/overview.jsx";
 import BookingsPage from "./pages/userDashboard/booking.jsx";
 import FavoritesPage from "./pages/userDashboard/favorites.jsx";
 import ProfilePage from "./pages/userDashboard/profile.jsx";
 import SupportPage from "./pages/userDashboard/support.jsx";
 
-// Admin Dashboard Pages
 import AdminOverviewPage from "./pages/adminDashboard/overview.jsx";
 import AdminAnalyticsPage from "./pages/adminDashboard/analytics.jsx";
 import AdminBookingsPage from "./pages/adminDashboard/bookings.jsx";
@@ -84,8 +82,8 @@ const router = createBrowserRouter([
       { path: "settings", element: <AdminSettingsPage /> },
     ],
   },
-  { path: "/property/:id/terms&conditions", element: <TermsConditions /> },
-  { path: "/property/:id/booking/confirm", element: <CompleteBookingPage /> },
+  { path: "/property/terms&conditions", element: <TermsConditions /> },
+  { path: "/property/booking/confirmation", element: <CompleteBookingPage /> },
   {
     element: (
       <AuthProvider>
@@ -95,6 +93,7 @@ const router = createBrowserRouter([
     children: [
       { path: "/auth/signup", element: <Signup /> },
       { path: "/auth/login", element: <Login /> },
+      { path: "/auth/verify-email", element: <EmailVerification /> },
     ],
   },
 ]);
@@ -103,7 +102,28 @@ export default function App() {
   return (
     <>
       <RouterProvider router={router} />
-      <Toaster />
+       <Toaster 
+        position="top-center"
+        toastOptions={{
+          duration: 4000,
+          style: {
+            background: '#363636',
+            color: '#fff',
+          },
+          success: {
+            duration: 5000,
+            style: {
+              background: '#10b981',
+            },
+          },
+          error: {
+            duration: 6000,
+            style: {
+              background: '#ef4444',
+            },
+          },
+        }}
+      />
     </>
   );
 }

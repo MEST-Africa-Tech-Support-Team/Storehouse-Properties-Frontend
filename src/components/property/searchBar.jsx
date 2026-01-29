@@ -1,14 +1,17 @@
 import { IoLocationSharp, IoSearch } from "react-icons/io5";
 import { useState, useEffect, useRef } from "react";
 import { toast } from "react-hot-toast";
+import { useNavigate } from "react-router-dom";
 
 export default function SearchBar() {
+  const navigate = useNavigate();
   const [location, setLocation] = useState("");
   const [checkIn, setCheckIn] = useState("");
   const [checkOut, setCheckOut] = useState("");
   const [loading, setLoading] = useState(false);
   const locationInputRef = useRef(null);
 
+  // Initialize Google Places Autocomplete
   useEffect(() => {
     if (!window.google?.maps?.places) return;
 
@@ -16,14 +19,23 @@ export default function SearchBar() {
       locationInputRef.current,
       {
         types: ["(cities)"],
-        fields: ["formatted_address"],
+        fields: ["formatted_address", "address_components"],
       }
     );
 
     autocomplete.addListener("place_changed", () => {
       const place = autocomplete.getPlace();
       if (place.formatted_address) {
-        setLocation(place.formatted_address);
+        // Extract city name from address components
+        let city = "";
+        if (place.address_components) {
+          const cityComponent = place.address_components.find(comp =>
+            comp.types.includes("locality") ||
+            comp.types.includes("administrative_area_level_2")
+          );
+          city = cityComponent ? cityComponent.long_name : "";
+        }
+        setLocation(city || place.formatted_address);
       }
     });
 
@@ -33,30 +45,57 @@ export default function SearchBar() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!location || !checkIn || !checkOut) {
-      toast.error("Please fill in all fields");
+    if (!location.trim()) {
+      toast.error("Please enter a location");
       return;
     }
 
-    if (new Date(checkIn) >= new Date(checkOut)) {
+    if (!checkIn || !checkOut) {
+      toast.error("Please select check-in and check-out dates");
+      return;
+    }
+
+    const checkInDate = new Date(checkIn);
+    const checkOutDate = new Date(checkOut);
+
+    if (checkInDate >= checkOutDate) {
       toast.error("Check-out must be after check-in");
       return;
     }
 
+    // Format dates as YYYY-MM-DD for backend
+    const formattedCheckIn = checkInDate.toISOString().split('T')[0];
+    const formattedCheckOut = checkOutDate.toISOString().split('T')[0];
+
     setLoading(true);
-    const toastId = toast.loading("Searching...");
+    const toastId = toast.loading("Searching available properties...");
 
     try {
-      await new Promise((r) => setTimeout(r, 1500));
-      console.log({ location, checkIn, checkOut });
-      toast.success("Properties found!", { id: toastId });
-    } catch {
-      toast.error("Search failed. Please try again.", { id: toastId });
+      // Build query params
+      const params = new URLSearchParams({
+        checkIn: formattedCheckIn,
+        checkOut: formattedCheckOut,
+      });
+
+      // Optional: include city if provided
+      if (location.trim()) {
+        params.append('city', location.trim());
+      }
+
+      // Redirect to explore page with filters
+      // Example: /explore?checkIn=2026-02-10&checkOut=2026-02-13&city=Lekki
+      navigate(`/explore?${params.toString()}`);
+
+      toast.success("Searching...", { id: toastId });
+    } catch (error) {
+      console.error("Search error:", error);
+      toast.error("Failed to search. Please try again.", { id: toastId });
     } finally {
       setLoading(false);
     }
   };
 
+  // Helper: Convert MM/DD/YYYY ↔ YYYY-MM-DD
   const formatDateForInput = (dateStr) => {
     if (!dateStr) return "";
     const [m, d, y] = dateStr.split("/");

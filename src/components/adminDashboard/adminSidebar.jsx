@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 
-// Icons
 import {
   RiDashboardLine,
   RiBarChartBoxLine,
@@ -17,7 +16,6 @@ const AdminSidebar = ({ userName, userEmail }) => {
   const location = useLocation();
   const [isOpen, setIsOpen] = useState(false);
 
-  // Close sidebar automatically when window is resized to desktop width
   useEffect(() => {
     const handleResize = () => {
       if (window.innerWidth >= 1024) setIsOpen(false);
@@ -26,7 +24,6 @@ const AdminSidebar = ({ userName, userEmail }) => {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  // Prevent scrolling when mobile menu is open
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = "hidden";
@@ -45,8 +42,7 @@ const AdminSidebar = ({ userName, userEmail }) => {
       .substring(0, 2);
   };
 
-  // Improved active logic: checks if current path starts with the link path 
-  // (useful for sub-routes like /admin/properties/add)
+  
   const isActive = (path) => {
     if (path === "/admin") return location.pathname === "/admin";
     return location.pathname.startsWith(path);
@@ -68,7 +64,6 @@ const AdminSidebar = ({ userName, userEmail }) => {
 
   return (
     <>
-      {/* MOBILE TRIGGER - Positioned inside the layout header space usually */}
       <button
         onClick={() => setIsOpen(true)}
         className="lg:hidden fixed top-5 left-4 z-[30] p-2 bg-white border border-gray-200 rounded-lg shadow-sm text-gray-600 active:scale-95 transition-transform"
@@ -76,7 +71,6 @@ const AdminSidebar = ({ userName, userEmail }) => {
         <RiMenuLine size={22} />
       </button>
 
-      {/* MOBILE OVERLAY */}
       {isOpen && (
         <div
           className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[40] lg:hidden transition-opacity"
@@ -84,7 +78,6 @@ const AdminSidebar = ({ userName, userEmail }) => {
         />
       )}
 
-      {/* SIDEBAR */}
       <aside
         className={`
           fixed left-0 top-0 h-screen w-72 bg-white border-r border-gray-100 p-6 flex flex-col justify-between z-[50]
@@ -94,7 +87,6 @@ const AdminSidebar = ({ userName, userEmail }) => {
         `}
       >
         <div className="flex flex-col h-full">
-          {/* LOGO SECTION */}
           <div className="flex items-center justify-between mb-10">
             <Link
               to="/"
@@ -114,7 +106,6 @@ const AdminSidebar = ({ userName, userEmail }) => {
             </button>
           </div>
 
-          {/* NAVIGATION LINKS */}
           <nav className="flex-1 space-y-1.5 overflow-y-auto no-scrollbar">
             {adminNavLinks.map((link) => (
               <Link
@@ -131,7 +122,6 @@ const AdminSidebar = ({ userName, userEmail }) => {
             ))}
           </nav>
 
-          {/* USER SECTION */}
           <div className="mt-auto pt-6 border-t border-gray-100">
             <div className="flex items-center gap-3 p-2 rounded-xl bg-gray-50/50 border border-gray-50">
               <div className="w-10 h-10 rounded-lg bg-blue-100 flex-shrink-0 flex items-center justify-center text-[#1E5EFF] font-bold text-sm">

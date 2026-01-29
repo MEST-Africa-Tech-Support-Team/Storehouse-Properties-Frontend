@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { Outlet, useLocation, Link } from "react-router-dom";
+import { Outlet, useLocation, Link, useNavigate } from "react-router-dom";
 import AdminSidebar from "../adminDashboard/adminSidebar";
-import { RiDownloadLine, RiAddCircleLine } from "react-icons/ri";
+import { RiDownloadLine, RiAddCircleLine, RiArrowLeftSLine } from "react-icons/ri";
 
 const AdminLayout = () => {
   const [admin, setAdmin] = useState({ name: "", email: "" });
   const location = useLocation();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const stored = JSON.parse(localStorage.getItem("storehouse_user"));
@@ -13,58 +14,68 @@ const AdminLayout = () => {
   }, []);
 
   // Configuration for each route's header content
- const getHeaderContent = () => {
-  const path = location.pathname;
+  const getHeaderContent = () => {
+    const path = location.pathname;
 
-  if (/\/users\/.+/.test(path)) {
-    return {
-      title: "User Profile",
-      subtitle: "Detailed overview of customer activity and account status",
-      action: (
-        <button 
-          onClick={() => window.history.back()} 
-          className="text-sm font-bold text-[#1E5EFF] hover:underline"
-        >
-          Back to List
-        </button>
-      ),
-    };
-  }
+    // 1. SPECIFIC USER DETAIL (Must come before general 'users' check)
+    if (/\/admin\/users\/.+/.test(path)) {
+      return {
+        title: "User Profile",
+        subtitle: "Detailed overview of customer activity and account status",
+        action: (
+          <button 
+            onClick={() => navigate("/admin/users")} 
+            className="flex items-center gap-1 text-sm font-bold text-[#1E5EFF] hover:underline"
+          >
+            <RiArrowLeftSLine size={18} />
+            Back to Users List
+          </button>
+        ),
+      };
+    }
 
+    // 2. SPECIFIC BOOKING DETAIL (Must come before general 'bookings' check)
+    if (/\/admin\/bookings\/.+/.test(path)) {
+      return {
+        title: "Booking Details",
+        subtitle: "Review complete reservation information and guest details",
+        action: (
+          <button 
+            onClick={() => navigate("/admin/bookings")} 
+            className="flex items-center gap-1 text-sm font-bold text-[#1E5EFF] hover:underline"
+          >
+            <RiArrowLeftSLine size={18} />
+            Back to Bookings
+          </button>
+        ),
+      };
+    }
 
-  if (/\/bookings\/.+/.test(path)) {
-    return {
-      title: "Booking Details",
-      subtitle: "Review complete reservation information and guest details",
-      action: null,
-    };
-  }
+    // 3. ADD PROPERTY PAGE
+    if (path.includes("properties/add")) {
+      return {
+        title: "Add New Property",
+        subtitle: "List a new property by filling out the information below",
+        action: null,
+      };
+    }
 
-  // 1. Specific "Add Property" Header
-  if (path.includes("properties/add")) {
-    return {
-      title: "Add New Property",
-      subtitle: "List a new property by filling out the information below",
-      action: null,
-    };
-  }
-
-  // 2. Standard Properties List Header
-  if (path.includes("properties")) {
-    return {
-      title: "Properties",
-      subtitle: "Manage, review, and organize all property listings",
-      action: (
-        <Link 
-          to="/admin/properties/add" 
-          className="flex items-center gap-2 bg-[#1E5EFF] px-4 py-2 rounded-lg text-white hover:bg-blue-700 transition-all shadow-md font-semibold text-sm"
-        >
-          <RiAddCircleLine className="text-lg" />
-          Add New Property
-        </Link>
-      ),
-    };
-  }
+    // 4. GENERAL CATEGORIES
+    if (path.includes("properties")) {
+      return {
+        title: "Properties",
+        subtitle: "Manage, review, and organize all property listings",
+        action: (
+          <Link 
+            to="/admin/properties/add" 
+            className="flex items-center gap-2 bg-[#1E5EFF] px-4 py-2 rounded-lg text-white hover:bg-blue-700 transition-all shadow-md font-semibold text-sm"
+          >
+            <RiAddCircleLine className="text-lg" />
+            Add New Property
+          </Link>
+        ),
+      };
+    }
 
     if (path.includes("bookings")) {
       return {
@@ -101,13 +112,9 @@ const AdminLayout = () => {
         subtitle: "Configure global platform behavior and preferences",
         action: null,
       };
-
-      
     }
 
-    
-
-    // Default: Dashboard Overview
+    // DEFAULT: Dashboard Overview
     return {
       title: "Dashboard Overview",
       subtitle: "Monitor platform activity and performance at a glance",

@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { MdSave } from "react-icons/md";
+import { toast } from 'react-hot-toast';
+import authService from '../../services/authService';
 
-const ChangePasswordForm = ({ onSave }) => {
+const ChangePasswordForm = ({ token }) => {
   const [showPasswords, setShowPasswords] = useState({
     old: false,
     new: false,
@@ -33,7 +35,7 @@ const ChangePasswordForm = ({ onSave }) => {
   const validateForm = () => {
     const newErrors = {};
 
-    if (!formData.oldPassword.trim()) {
+    if (!token && !formData.oldPassword.trim()) {
       newErrors.oldPassword = "Old password is required";
     }
 
@@ -55,15 +57,46 @@ const ChangePasswordForm = ({ onSave }) => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (validateForm()) {
-      onSave?.(formData);
+    if (!validateForm()) return;
+
+    try {
+      const url = token
+        ? `${import.meta.env.VITE_API_BASE_URL}/users/reset-password/${token}`
+        : `${import.meta.env.VITE_API_BASE_URL}/users/reset-password`;
+
+      const authToken = authService.getToken();
+
+      const body = token 
+        ? { password: formData.newPassword } 
+        : { oldPassword: formData.oldPassword, newPassword: formData.newPassword };
+
+      const res = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(authToken && !token ? { Authorization: `Bearer ${authToken}` } : {})
+        },
+        body: JSON.stringify(body)
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({}));
+        throw new Error(errorData.message || 'Failed to update password');
+      }
+
+      toast.success('Password updated successfully!');
+      setFormData({ oldPassword: '', newPassword: '', confirmPassword: '' });
+    } catch (err) {
+      console.error(err);
+      toast.error(err.message || 'Failed to update password');
     }
   };
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
+      {/* Old Password */}
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">Old Password</label>
         <div className="relative">
@@ -72,11 +105,13 @@ const ChangePasswordForm = ({ onSave }) => {
             name="oldPassword"
             value={formData.oldPassword}
             onChange={handleChange}
+            placeholder={token ? "Enter old password (optional)" : "Enter your old password"}
             className={`w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 ${
               errors.oldPassword 
                 ? 'border-red-500 focus:ring-red-200' 
                 : 'border-gray-300 focus:ring-blue-500'
             }`}
+            disabled={!!token} // disabled if resetting via token
           />
           <button
             type="button"
@@ -86,11 +121,10 @@ const ChangePasswordForm = ({ onSave }) => {
             {showPasswords.old ? <FaEyeSlash /> : <FaEye />}
           </button>
         </div>
-        {errors.oldPassword && (
-          <p className="mt-1 text-sm text-red-600">{errors.oldPassword}</p>
-        )}
+        {errors.oldPassword && <p className="mt-1 text-sm text-red-600">{errors.oldPassword}</p>}
       </div>
 
+      {/* New Password */}
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">New Password</label>
         <div className="relative">
@@ -99,6 +133,7 @@ const ChangePasswordForm = ({ onSave }) => {
             name="newPassword"
             value={formData.newPassword}
             onChange={handleChange}
+            placeholder="Enter your new password"
             className={`w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 ${
               errors.newPassword 
                 ? 'border-red-500 focus:ring-red-200' 
@@ -113,11 +148,10 @@ const ChangePasswordForm = ({ onSave }) => {
             {showPasswords.new ? <FaEyeSlash /> : <FaEye />}
           </button>
         </div>
-        {errors.newPassword && (
-          <p className="mt-1 text-sm text-red-600">{errors.newPassword}</p>
-        )}
+        {errors.newPassword && <p className="mt-1 text-sm text-red-600">{errors.newPassword}</p>}
       </div>
 
+      {/* Confirm Password */}
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">Confirm New Password</label>
         <div className="relative">
@@ -126,6 +160,7 @@ const ChangePasswordForm = ({ onSave }) => {
             name="confirmPassword"
             value={formData.confirmPassword}
             onChange={handleChange}
+            placeholder="Confirm your new password"
             className={`w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 ${
               errors.confirmPassword 
                 ? 'border-red-500 focus:ring-red-200' 
@@ -140,11 +175,10 @@ const ChangePasswordForm = ({ onSave }) => {
             {showPasswords.confirm ? <FaEyeSlash /> : <FaEye />}
           </button>
         </div>
-        {errors.confirmPassword && (
-          <p className="mt-1 text-sm text-red-600">{errors.confirmPassword}</p>
-        )}
+        {errors.confirmPassword && <p className="mt-1 text-sm text-red-600">{errors.confirmPassword}</p>}
       </div>
 
+      {/* Save Button */}
       <div className="pt-4 border-t border-gray-200 flex justify-end">
         <button
           type="submit"
