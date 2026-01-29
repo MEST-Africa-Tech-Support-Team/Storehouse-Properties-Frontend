@@ -16,12 +16,36 @@ const AdminLayout = () => {
  const getHeaderContent = () => {
   const path = location.pathname;
 
+  if (/\/users\/.+/.test(path)) {
+    return {
+      title: "User Profile",
+      subtitle: "Detailed overview of customer activity and account status",
+      action: (
+        <button 
+          onClick={() => window.history.back()} 
+          className="text-sm font-bold text-[#1E5EFF] hover:underline"
+        >
+          Back to List
+        </button>
+      ),
+    };
+  }
+
+
+  if (/\/bookings\/.+/.test(path)) {
+    return {
+      title: "Booking Details",
+      subtitle: "Review complete reservation information and guest details",
+      action: null,
+    };
+  }
+
   // 1. Specific "Add Property" Header
   if (path.includes("properties/add")) {
     return {
       title: "Add New Property",
       subtitle: "List a new property by filling out the information below",
-      action: null, // No button needed here
+      action: null,
     };
   }
 
@@ -77,7 +101,11 @@ const AdminLayout = () => {
         subtitle: "Configure global platform behavior and preferences",
         action: null,
       };
+
+      
     }
+
+    
 
     // Default: Dashboard Overview
     return {
