@@ -1,8 +1,18 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { FaUpload } from "react-icons/fa";
+import authService from '../../services/authService';
 
-const ProfilePictureUpload = ({ currentImage, onUpload, userName = "User" }) => {
-  const [image, setImage] = useState(currentImage || null);
+const ProfilePictureUpload = ({ onUpload }) => {
+  const [image, setImage] = useState(null);
+  const [userName, setUserName] = useState("User");
+
+  useEffect(() => {
+    const user = authService.getCurrentUser();
+    if (user) {
+      setUserName([user.firstName, user.lastName].filter(Boolean).join(' '));
+      if (user.profilePhoto) setImage(user.profilePhoto);
+    }
+  }, []);
 
   const getInitials = (name) => {
     return name
@@ -26,7 +36,7 @@ const ProfilePictureUpload = ({ currentImage, onUpload, userName = "User" }) => 
   };
 
   return (
-    <div className="flex items-center gap-4">
+    <div className="flex flex-col sm:flex-row sm:items-center gap-4">
       {image ? (
         <img
           src={image}

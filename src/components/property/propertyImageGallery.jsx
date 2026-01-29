@@ -5,25 +5,22 @@ const PropertyImageGallery = ({ images = [] }) => {
   const [showModal, setShowModal] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
 
+  // ✅ Fallback if images is empty
+  const imageList = Array.isArray(images) && images.length > 0
+    ? images
+    : ['https://placehold.co/600x400/e2e8f0/64748b?text=No+Image'];
+
   const openLightbox = (index) => {
     setCurrentIndex(index);
     setShowModal(true);
   };
 
-  const nextImage = () => {
-    setCurrentIndex((prev) => (prev + 1) % images.length);
-  };
+  const nextImage = () => setCurrentIndex((prev) => (prev + 1) % imageList.length);
+  const prevImage = () => setCurrentIndex((prev) => (prev - 1 + imageList.length) % imageList.length);
+  const selectImage = (index) => setCurrentIndex(index);
 
-  const prevImage = () => {
-    setCurrentIndex((prev) => (prev - 1 + images.length) % images.length);
-  };
-
-  const selectImage = (index) => {
-    setCurrentIndex(index);
-  };
-
-  const previewImages = images.slice(0, 5);
-  const remainingCount = Math.max(0, images.length - 5);
+  const previewImages = imageList.slice(0, 5);
+  const remainingCount = Math.max(0, imageList.length - 5);
 
   return (
     <div className="w-full max-w-7xl mx-auto px-4 py-6">
@@ -33,12 +30,16 @@ const PropertyImageGallery = ({ images = [] }) => {
           className="w-full md:w-3/5 relative overflow-hidden group cursor-pointer"
           onClick={() => openLightbox(0)}
         >
-          {previewImages[0] && (
+          {previewImages[0] ? (
             <img
               src={previewImages[0]}
               alt="Main property view"
               className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
             />
+          ) : (
+            <div className="w-full h-full bg-gray-100 flex items-center justify-center">
+              <span className="text-gray-400 text-sm">No image available</span>
+            </div>
           )}
         </div>
 
@@ -52,12 +53,14 @@ const PropertyImageGallery = ({ images = [] }) => {
                 className="relative overflow-hidden group cursor-pointer rounded-xl"
                 onClick={() => openLightbox(idx + 1)}
               >
-                {img && (
+                {img ? (
                   <img
                     src={img}
                     alt={`Property detail ${idx + 2}`}
                     className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                   />
+                ) : (
+                  <div className="w-full h-full bg-gray-100" />
                 )}
                 {showBadge && (
                   <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
@@ -76,9 +79,10 @@ const PropertyImageGallery = ({ images = [] }) => {
         </div>
       </div>
 
+      {/* Lightbox Modal */}
       {showModal && (
         <div
-          className="fixed inset-0 z-[100] bg-white flex flex-col items-center justify-start p-6 md:p-8"
+          className="fixed inset-0 z-[100] bg-black/90 flex flex-col items-center justify-center p-6 md:p-8"
           onClick={() => setShowModal(false)}
         >
           <button
@@ -86,24 +90,24 @@ const PropertyImageGallery = ({ images = [] }) => {
               e.stopPropagation();
               setShowModal(false);
             }}
-            className="absolute top-6 right-6 p-2 hover:bg-gray-100 rounded-full transition"
+            className="absolute top-6 right-6 p-2 hover:bg-gray-800 rounded-full transition"
             aria-label="Close gallery"
           >
-            <FaTimes className="text-gray-700" size={20} />
+            <FaTimes className="text-white" size={20} />
           </button>
 
           <div className="w-full max-w-6xl mb-4">
-            <p className="text-gray-700 font-medium text-left text-sm md:text-base">
-              {currentIndex + 1} / {images.length}
+            <p className="text-white font-medium text-left text-sm md:text-base">
+              {currentIndex + 1} / {imageList.length}
             </p>
           </div>
 
           <div
-            className="w-full max-w-6xl h-[60vh] md:h-[70vh] mb-4 overflow-hidden rounded-2xl"
+            className="w-full max-w-6xl h-[60vh] md:h-[70vh] mb-4 overflow-hidden rounded-2xl flex items-center justify-center"
             onClick={(e) => e.stopPropagation()}
           >
             <img
-              src={images[currentIndex]}
+              src={imageList[currentIndex]}
               alt={`Property photo ${currentIndex + 1}`}
               className="w-full h-full object-contain transition-transform duration-300 hover:scale-105"
               draggable={false}
@@ -115,10 +119,10 @@ const PropertyImageGallery = ({ images = [] }) => {
               e.stopPropagation();
               prevImage();
             }}
-            className="hidden md:block absolute left-6 top-1/2 -translate-y-1/2 flex items-center justify-center bg-white shadow-sm transition"
+            className="hidden md:block absolute left-6 top-1/2 -translate-y-1/2 flex items-center justify-center bg-white/20 hover:bg-white/40 text-white shadow-sm transition p-2 rounded-full"
             aria-label="Previous photo"
           >
-            <FaChevronLeft className="text-gray-700" size={14} />
+            <FaChevronLeft size={16} />
           </button>
 
           <button
@@ -126,15 +130,15 @@ const PropertyImageGallery = ({ images = [] }) => {
               e.stopPropagation();
               nextImage();
             }}
-            className="hidden md:block absolute right-6 top-1/2 -translate-y-1/2 flex items-center justify-center bg-white shadow-sm transition"
+            className="hidden md:block absolute right-6 top-1/2 -translate-y-1/2 flex items-center justify-center bg-white/20 hover:bg-white/40 text-white shadow-sm transition p-2 rounded-full"
             aria-label="Next photo"
           >
-            <FaChevronRight className="text-gray-700" size={14} />
+            <FaChevronRight size={16} />
           </button>
 
           <div className="w-full max-w-6xl overflow-x-auto pb-2 hide-scrollbar">
             <div className="flex space-x-3 w-max">
-              {images.map((img, idx) => (
+              {imageList.map((img, idx) => (
                 <div
                   key={idx}
                   onClick={(e) => {

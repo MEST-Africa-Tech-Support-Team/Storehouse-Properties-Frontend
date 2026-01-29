@@ -1,27 +1,75 @@
 import { useState, useEffect } from 'react';
 import { toast } from 'react-hot-toast';
-import { useNavigate } from 'react-router';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { authService } from '../../services/authService';
 
-export default function BookingForm({ price = 180 }) {
+export default function BookingForm({ price = 180, propertyId, maxGuests = 10, propertyTitle = 'Property' }) {
   const [checkIn, setCheckIn] = useState('');
   const [checkOut, setCheckOut] = useState('');
   const [guests, setGuests] = useState(1);
   const [nights, setNights] = useState(0);
   const [total, setTotal] = useState(0);
   const navigate = useNavigate();
+  const location = useLocation();
 
   const cleaningFee = 25;
   const serviceFee = 35;
+  const maxGuestsLimit = Math.min(maxGuests, 10);
+
+  // ✅ Load saved booking data from localStorage on mount
+  useEffect(() => {
+    if (!propertyId) return;
+    
+    const savedData = localStorage.getItem(`booking_${propertyId}`);
+    if (savedData) {
+      try {
+        const { checkIn: savedCheckIn, checkOut: savedCheckOut, guests: savedGuests } = JSON.parse(savedData);
+        const today = new Date().toISOString().split('T')[0];
+        if (savedCheckIn >= today && savedCheckOut > savedCheckIn) {
+          setCheckIn(savedCheckIn);
+          setCheckOut(savedCheckOut);
+        }
+        if (savedGuests >= 1 && savedGuests <= maxGuestsLimit) {
+          setGuests(savedGuests);
+        }
+      } catch (error) {
+        console.error('Failed to load saved booking data:', error);
+        localStorage.removeItem(`booking_${propertyId}`);
+      }
+    }
+  }, [propertyId, maxGuestsLimit]);
+
+  // ✅ Save booking data to localStorage whenever it changes
+  useEffect(() => {
+    if (!propertyId) return;
+    
+    const bookingData = {
+      checkIn,
+      checkOut,
+      guests,
+      nights,
+      total,
+      price,
+      cleaningFee,
+      serviceFee,
+      timestamp: new Date().toISOString()
+    };
+    localStorage.setItem(`booking_${propertyId}`, JSON.stringify(bookingData));
+  }, [checkIn, checkOut, guests, nights, total, price, propertyId]);
 
   useEffect(() => {
     if (checkIn && checkOut) {
       const inDate = new Date(checkIn);
       const outDate = new Date(checkOut);
-      if (outDate <= inDate) {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      
+      if (inDate < today || outDate <= inDate) {
         setNights(0);
         setTotal(0);
         return;
       }
+      
       const diffTime = Math.abs(outDate - inDate);
       const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
       setNights(diffDays);
@@ -35,25 +83,124 @@ export default function BookingForm({ price = 180 }) {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    
+    // ✅ Date validation
     if (!checkIn || !checkOut) {
-      toast.error('Please select check-in and check-out dates');
+      toast.error('Please select check-in and check-out dates', { duration: 3000 });
       return;
     }
-    if (new Date(checkOut) <= new Date(checkIn)) {
-      toast.error('Check-out must be after check-in');
+    
+    const inDate = new Date(checkIn);
+    const outDate = new Date(checkOut);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
+    if (inDate < today) {
+      toast.error('Check-in date must be today or later', { duration: 3000 });
       return;
     }
-    navigate('/property/:id/terms&conditions', {
-      state: { price, checkIn, checkOut, guests, total, nights },
+    
+    if (outDate <= inDate) {
+      toast.error('Check-out must be after check-in', { duration: 3000 });
+      return;
+    }
+    
+    // ✅ Authentication check - PROFESSIONAL FLOW
+    if (!authService.isAuthenticated()) {
+      // Show elegant toast with clear options
+      toast.custom((t) => (
+        <div className="bg-white shadow-lg rounded-xl p-4 max-w-md border border-gray-200 animate-fadeIn">
+          <div className="flex items-start">
+            <div className="flex-1">
+              <div className="flex items-center gap-2 mb-2">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-blue-600" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+                </svg>
+                <h3 className="font-bold text-gray-900">Continue your booking</h3>
+              </div>
+              <p className="text-sm text-gray-600 mb-3">
+                Please log in or create an account to secure your reservation. Your dates and details have been saved.
+              </p>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => {
+                    toast.dismiss(t.id);
+                    localStorage.setItem('postAuthRedirect', JSON.stringify({
+                      pathname: location.pathname,
+                      state: { price, checkIn, checkOut, guests, total, nights, propertyId }
+                    }));
+                    navigate('/auth/login', { state: { from: location, bookingAttempt: true } });
+                  }}
+                  className="flex-1 px-3 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition shadow-sm"
+                >
+                  Log In
+                </button>
+                <button
+                  onClick={() => {
+                    toast.dismiss(t.id);
+                    localStorage.setItem('postAuthRedirect', JSON.stringify({
+                      pathname: location.pathname,
+                      state: { price, checkIn, checkOut, guests, total, nights, propertyId }
+                    }));
+                    navigate('/auth/signup', { state: { from: location, bookingAttempt: true } });
+                  }}
+                  className="flex-1 px-3 py-2 bg-white border border-gray-300 text-gray-800 rounded-lg text-sm font-medium hover:bg-gray-50 transition"
+                >
+                  Sign Up
+                </button>
+              </div>
+            </div>
+            <button
+              onClick={() => toast.dismiss(t.id)}
+              className="ml-3 flex-shrink-0 text-gray-400 hover:text-gray-600"
+              aria-label="Close"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+              </svg>
+            </button>
+          </div>
+        </div>
+      ), {
+        duration: Infinity,
+        position: 'top-center'
+      });
+      return;
+    }
+
+    // ✅ Save booking data to localStorage for terms & conditions page
+    const bookingData = {
+      propertyId,
+      propertyTitle,
+      price,
+      checkIn,
+      checkOut,
+      guests,
+      nights,
+      total,
+      cleaningFee,
+      serviceFee,
+      timestamp: new Date().toISOString()
+    };
+    
+    // Save with unique key for terms & conditions page
+    localStorage.setItem('booking_pending', JSON.stringify(bookingData));
+    
+    // ✅ Navigate to terms & conditions page
+    navigate('/property/terms&conditions', { 
+      state: { 
+        booking: bookingData,
+        fromProperty: true 
+      } 
     });
   };
 
   const incrementGuests = () => {
-    if (guests < 6) setGuests(guests + 1);
+    if (guests < maxGuestsLimit) setGuests(prev => prev + 1);
   };
 
   const decrementGuests = () => {
-    if (guests > 1) setGuests(guests - 1);
+    if (guests > 1) setGuests(prev => prev - 1);
   };
 
   return (
@@ -71,6 +218,7 @@ export default function BookingForm({ price = 180 }) {
               <input
                 type="date"
                 value={checkIn}
+                min={new Date().toISOString().split('T')[0]}
                 onChange={(e) => setCheckIn(e.target.value)}
                 className="w-full text-[14px] text-[#1e293b] outline-none bg-transparent appearance-none cursor-pointer"
               />
@@ -83,6 +231,7 @@ export default function BookingForm({ price = 180 }) {
               <input
                 type="date"
                 value={checkOut}
+                min={checkIn || new Date().toISOString().split('T')[0]}
                 onChange={(e) => setCheckOut(e.target.value)}
                 className="w-full text-[14px] text-[#1e293b] outline-none bg-transparent appearance-none cursor-pointer"
               />
@@ -101,7 +250,7 @@ export default function BookingForm({ price = 180 }) {
                 type="button"
                 onClick={decrementGuests}
                 disabled={guests <= 1}
-                className="w-5 h-5 flex items-center justify-center text-gray-500  border rounded-full disabled:opacity-30 bg-gray-50"
+                className="w-5 h-5 flex items-center justify-center text-gray-500 border rounded-full disabled:opacity-30 bg-gray-50 hover:bg-gray-100 transition"
                 aria-label="Decrease guests"
               >
                 −
@@ -109,8 +258,8 @@ export default function BookingForm({ price = 180 }) {
               <button
                 type="button"
                 onClick={incrementGuests}
-                disabled={guests >= 10}
-                className="w-5 h-5 flex items-center justify-center text-gray-500 border rounded-full disabled:opacity-30 bg-gray-50"
+                disabled={guests >= maxGuestsLimit}
+                className="w-5 h-5 flex items-center justify-center text-gray-500 border rounded-full disabled:opacity-30 bg-gray-50 hover:bg-gray-100 transition"
                 aria-label="Increase guests"
               >
                 +
@@ -149,7 +298,7 @@ export default function BookingForm({ price = 180 }) {
             disabled={nights <= 0}
             className={`w-full font-semibold py-3 rounded-xl text-[15px] transition shadow-sm ${
               nights > 0
-                ? 'bg-blue-600 hover:bg-blue-700 text-white hover:shadow'
+                ? 'bg-blue-600 hover:bg-blue-700 text-white hover:shadow-md'
                 : 'bg-gray-200 text-gray-400 cursor-not-allowed'
             }`}
           >
