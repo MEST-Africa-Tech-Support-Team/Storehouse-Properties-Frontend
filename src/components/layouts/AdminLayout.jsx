@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Outlet, useLocation, Link, useNavigate } from "react-router-dom";
 import AdminSidebar from "../adminDashboard/adminSidebar";
-import { RiDownloadLine, RiAddCircleLine, RiArrowLeftSLine } from "react-icons/ri";
+import { RiDownloadLine, RiAddCircleLine, RiArrowLeftSLine, RiShieldUserLine } from "react-icons/ri";
 
 const AdminLayout = () => {
   const [admin, setAdmin] = useState({ name: "", email: "" });
@@ -16,21 +16,41 @@ const AdminLayout = () => {
   const getHeaderContent = () => {
     const path = location.pathname;
 
-    // 1. RECENT BOOKINGS
-    if (path.includes("recent-bookings")) {
+    // 1. DYNAMIC REVIEW PAGE (When viewing a specific pending booking)
+    if (path.includes("review-booking")) {
       return {
-        title: "Recent Bookings",
-        subtitle: "Real-time overview of the latest reservation activity",
+        title: "Review Booking Request",
+        subtitle: "Carefully verify guest details and property availability",
         // action: (
-        //   <button className="flex items-center gap-2 bg-white border border-[#E5E7EB] px-4 py-2 rounded-lg text-[#1a1a1a] hover:bg-gray-50 transition-all shadow-sm font-semibold text-sm">
-        //     <RiDownloadLine className="text-lg" />
-        //     Export CSV
+        //   <button 
+        //     onClick={() => navigate("/admin/recent-bookings")} 
+        //     className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white border border-[#E5E7EB] text-sm font-bold text-[#6B7280] hover:text-[#1E5EFF] transition-all shadow-sm"
+        //   >
+        //     <RiArrowLeftSLine size={18} />
+        //     Back to Pending List
         //   </button>
         // ),
       };
     }
 
-    // 2. SPECIFIC USER DETAIL
+    // 2. RECENT BOOKINGS (The list of pending requests)
+    if (path.includes("recent-bookings")) {
+      return {
+        title: "Pending Approvals",
+        subtitle: "You have new reservation requests that require action",
+        action: (
+          <div className="flex items-center gap-2 bg-[#FFF7ED] px-4 py-2 rounded-lg border border-[#FFEDD5]">
+            <span className="relative flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-400 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-orange-500"></span>
+            </span>
+            <span className="text-[11px] font-bold text-[#9A3412] uppercase tracking-wider">Action Required</span>
+          </div>
+        ),
+      };
+    }
+
+    // 3. SPECIFIC USER DETAIL
     if (/\/admin\/users\/.+/.test(path)) {
       return {
         title: "User Profile",
@@ -44,24 +64,6 @@ const AdminLayout = () => {
             Back to Users List
           </button>
         ),
-      };
-    }
-    
-
-    // 3. SPECIFIC BOOKING DETAIL
-    if (/\/admin\/bookings\/.+/.test(path)) {
-      return {
-        title: "Booking Details",
-        subtitle: "Review complete reservation information and guest details",
-        // action: (
-        //   <button 
-        //     onClick={() => navigate("/admin/bookings")} 
-        //     className="flex items-center gap-1 text-sm font-bold text-[#1E5EFF] hover:underline"
-        //   >
-        //     <RiArrowLeftSLine size={18} />
-        //     Back to Bookings
-        //   </button>
-        // ),
       };
     }
 

@@ -1,16 +1,16 @@
 import React from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { 
-  RiArrowLeftLine, RiMapPin2Line, RiExternalLinkLine, 
-  RiVisaFill, RiCheckLine, RiMailLine, RiPhoneLine, 
-  RiDownload2Line, RiFlagLine, RiRefreshLine, RiCustomerService2Line 
+  RiMapPin2Line, RiExternalLinkLine, 
+  RiVisaFill, RiMailLine, RiPhoneLine, 
+  RiDownload2Line, RiFlagLine, RiRefreshLine, RiCustomerService2Line,
+  RiCloseCircleLine, RiMoneyDollarCircleLine
 } from "react-icons/ri";
 
 const BookingDetailPage = () => {
   const { id } = useParams();
-  const navigate = useNavigate();
 
-  // Simulated Data based on your requirements
+  // Simulated Data
   const booking = {
     id: id || "BK-2334",
     status: "confirmed",
@@ -182,23 +182,17 @@ const BookingDetailPage = () => {
             </div>
           </CardWrapper>
 
-          {/* Admin Notes */}
-          <CardWrapper>
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="text-base font-bold text-[#1a1a1a]">Booking Notes (Admin Only)</h3>
-              <div className="flex items-center gap-1 text-[10px] font-bold text-[#22C55E] uppercase tracking-tighter">
-                <div className="w-1.5 h-1.5 bg-[#22C55E] rounded-full animate-pulse" />
-                Auto-save enabled
-              </div>
-            </div>
-            <textarea 
-              className="w-full h-32 p-4 text-sm bg-gray-50 border border-[#E5E7EB] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1E5EFF]/10 focus:border-[#1E5EFF] transition-all"
-              placeholder="Add internal notes about this booking..."
-            />
-            <p className="text-[#6B7280] text-[11px] mt-3 font-medium">
-              Last updated: Oct 24, 2025 • 02:45 PM
-            </p>
-          </CardWrapper>
+          {/* REPLACED SECTION: ACTION BUTTONS */}
+          <div className="flex flex-col sm:flex-row gap-4">
+            <button className="flex-1 flex items-center justify-center gap-2 px-6 py-4 rounded-xl border-2 border-[#EF4444] text-[#EF4444] font-bold text-sm hover:bg-[#EF4444]/5 transition-all">
+              <RiCloseCircleLine size={20} />
+              Cancel Booking
+            </button>
+            <button className="flex-1 flex items-center justify-center gap-2 px-6 py-4 rounded-xl bg-[#1E5EFF] text-white font-bold text-sm hover:bg-blue-700 transition-all shadow-lg shadow-blue-100">
+              <RiMoneyDollarCircleLine size={20} />
+              Process Refund
+            </button>
+          </div>
         </div>
 
         {/* RIGHT COLUMN: SIDEBAR */}
@@ -263,7 +257,7 @@ const BookingDetailPage = () => {
               <ActionButton icon={<RiCustomerService2Line />} label="Contact Customer" />
               <ActionButton icon={<RiRefreshLine />} label="Resend Confirmation" />
               <ActionButton icon={<RiDownload2Line />} label="Download Invoice" />
-              <ActionButton icon={<RiFlagLine />} label="Flag Booking" color="text-red-600 hover:bg-red-50" />
+              {/* <ActionButton icon={<RiFlagLine />} label="Flag Booking" color="text-red-600 hover:bg-red-50" /> */}
             </div>
           </CardWrapper>
         </div>
