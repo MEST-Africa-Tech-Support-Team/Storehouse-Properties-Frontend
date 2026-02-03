@@ -2,7 +2,7 @@ import React from "react";
 import { HiHome, HiCurrencyDollar } from "react-icons/hi2";
 import { FaBuilding, FaRegClock } from "react-icons/fa6";
 import { MdDiamond } from "react-icons/md";
-import { Link } from 'react-router';
+import { Link } from 'react-router-dom';
 import CategoryCard from "../../components/ui/categoryCard";
 
 const BrowseByCategory = () => {
@@ -25,7 +25,6 @@ const BrowseByCategory = () => {
         </p>
       </div>
 
-      {/* Desktop & Tablet: Wrap layout */}
       <div className="hidden sm:flex flex-wrap justify-center gap-6 max-w-7xl">
         {categories.map((category) => (
           <Link
@@ -38,17 +37,15 @@ const BrowseByCategory = () => {
         ))}
       </div>
 
-      {/* Mobile: Horizontal scroll */}
       <div className="sm:hidden w-full max-w-7xl">
         <div
           className="flex gap-6 pb-2 overflow-x-auto hide-scrollbar"
           style={{
             WebkitOverflowScrolling: 'touch',
-            scrollbarWidth: 'none', // Firefox
-            msOverflowStyle: 'none', // IE/Edge
+            scrollbarWidth: 'none', 
+            msOverflowStyle: 'none', 
           }}
           onScroll={(e) => {
-            // Hide scrollbar in WebKit (Safari/Chrome) via inline style
             e.target.style.scrollbarWidth = 'none';
           }}
         >

@@ -26,12 +26,9 @@ const ProfilePictureUpload = ({ onUpload }) => {
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setImage(reader.result);
-        onUpload?.(reader.result);
-      };
-      reader.readAsDataURL(file);
+      const preview = URL.createObjectURL(file);
+      setImage(preview);
+      onUpload?.(file, preview);
     }
   };
 

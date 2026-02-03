@@ -1,41 +1,39 @@
 import React, { useState, useEffect } from "react";
-import { useOutletContext } from "react-router";
 import { toast } from "react-hot-toast";
 
 import UserSidebar from "../../components/userDashboard/userSidebar";
 import ProfileInfoForm from "../../components/userDashboard/profileInfoForm";
-import ProfilePictureUpload from "../../components/userDashboard/profilePictureUpload";
 import ChangePasswordForm from "../../components/userDashboard/changePasswordForm";
 import LastLoginInfo from "../../components/userDashboard/lastLoginInfo";
 import DangerZone from "../../components/userDashboard/dangerZone";
 
 import authService from "../../services/authService";
+import { useAuth } from "../../context/AuthContext";
 
 const ProfilePage = () => {
-  const { userName } = useOutletContext();
-
+  const { refreshAuth } = useAuth();
   const [user, setUser] = useState({
     firstName: "",
-    surname: "",
+    lastName: "",
     email: "",
-    phoneNumber: "",
-    profilePicture: null,
+    phone: "",
+    profilePhoto: null,
   });
 
   const [isSaving, setIsSaving] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Load user from authService
+  // ✅ Load user ONCE from authService
   useEffect(() => {
     const currentUser = authService.getCurrentUser();
 
     if (currentUser) {
       setUser({
         firstName: currentUser.firstName || "",
-        surname: currentUser.surname || "",
+        lastName: currentUser.lastName || "",
         email: currentUser.email || "",
-        phoneNumber: currentUser.phoneNumber || "",
-        profilePicture: currentUser.profilePicture || null,
+        phone: currentUser.phone || "",
+        profilePhoto: currentUser.profilePhoto || null,
       });
     }
 
@@ -46,7 +44,7 @@ const ProfilePage = () => {
     setUser((prev) => ({ ...prev, [field]: value }));
   };
 
-  // Save profile (name, email, phone, avatar)
+  // ✅ Save ALL profile info (text + avatar handled inside ProfileInfoForm)
   const handleSaveChanges = async () => {
     setIsSaving(true);
 
@@ -56,12 +54,20 @@ const ProfilePage = () => {
 
       const formData = new FormData();
       formData.append("firstName", user.firstName);
-      formData.append("surname", user.surname);
+      formData.append("lastName", user.lastName);
       formData.append("email", user.email);
-      formData.append("phoneNumber", user.phoneNumber);
+      formData.append("phone", user.phone);
 
-      if (user.profilePicture instanceof File) {
-        formData.append("profilePicture", user.profilePicture);
+      // Accept either File or data-URL string for profilePhoto
+      if (user.profilePhoto) {
+        // If it's already a File, append directly
+        if (user.profilePhoto instanceof File) {
+          formData.append("profilePhoto", user.profilePhoto);
+        } else if (typeof user.profilePhoto === 'string' && user.profilePhoto.startsWith('data:')) {
+          // convert dataURL -> Blob
+          const resBlob = await (await fetch(user.profilePhoto)).blob();
+          formData.append("profilePhoto", resBlob, `avatar.${resBlob.type.split('/')[1] || 'png'}`);
+        }
       }
 
       const res = await fetch(
@@ -83,18 +89,27 @@ const ProfilePage = () => {
       const data = await res.json();
       const updatedUser = data.user || data;
 
-      // 🔥 Persist updated user
-      const existingUser = authService.getCurrentUser();
-      const mergedUser = { ...existingUser, ...updatedUser };
-      localStorage.setItem("user", JSON.stringify(mergedUser));
+      // Merge with existing stored user (don't rely solely on backend shape)
+      const merged = {
+        ...authService.getCurrentUser(),
+        ...updatedUser,
+      };
 
-      // 🔥 Sync UI
+      // If the user uploaded a new File, request a cache-busted URL so the new avatar
+      // appears immediately (and after refresh / re-login).
+      const shouldCacheBust = user.profilePhoto instanceof File;
+
+      // Persist and get the normalized user back from authService
+      const persisted = authService.setCurrentUser(merged, { cacheBust: shouldCacheBust }) || authService.getCurrentUser();
+      try { refreshAuth(); } catch (e) { /* noop if context unavailable */ }
+
+      // Keep local component state in sync with the persisted/normalized user
       setUser({
-        firstName: mergedUser.firstName,
-        surname: mergedUser.surname,
-        email: mergedUser.email,
-        phoneNumber: mergedUser.phoneNumber,
-        profilePicture: mergedUser.profilePicture,
+        firstName: persisted.firstName || "",
+        lastName: persisted.lastName || "",
+        email: persisted.email || "",
+        phone: persisted.phone || "",
+        profilePhoto: persisted.profilePhoto || null,
       });
 
       toast.success("Profile updated successfully");
@@ -153,21 +168,14 @@ const ProfilePage = () => {
 
             <ProfileInfoForm
               firstName={user.firstName}
-              surname={user.surname}
+              lastName={user.lastName}
               email={user.email}
-              phoneNumber={user.phoneNumber}
+              phone={user.phone}
+              profilePhoto={user.profilePhoto}
               onChange={handleInputChange}
-            />
-
-            <ProfilePictureUpload
-              userName={`${user.firstName} ${user.surname}`}
-              currentImage={
-                user.profilePicture instanceof File
-                  ? URL.createObjectURL(user.profilePicture)
-                  : user.profilePicture
-              }
-              onUpload={(file) =>
-                handleInputChange("profilePicture", file)
+              /* Accept (file, previewUrl) from child */
+              onAvatarChange={(file, preview) =>
+                setUser((prev) => ({ ...prev, profilePhoto: file ?? preview }))
               }
             />
 

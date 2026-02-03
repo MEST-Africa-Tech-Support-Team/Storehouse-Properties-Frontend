@@ -2,14 +2,17 @@ import React, { useState, useEffect } from "react";
 import { FiCalendar, FiUsers, FiMoon } from "react-icons/fi";
 import { FaLock } from "react-icons/fa"; 
 
-export default function BookingSummary() {
-  const [bookingData, setBookingData] = useState(null);
+export default function BookingSummary({ booking: bookingProp } = {}) {
+  const [bookingData, setBookingData] = useState(bookingProp || null);
 
   useEffect(() => {
-    // ✅ Try multiple sources for booking data
+    if (bookingProp) {
+      setBookingData(bookingProp);
+      return;
+    }
+
     let data = null;
-    
-    // 1. Try booking_pending (for terms page)
+
     const pending = localStorage.getItem('booking_pending');
     if (pending) {
       try {
@@ -18,14 +21,12 @@ export default function BookingSummary() {
         console.error('Failed to parse booking_pending:', error);
       }
     }
-    
-    // 2. If not found, try booking_confirmed_* (for confirmation page)
+
     if (!data) {
       const keys = Object.keys(localStorage);
-      const confirmedKeys = keys.filter(k => k.startsWith('booking_confirmed_'));
-      
+      const confirmedKeys = keys.filter((k) => k.startsWith('booking_confirmed_'));
+
       if (confirmedKeys.length > 0) {
-        // Get the most recent confirmed booking
         const latestKey = confirmedKeys.sort().reverse()[0];
         try {
           data = JSON.parse(localStorage.getItem(latestKey));
@@ -34,11 +35,11 @@ export default function BookingSummary() {
         }
       }
     }
-    
+
     if (data) {
       setBookingData(data);
     }
-  }, []);
+  }, [bookingProp]);
 
   if (!bookingData) {
     return (
@@ -48,12 +49,11 @@ export default function BookingSummary() {
     );
   }
 
-  // ✅ Extract ALL possible fields with fallbacks
   const {
     propertyTitle = 'Property',
-    title = 'Property', // Alternative field name
+    title = 'Property', 
     price = 0,
-    pricePerNight = 0, // Alternative field name
+    pricePerNight = 0, 
     checkIn,
     checkOut,
     guests = 1,
@@ -69,37 +69,41 @@ export default function BookingSummary() {
     propertyId
   } = bookingData;
 
-  // ✅ Use the correct price field
   const nightlyPrice = price || pricePerNight || 0;
 
-  // ✅ Calculate nights if not provided
   const calculatedNights = nights || (checkIn && checkOut 
     ? Math.ceil((new Date(checkOut) - new Date(checkIn)) / (1000 * 60 * 60 * 24))
     : 0);
 
-  // ✅ Calculate subtotal and total
   const subtotal = nightlyPrice * calculatedNights;
   const calculatedTotal = total || subtotal + serviceFee + cleaningFee;
 
-  // ✅ Get property image with multiple fallbacks
-  const mainImage = images?.[0] || 
-    (propertyId ? localStorage.getItem(`property_image_${propertyId}`) : null) ||
-    "https://images.unsplash.com/photo-1560448204-e62e0799b871?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80";
-
-  // ✅ Get location string with multiple fallbacks
-  let locationString = 'Location not available';
   
-  if (location?.city || city) {
-    const locCity = location.city || city;
-    const locRegion = location.region || region;
-    locationString = [locCity, locRegion].filter(Boolean).join(', ');
-  } else if (location?.address || address) {
-    locationString = location.address || address;
-  } else if (bookingData?.location?.city) {
-    locationString = bookingData.location.city;
-    if (bookingData.location.region) {
-      locationString += `, ${bookingData.location.region}`;
-    }
+  const mainImage = (
+    images?.[0]
+    || bookingData?.images?.[0]
+    || bookingData?.image
+    || bookingData?.propertyImage
+    || bookingData?.property?.images?.[0]
+    || (propertyId ? localStorage.getItem(`property_image_${propertyId}`) : null)
+    || "https://images.unsplash.com/photo-1560448204-e62e0799b871?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80"
+  );
+
+  let locationString = 'Location not available';
+
+  const locate =
+    bookingData?.location || bookingData?.propertyLocation || bookingData?.property?.location || {};
+
+  const byCity = bookingData?.city || locate?.city || '';
+  const byRegion = bookingData?.region || locate?.region || '';
+  const byAddress = bookingData?.address || locate?.address || '';
+
+  if (byCity) {
+    locationString = [byCity, byRegion].filter(Boolean).join(', ');
+  } else if (byAddress) {
+    locationString = byAddress;
+  } else if (typeof bookingData?.location === 'string') {
+    locationString = bookingData.location;
   }
 
   return (
