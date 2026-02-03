@@ -2,7 +2,6 @@ import React from "react";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { Toaster } from "react-hot-toast";
 import ProtectedRoute from "./components/protectedRoute/protectedRoute.jsx";
-import ScrollToTop from './components/scrollToTop.jsx';
 
 import RootLayout from "./components/layouts/RootLayout.jsx";
 import AuthLayout from "./components/layouts/AuthLayout.jsx";
@@ -106,7 +105,6 @@ const router = createBrowserRouter([
 export default function App() {
   return (
     <>
-      <ScrollToTop />
       <RouterProvider router={router} />
       <Toaster 
         position="top-center"
