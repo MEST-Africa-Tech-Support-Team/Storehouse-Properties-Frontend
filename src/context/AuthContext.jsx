@@ -6,7 +6,24 @@ const AuthContext = createContext();
 
 export const useAuth = () => {
   const context = useContext(AuthContext);
-  if (!context) throw new Error('useAuth must be used within AuthProvider');
+  if (!context) {
+    // Provide a helpful dev-only diagnostic and a safe fallback so the app doesn't crash
+    if (process.env.NODE_ENV !== 'production') {
+      const err = new Error('useAuth must be used within AuthProvider — returning a fallback so app can continue. Check stack to find the caller.');
+      // Log the error (stack shows the offending component)
+      // eslint-disable-next-line no-console
+      console.error(err);
+    }
+
+    // Non-throwing fallback to avoid hard crashes in production builds where
+    // a component might mistakenly call useAuth outside the provider.
+    return {
+      currentUser: null,
+      logout: () => {},
+      loading: true,
+      refreshAuth: () => {},
+    };
+  }
   return context;
 };
 
@@ -20,15 +37,32 @@ const getInitials = (user) => {
 export const AuthProvider = ({ children }) => {
   const [currentUser, setCurrentUser] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [authVersion, setAuthVersion] = useState(0); // ✅ Track auth changes
+  const [authVersion, setAuthVersion] = useState(0); 
+
+  useEffect(() => {
+    try {
+      if (typeof window !== 'undefined') {
+        if (window.__AUTH_PROVIDER_MOUNTED) {
+          console.warn('Multiple AuthProvider instances detected — this can cause context mismatch.');
+        }
+        window.__AUTH_PROVIDER_MOUNTED = true;
+      }
+    } catch (e) {
+    }
+    return () => {
+      try {
+        if (typeof window !== 'undefined') window.__AUTH_PROVIDER_MOUNTED = false;
+      } catch (e) {
+      }
+    };
+  }, []);
 
   const initializeAuth = () => {
     try {
       const token = authService.getToken();
-      const storedUser = localStorage.getItem('user');
-      
-      if (token && storedUser) {
-        const user = JSON.parse(storedUser);
+      const user = authService.getCurrentUser();
+
+      if (token && user) {
         setCurrentUser({ ...user, initials: getInitials(user) });
       } else {
         authService.logout();
@@ -43,7 +77,6 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  // ✅ Re-initialize when authVersion changes
   useEffect(() => {
     initializeAuth();
   }, [authVersion]);
@@ -51,10 +84,9 @@ export const AuthProvider = ({ children }) => {
   const logout = () => {
     authService.logout();
     setCurrentUser(null);
-    setAuthVersion(prev => prev + 1); // ✅ Force re-initialization
+    setAuthVersion(prev => prev + 1); 
   };
 
-  // ✅ Expose refresh function
   const refreshAuth = () => {
     setAuthVersion(prev => prev + 1);
   };

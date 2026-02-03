@@ -1,15 +1,13 @@
 import React from "react";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
-import { AuthProvider } from "./context/AuthContext";
 import { Toaster } from "react-hot-toast";
+import ProtectedRoute from "./components/protectedRoute/protectedRoute.jsx";
 
-// Layouts
 import RootLayout from "./components/layouts/RootLayout.jsx";
 import AuthLayout from "./components/layouts/AuthLayout.jsx";
 import DashboardLayout from "./components/layouts/userDashboardLayout.jsx";
 import AdminLayout from "./components/layouts/AdminLayout.jsx";
 
-// Public Pages
 import Home from "./pages/home.jsx";
 import About from "./pages/about.jsx";
 import Contact from "./pages/contact.jsx";
@@ -41,11 +39,7 @@ import AdminRecentBookingsPage from "./pages/adminDashboard/AdminRecentBookingsP
 
 const router = createBrowserRouter([
   {
-    element: (
-      <AuthProvider>
-        <RootLayout />
-      </AuthProvider>
-    ),
+    element: <RootLayout />,
     children: [
       { index: true, element: <Home /> },
       { path: "/about", element: <About /> },
@@ -56,9 +50,9 @@ const router = createBrowserRouter([
   },
   {
     element: (
-      <AuthProvider>
+      <ProtectedRoute>
         <DashboardLayout />
-      </AuthProvider>
+      </ProtectedRoute>
     ),
     children: [
       { path: "/dashboard", element: <UserDashboardOverview /> },
@@ -70,7 +64,11 @@ const router = createBrowserRouter([
   },
   {
     path: "/admin",
-    element: <AdminLayout />,
+    element: (
+      <ProtectedRoute requireAdmin={true}>
+        <AdminLayout />
+      </ProtectedRoute>
+    ),
     children: [
       { index: true, element: <AdminOverviewPage /> },
       { path: "analytics", element: <AdminAnalyticsPage /> },
@@ -84,14 +82,24 @@ const router = createBrowserRouter([
       { path: "recent-bookings", element: <AdminRecentBookingsPage /> },
     ],
   },
-  { path: "/property/terms&conditions", element: <TermsConditions /> },
-  { path: "/property/booking/confirmation", element: <CompleteBookingPage /> },
   {
+    path: "/property/terms&conditions",
     element: (
-      <AuthProvider>
-        <AuthLayout />
-      </AuthProvider>
+      <ProtectedRoute>
+        <TermsConditions />
+      </ProtectedRoute>
     ),
+  },
+  {
+    path: "/property/booking/confirmation",
+    element: (
+      <ProtectedRoute>
+        <CompleteBookingPage />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    element: <AuthLayout />,
     children: [
       { path: "/auth/signup", element: <Signup /> },
       { path: "/auth/login", element: <Login /> },
@@ -104,7 +112,7 @@ export default function App() {
   return (
     <>
       <RouterProvider router={router} />
-       <Toaster 
+      <Toaster 
         position="top-center"
         toastOptions={{
           duration: 4000,

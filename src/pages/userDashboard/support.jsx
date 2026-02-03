@@ -1,5 +1,5 @@
 import React from 'react';
-import { useOutletContext } from 'react-router';
+import { useOutletContext } from 'react-router-dom';
 
 import UserSidebar from '../../components/userDashboard/userSidebar';
 import SupportOptionCard from '../../components/userDashboard/supportOption';
@@ -45,9 +45,9 @@ const SupportPage = () => {
   };
 
   return (
-    <div className="flex">
+    <div className="flex flex-col lg:flex-row">
       <UserSidebar />
-      <div className="ml-64 p-6 max-w-[1400px] w-full">
+      <div className="w-full p-6 max-w-[1400px] px-4 sm:px-6 lg:px-8 lg:ml-64">
         <div className="mb-6">
           <h1 className="text-2xl font-extrabold text-black">Support & Help</h1>
           <p className="text-gray-600 mt-1">We are here to help you with anything you need</p>

@@ -3,7 +3,6 @@ import { authService } from './authService';
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 export const propertyService = {
-  // ✅ Existing method
   getProperties: async (filters = {}) => {
     const params = new URLSearchParams();
     
@@ -39,7 +38,6 @@ export const propertyService = {
     return [];
   },
 
-  // ✅ NEW: Get single property by ID
   getPropertyById: async (id) => {
     if (!id) throw new Error('Property ID is required');
     
@@ -70,5 +68,37 @@ export const propertyService = {
 
     const data = await response.json();
     return data;
+  },
+
+  getSimilarProperties: async (id) => {
+    if (!id) throw new Error('Property ID is required for similar properties');
+
+    const url = `${API_BASE_URL}/properties/similar/${id}`;
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    });
+
+    if (!response.ok) {
+      let message = `Failed to fetch similar properties (${response.status})`;
+      try {
+        const json = await response.json();
+        message = json.message || json.error || message;
+      } catch {}
+      throw new Error(message);
+    }
+
+    const data = await response.json();
+
+    if (Array.isArray(data)) return data;
+    if (data && Array.isArray(data.properties)) return data.properties;
+    if (data && Array.isArray(data.data)) return data.data;
+    if (data && Array.isArray(data.similar)) return data.similar;
+    if (data && Array.isArray(data.similarProperties)) return data.similarProperties;
+
+    console.warn('Unexpected similar properties response format:', data);
+    return [];
   }
 };

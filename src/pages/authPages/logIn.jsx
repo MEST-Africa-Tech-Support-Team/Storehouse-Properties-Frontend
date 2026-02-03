@@ -1,21 +1,42 @@
-// src/pages/auth/Login.jsx
 import { useState, useEffect } from "react";
 import { Eye, EyeOff } from "lucide-react";
 import { toast } from "react-hot-toast";
 import { FcGoogle } from "react-icons/fc";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate, Link } from "react-router";
 import { useAuth } from "../../context/AuthContext";
 import { authService } from "../../services/authService";
 
 export default function Login() {
   const navigate = useNavigate();
-  const { currentUser, refreshAuth } = useAuth(); // ✅ Added refreshAuth
+  const { currentUser, refreshAuth } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [formErrors, setFormErrors] = useState({});
+  const [retryCount, setRetryCount] = useState(0);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const MAX_RETRIES = 3;
 
   const [form, setForm] = useState({ email: "", password: "" });
 
-  // Redirect if already logged in
+  // ✅ Monitor network status periodically
+  useEffect(() => {
+    const checkNetworkStatus = () => {
+      if (!navigator.onLine) {
+        toast.error("No internet connection. Please check your network settings.", {
+          id: 'offline-warning-login',
+          duration: 8000,
+          icon: '⚠️'
+        });
+      }
+    };
+
+    checkNetworkStatus();
+    
+    const interval = setInterval(checkNetworkStatus, 30000);
+    
+    return () => clearInterval(interval);
+  }, []);
+
   useEffect(() => {
     if (currentUser) {
       navigate("/dashboard", { replace: true });
@@ -25,54 +46,257 @@ export default function Login() {
   const handleChange = (e) => {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
+    setFormErrors(prev => ({ ...prev, [name]: undefined }));
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    if (!form.email.trim() || !form.password.trim()) {
-      toast.error("Email and password are required");
-      return;
+  const handleError = (error, attempt = 0) => {
+    console.error('Login error (attempt ' + (attempt + 1) + '):', error);
+    
+    const isNetworkError = 
+      error.message.toLowerCase().includes('network') || 
+      error.message.toLowerCase().includes('failed to fetch') ||
+      error.message.toLowerCase().includes('load resource') ||
+      !navigator.onLine;
+    
+    if (isNetworkError) {
+      if (attempt < MAX_RETRIES) {
+        const nextAttempt = attempt + 1;
+        setRetryCount(nextAttempt);
+        
+        toast.loading(
+          `Connection issue. Retrying (${nextAttempt}/${MAX_RETRIES})...`,
+          { id: 'network-retry-login', duration: 3000 }
+        );
+        
+        setTimeout(() => {
+          handleSubmit(null, nextAttempt);
+        }, Math.pow(2, attempt) * 1000);
+        
+        return true; 
+      } else {
+        toast.error(
+          "Unable to connect to server. Please check your internet connection and try again later.",
+          { 
+            id: 'network-error-login', 
+            duration: 8000,
+            icon: '📡'
+          }
+        );
+        return false;
+      }
     }
-
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(form.email.trim())) {
-      toast.error("Please enter a valid email address");
-      return;
-    }
-
-    setLoading(true);
-    try {
-      // ✅ Use authService directly
-      const result = await authService.login({
-        email: form.email.trim(),
-        password: form.password,
+    
+    const errorMessage = error.message.toLowerCase();
+    
+    if (errorMessage.includes('invalid') || errorMessage.includes('incorrect') || errorMessage.includes('401')) {
+      setFormErrors({ password: "Invalid email or password" });
+      toast.error("Invalid email or password. Please try again.", {
+        duration: 6000,
+        icon: '🔑'
       });
+      return false;
+    }
+    
+    // Email not verified
+    if (errorMessage.includes('verify') || errorMessage.includes('verified')) {
+      toast.custom((t) => (
+        <div className="bg-white shadow-lg rounded-xl p-4 max-w-md border border-blue-200">
+          <div className="flex items-start">
+            <div className="flex-1">
+              <div className="flex items-center gap-2 mb-2">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-blue-600" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+                </svg>
+                <h3 className="font-bold text-gray-900">Verify your email</h3>
+              </div>
+              <p className="text-sm text-gray-600 mb-3">
+                Please check your inbox for the verification link. Didn't receive it?
+              </p>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => {
+                    toast.dismiss(t.id);
+                    navigate('/auth/resend-verification', { state: { email: form.email } });
+                  }}
+                  className="flex-1 px-3 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition"
+                >
+                  Resend verification
+                </button>
+                <button
+                  onClick={() => toast.dismiss(t.id)}
+                  className="flex-1 px-3 py-2 bg-white border border-gray-300 text-gray-800 rounded-lg text-sm font-medium hover:bg-gray-50 transition"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+            <button
+              onClick={() => toast.dismiss(t.id)}
+              className="ml-3 flex-shrink-0 text-gray-400 hover:text-gray-600"
+              aria-label="Close"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+              </svg>
+            </button>
+          </div>
+        </div>
+      ), {
+        duration: Infinity,
+        position: 'top-center'
+      });
+      return false;
+    }
+    
+    // Account not found
+    if (errorMessage.includes('not found') || errorMessage.includes('404') || errorMessage.includes('exist')) {
+      setFormErrors({ email: "Account not found" });
+      toast.error("No account found with this email. Please check your email or sign up.", {
+        duration: 6000,
+        icon: '🔍'
+      });
+      return false;
+    }
+    
+    if (errorMessage.includes('rate') || errorMessage.includes('limit') || errorMessage.includes('429')) {
+      toast.error("Too many login attempts. Please wait a few minutes before trying again.", {
+        duration: 8000,
+        icon: '⏳'
+      });
+      return false;
+    }
+    
+    if (errorMessage.includes('server') || errorMessage.includes('500') || errorMessage.includes('internal')) {
+      toast.error("Our servers are experiencing issues. Please try again in a few moments.", {
+        duration: 7000,
+        icon: '⚙️'
+      });
+      return false;
+    }
+    
+    // Timeout error
+    if (errorMessage.includes('timeout') || errorMessage.includes('timed out')) {
+      toast.error("Request timed out. Please check your connection and try again.", {
+        duration: 6000,
+        icon: '⏱️'
+      });
+      return false;
+    }
+    
+    // Generic error fallback
+    toast.error(
+      error.message || "We encountered an issue processing your request. Please try again.",
+      {
+        duration: 7000,
+        icon: '❌',
+        description: "If the problem persists, contact support@storehouse.com"
+      }
+    );
+    return false;
+  };
 
-      // ✅ Refresh auth context to update all components immediately
+  const handleSubmit = async (e, retryAttempt = 0) => {
+    if (e) e.preventDefault();
+    
+    // ✅ Check network connectivity
+    if (!navigator.onLine) {
+      toast.error("No internet connection. Please check your network settings and try again.", {
+        duration: 8000,
+        icon: '⚠️',
+        id: 'no-internet-login'
+      });
+      return;
+    }
+    
+    // ✅ Prevent duplicate submissions
+    if (isSubmitting) return;
+    setIsSubmitting(true);
+    
+    // ✅ Validate form
+    const errors = {};
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    
+    if (!form.email.trim()) {
+      errors.email = "Email is required";
+    } else if (!emailRegex.test(form.email.trim())) {
+      errors.email = "Invalid email format";
+    }
+    
+    if (!form.password.trim()) {
+      errors.password = "Password is required";
+    }
+    
+    if (Object.keys(errors).length > 0) {
+      setFormErrors(errors);
+      
+      // Focus first error field
+      const firstErrorField = errors.email ? 'email' : 'password';
+      const fieldElement = document.querySelector(`[name="${firstErrorField}"]`);
+      if (fieldElement) {
+        fieldElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        fieldElement.focus({ preventScroll: true });
+      }
+      
+      toast.error("Please correct the errors in the form before submitting.", {
+        duration: 4000,
+        icon: '📝'
+      });
+      
+      setIsSubmitting(false);
+      return;
+    }
+    
+    const loginData = {
+      email: form.email.trim().toLowerCase(),
+      password: form.password,
+    };
+    
+    setLoading(true);
+    
+    try {
+      const result = await authService.login(loginData);
+      
       refreshAuth();
       
-      toast.success(`Welcome back, ${result.user.firstName || "User"}! 🎉`);
-      navigate("/dashboard");
-    } catch (error) {
-      let msg = error.message || "Login failed. Please try again.";
-      if (msg.toLowerCase().includes("invalid") || msg.includes("401")) {
-        msg = "Invalid email or password.";
-      } else if (msg.toLowerCase().includes("verify")) {
-        msg =
-          "Please verify your email before logging in. Check your inbox for the verification link.";
-      } else if (msg.includes("404")) {
-        msg = "Account not found. Please check your email or sign up.";
-      } else if (msg.includes("429")) {
-        msg = "Too many login attempts. Please try again in a few minutes.";
-      } else if (msg.toLowerCase().includes("network")) {
-        msg = "Network error. Please check your connection and try again.";
+      setForm({ email: "", password: "" });
+      setFormErrors({});
+      setRetryCount(0);
+      setIsSubmitting(false);
+      
+      toast.success(
+        `Welcome back, ${result.user.firstName || "there"}! 🎉`,
+        { 
+          duration: 5000,
+          icon: '✅',
+          id: 'login-success'
+        }
+      );
+      
+      const postLoginRedirect = localStorage.getItem('postLoginRedirect');
+      if (postLoginRedirect) {
+        try {
+          const { pathname, search, state } = JSON.parse(postLoginRedirect);
+          localStorage.removeItem('postLoginRedirect');
+          navigate(pathname + search, { state: state || {}, replace: true });
+          return;
+        } catch (error) {
+          console.error('Invalid redirect data:', error);
+          localStorage.removeItem('postLoginRedirect');
+        }
       }
-
-      toast.error(msg);
-      setForm((prev) => ({ ...prev, password: "" }));
-    } finally {
+      
+      navigate("/dashboard", { replace: true });
+      
+    } catch (error) {
+      setIsSubmitting(false);
       setLoading(false);
+      
+      const willRetry = handleError(error, retryAttempt);
+      
+      if (!willRetry) {
+        setRetryCount(0);
+        setForm(prev => ({ ...prev, password: "" }));
+      }
     }
   };
 
@@ -90,14 +314,33 @@ export default function Login() {
             Welcome Back To Storehouse
           </h2>
 
+          {!navigator.onLine && (
+            <div className="mb-4 p-3 bg-amber-50 border border-amber-200 rounded-lg flex items-start gap-2">
+              <div className="mt-0.5 text-amber-600 font-bold">⚠️</div>
+              <div className="flex-1 text-amber-800 text-sm">
+                <p className="font-medium">No internet connection</p>
+                <p className="text-xs mt-1">Please check your network settings. You won't be able to log in until you're back online.</p>
+              </div>
+            </div>
+          )}
+
+          {retryCount > 0 && retryCount < MAX_RETRIES && (
+            <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg flex items-start gap-2">
+              <div className="mt-0.5 text-blue-600 font-bold">🔁</div>
+              <div className="flex-1 text-blue-800 text-sm">
+                <p className="font-medium">Connection issue detected</p>
+                <p className="text-xs mt-1">Attempting to reconnect ({retryCount}/{MAX_RETRIES})... Please stay on this page.</p>
+              </div>
+            </div>
+          )}
+
           <form onSubmit={handleSubmit}>
-            {/* Email */}
             <div className="mb-4">
               <label
                 htmlFor="email"
                 className="block text-xs font-medium text-gray-700 mb-1"
               >
-                Email
+                Email {formErrors.email && <span className="text-red-500 ml-1">*</span>}
               </label>
               <input
                 id="email"
@@ -105,20 +348,30 @@ export default function Login() {
                 type="email"
                 value={form.email}
                 onChange={handleChange}
-                disabled={loading}
+                disabled={loading || !navigator.onLine}
                 placeholder="Enter your email"
-                className="w-full px-3 py-2 border border-gray-300 rounded-full text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 disabled:bg-gray-50 disabled:cursor-not-allowed transition-colors"
+                className={`w-full px-3 py-2 border rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                  formErrors.email 
+                    ? 'border-red-500 focus:ring-red-200' 
+                    : 'border-gray-300'
+                }`}
                 autoComplete="email"
+                aria-invalid={!!formErrors.email}
+                aria-describedby={formErrors.email ? "emailError" : undefined}
               />
+              {formErrors.email && (
+                <p id="emailError" className="text-red-500 text-xs mt-1 flex items-center gap-1">
+                  <span>•</span> {formErrors.email}
+                </p>
+              )}
             </div>
 
-            {/* Password */}
             <div className="relative mb-4">
               <label
                 htmlFor="password"
                 className="block text-xs font-medium text-gray-700 mb-1"
               >
-                Password
+                Password {formErrors.password && <span className="text-red-500 ml-1">*</span>}
               </label>
               <input
                 id="password"
@@ -126,50 +379,65 @@ export default function Login() {
                 type={showPassword ? "text" : "password"}
                 value={form.password}
                 onChange={handleChange}
-                disabled={loading}
+                disabled={loading || !navigator.onLine}
                 placeholder="Enter your password"
-                className="w-full px-3 py-2 border border-gray-300 rounded-full text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 disabled:bg-gray-50 disabled:cursor-not-allowed transition-colors"
+                className={`w-full px-3 py-2 border rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                  formErrors.password 
+                    ? 'border-red-500 focus:ring-red-200' 
+                    : 'border-gray-300'
+                }`}
                 autoComplete="current-password"
+                aria-invalid={!!formErrors.password}
+                aria-describedby={formErrors.password ? "passwordError" : undefined}
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
                 className="absolute right-3 top-8 text-gray-400 hover:text-gray-600 transition-colors disabled:opacity-50"
-                disabled={loading}
+                disabled={loading || !navigator.onLine}
+                aria-label={showPassword ? "Hide password" : "Show password"}
               >
                 {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
               </button>
             </div>
 
-            {/* Forgot password */}
             <div className="flex items-center justify-between mb-6">
               <div></div>
               <Link
                 to="/auth/forgot-password"
                 className={`text-xs hover:underline transition-colors ${
-                  loading
+                  loading || !navigator.onLine
                     ? "text-gray-400 cursor-not-allowed"
                     : "text-blue-600 hover:text-blue-800"
                 }`}
+                aria-disabled={loading || !navigator.onLine}
               >
                 Forgot password?
               </Link>
             </div>
 
-            {/* Submit */}
             <button
               type="submit"
-              disabled={loading || !form.email.trim() || !form.password.trim()}
+              disabled={loading || !navigator.onLine || isSubmitting || !form.email.trim() || !form.password.trim()}
               className={`w-full py-2.5 rounded-full font-medium text-sm transition-all duration-200 mb-4 ${
-                loading || !form.email.trim() || !form.password.trim()
-                  ? "bg-blue-400 cursor-not-allowed"
-                  : "bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white shadow-sm hover:shadow-md"
-              }`}
+                loading || !navigator.onLine || isSubmitting || !form.email.trim() || !form.password.trim()
+                  ? "bg-blue-400 cursor-not-allowed transform scale-100"
+                  : "bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white shadow-sm hover:shadow-md transform hover:scale-[1.02]"
+              } flex items-center justify-center`}
             >
-              {loading ? "Signing in..." : "Sign in"}
+              {loading ? (
+                <span className="flex items-center">
+                  <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  Signing in...
+                </span>
+              ) : (
+                "Sign in"
+              )}
             </button>
 
-            {/* Social login */}
             <div className="relative mb-4">
               <div className="absolute inset-0 flex items-center">
                 <div className="w-full border-t border-gray-300"></div>
@@ -181,23 +449,23 @@ export default function Login() {
 
             <button
               type="button"
-              disabled={loading}
+              disabled={loading || !navigator.onLine}
               className="w-full flex items-center justify-center gap-2 py-2.5 border border-gray-300 rounded-full hover:bg-gray-50 active:bg-gray-100 transition-colors text-sm disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <FcGoogle className="text-xl" />
               Sign in with Google
             </button>
 
-            {/* Sign up link */}
             <p className="text-center text-xs mt-5 text-gray-600">
               Don't have an account?{" "}
               <Link
                 to="/auth/signup"
                 className={`font-medium transition-colors ${
-                  loading
+                  loading || !navigator.onLine
                     ? "text-blue-400 cursor-not-allowed"
                     : "text-blue-600 hover:text-blue-800 hover:underline"
                 }`}
+                aria-disabled={loading || !navigator.onLine}
               >
                 Sign up
               </Link>

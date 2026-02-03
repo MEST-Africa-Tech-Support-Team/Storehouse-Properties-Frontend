@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link } from 'react-router';
+import { Link } from 'react-router-dom';
 import { IoBan } from "react-icons/io5";
 import { FaBaby } from "react-icons/fa";
 import { IoIosPeople } from "react-icons/io";
@@ -33,25 +33,25 @@ const BookingCard = ({ booking }) => {
   };
 
   return (
-    <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100 hover:shadow-md transition-shadow flex gap-4">
+    <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100 hover:shadow-md transition-shadow flex flex-col md:flex-row gap-4">
       <img
         src={booking.image || "https://images.unsplash.com/photo-1560448204-e62e497b1d04?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80"}
         alt={title}
-        className="w-24 h-24 object-cover rounded-lg transition-transform duration-300 ease-out hover:scale-105"
+        className="w-full md:w-24 h-48 md:h-24 object-cover rounded-lg transition-transform duration-300 ease-out hover:scale-105"
       />
 
       <div className="flex-1 min-w-0">
-        <h3 className="text-lg font-semibold text-gray-900">{title}</h3>
-        <p className="text-sm text-gray-500 mb-2">{location}</p>
+        <h3 className="text-lg font-semibold text-gray-900 truncate">{title}</h3>
+        <p className="text-sm text-gray-500 mb-2 truncate">{location}</p>
         {getChildrenBadge(childrenAllowed)}
       </div>
 
-      <div className="flex flex-col justify-center items-start gap-2">
-        <div className="flex items-center gap-1 text-sm text-gray-600">
+      <div className="flex flex-col md:justify-center md:items-start gap-2 text-sm text-gray-600">
+        <div className="flex items-center gap-1">
           <FaCalendar className="text-gray-500" />
           <span>{checkIn} → {checkOut}</span>
         </div>
-        <div className="flex items-center gap-1 text-sm text-gray-600">
+        <div className="flex items-center gap-1">
           <IoIosPeople className="text-gray-500" />
           <span>{guests}</span>
         </div>
@@ -60,16 +60,16 @@ const BookingCard = ({ booking }) => {
         </span>
       </div>
 
-      <div className="flex flex-col justify-between items-end">
-        <div className="text-right">
+      <div className="flex flex-col md:justify-between md:items-end w-full md:w-auto">
+        <div className="text-right mb-3 md:mb-0">
           <div className="text-2xl font-bold text-gray-900">${price.toLocaleString()}</div>
           <div className="text-xs text-gray-500">Total paid</div>
         </div>
 
-        <div className="flex flex-row space-x-2">
+        <div className="flex flex-col sm:flex-row sm:space-x-2 gap-2">
           <Link
             to={`/booking/${id}/details`}
-            className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-full hover:bg-blue-700 transition-colors"
+            className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-full hover:bg-blue-700 transition-colors text-center"
           >
             View Details
           </Link>
