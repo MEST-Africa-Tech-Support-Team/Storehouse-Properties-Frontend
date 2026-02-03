@@ -24,7 +24,7 @@ const AdminBookingsPage = () => {
       checkOut: "Jan 22, 2025",
       guests: "2 Adults / 1 Child",
       children: "YES",
-      status: "confirmed",
+      status: "pending",
       payment: "paid",
       amount: "$3,434",
     },
@@ -102,7 +102,7 @@ const AdminBookingsPage = () => {
       checkOut: "Jul 08, 2025",
       guests: "4 Adults / 2 Children",
       children: "YES",
-      status: "confirmed",
+      status: "pending",
       payment: "paid",
       amount: "$6,120",
     },
@@ -238,17 +238,19 @@ const AdminBookingsPage = () => {
                       {booking.children}
                     </span>
                   </td>
-                  <td className="px-6 py-4">
-                    <span
-                      className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase ${
-                        booking.status === "confirmed"
-                          ? "bg-[#DCFCE7] text-[#15803D]"
-                          : "bg-[#FEE2E2] text-[#B91C1C]"
-                      }`}
-                    >
-                      {booking.status}
-                    </span>
-                  </td>
+                 <td className="px-6 py-4">
+  <span
+    className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase ${
+      booking.status === "confirmed"
+        ? "bg-[#DCFCE7] text-[#15803D]"
+        : booking.status === "pending"
+        ? "bg-[#FEF3C7] text-[#D97706]"
+        : "bg-[#FEE2E2] text-[#B91C1C]"
+    }`}
+  >
+    {booking.status}
+  </span>
+</td>
                   <td className="px-6 py-4">
                     <span
                       className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase ${

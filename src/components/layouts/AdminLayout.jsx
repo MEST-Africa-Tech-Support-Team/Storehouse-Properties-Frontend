@@ -13,11 +13,24 @@ const AdminLayout = () => {
     if (stored) setAdmin(stored);
   }, []);
 
-  // Configuration for each route's header content
   const getHeaderContent = () => {
     const path = location.pathname;
 
-    // 1. SPECIFIC USER DETAIL (Must come before general 'users' check)
+    // 1. RECENT BOOKINGS
+    if (path.includes("recent-bookings")) {
+      return {
+        title: "Recent Bookings",
+        subtitle: "Real-time overview of the latest reservation activity",
+        // action: (
+        //   <button className="flex items-center gap-2 bg-white border border-[#E5E7EB] px-4 py-2 rounded-lg text-[#1a1a1a] hover:bg-gray-50 transition-all shadow-sm font-semibold text-sm">
+        //     <RiDownloadLine className="text-lg" />
+        //     Export CSV
+        //   </button>
+        // ),
+      };
+    }
+
+    // 2. SPECIFIC USER DETAIL
     if (/\/admin\/users\/.+/.test(path)) {
       return {
         title: "User Profile",
@@ -33,25 +46,26 @@ const AdminLayout = () => {
         ),
       };
     }
+    
 
-    // 2. SPECIFIC BOOKING DETAIL (Must come before general 'bookings' check)
+    // 3. SPECIFIC BOOKING DETAIL
     if (/\/admin\/bookings\/.+/.test(path)) {
       return {
         title: "Booking Details",
         subtitle: "Review complete reservation information and guest details",
-        action: (
-          <button 
-            onClick={() => navigate("/admin/bookings")} 
-            className="flex items-center gap-1 text-sm font-bold text-[#1E5EFF] hover:underline"
-          >
-            <RiArrowLeftSLine size={18} />
-            Back to Bookings
-          </button>
-        ),
+        // action: (
+        //   <button 
+        //     onClick={() => navigate("/admin/bookings")} 
+        //     className="flex items-center gap-1 text-sm font-bold text-[#1E5EFF] hover:underline"
+        //   >
+        //     <RiArrowLeftSLine size={18} />
+        //     Back to Bookings
+        //   </button>
+        // ),
       };
     }
 
-    // 3. ADD PROPERTY PAGE
+    // 4. ADD PROPERTY PAGE
     if (path.includes("properties/add")) {
       return {
         title: "Add New Property",
@@ -60,7 +74,7 @@ const AdminLayout = () => {
       };
     }
 
-    // 4. GENERAL CATEGORIES
+    // 5. GENERAL CATEGORIES
     if (path.includes("properties")) {
       return {
         title: "Properties",
@@ -131,12 +145,9 @@ const AdminLayout = () => {
 
   return (
     <div className="flex min-h-screen bg-[#F4F8FF]">
-      {/* Sidebar - Fixed to left */}
       <AdminSidebar userName={admin.name} userEmail={admin.email} />
 
-      {/* Content Area */}
       <div className="flex-1 lg:pl-64 flex flex-col">
-        {/* SHARED HEADER */}
         <header className="sticky top-0 z-20 bg-white border-b border-[#E5E7EB] px-6 py-5">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div>
@@ -145,17 +156,12 @@ const AdminLayout = () => {
                 {subtitle}
               </p>
             </div>
-
-            {/* Dynamic Action Button Area */}
             <div className="flex items-center gap-3">{action}</div>
           </div>
         </header>
 
-        {/* PAGE CONTENT */}
         <main className="p-6 md:p-8">
-          <Outlet
-            context={{ adminName: admin.name, adminEmail: admin.email }}
-          />
+          <Outlet context={{ adminName: admin.name, adminEmail: admin.email }} />
         </main>
       </div>
     </div>
