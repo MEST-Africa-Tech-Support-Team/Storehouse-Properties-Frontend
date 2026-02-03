@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Link, useLocation } from 'react-router';
+import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext'; 
 
 import { RiDashboardLine } from "react-icons/ri";
@@ -20,7 +20,7 @@ const getInitials = (user) => {
 const UserSidebar = () => {
   const location = useLocation();
   const { currentUser, loading } = useAuth(); 
-  const [isOpen, setIsOpen] = useState(false); // mobile menu
+  const [isOpen, setIsOpen] = useState(false); 
 
   const isActive = (path) => location.pathname === path;
 
@@ -38,7 +38,6 @@ const UserSidebar = () => {
 
   return (
     <>
-      {/* Hamburger button for mobile */}
       <button
         className="fixed top-4 left-4 z-20 p-2 bg-white rounded-md shadow-md md:hidden"
         onClick={() => setIsOpen(!isOpen)}
@@ -47,7 +46,6 @@ const UserSidebar = () => {
         {isOpen ? <FaTimes className="text-gray-700" /> : <FaBars className="text-gray-700" />}
       </button>
 
-      {/* Sidebar */}
       <aside
         className={`fixed top-0 left-0 h-screen w-64 bg-white border-r border-gray-200 p-5 flex flex-col justify-between z-10 transform transition-transform duration-300 ease-in-out
         ${isOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0`}
@@ -132,7 +130,6 @@ const UserSidebar = () => {
         </Link>
       </aside>
 
-      {/* Overlay for mobile when menu is open */}
       {isOpen && (
         <div
           className="fixed inset-0 bg-black/30 z-5 md:hidden"

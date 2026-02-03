@@ -1,22 +1,18 @@
-import React, { useEffect, useState } from 'react';
-import { Outlet } from 'react-router';
+import React from 'react';
+import { Outlet } from 'react-router-dom';
 import UserSidebar from '../userDashboard/userSidebar';
+import { useAuth } from '../../context/AuthContext';
 
 const DashboardLayout = () => {
-  const [user, setUser] = useState({ name: '', email: '' });
-
-  useEffect(() => {
-    const stored = JSON.parse(localStorage.getItem('user'));
-    if (stored) {
-      setUser(stored);
-    }
-  }, []);
+  const { currentUser } = useAuth();
+  const userName = currentUser ? [currentUser.firstName, currentUser.lastName].filter(Boolean).join(' ') : '';
+  const userEmail = currentUser?.email || '';
 
   return (
     <div style={{ display: 'flex', minHeight: '100vh', backgroundColor: '#f8f9fa' }}>
-      <UserSidebar userName={user.name} userEmail={user.email} />
+      <UserSidebar />
       <main style={{ flex: 1, padding: '24px', overflowY: 'auto' }}>
-        <Outlet context={{ userName: user.name, userEmail: user.email }} />
+        <Outlet context={{ userName, userEmail }} />
       </main>
     </div>
   );

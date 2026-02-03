@@ -1,26 +1,98 @@
-import React from "react";
-import { Link } from "react-router";
+import React, { useState, useEffect } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { IoMdArrowBack } from "react-icons/io";
 import { toast } from 'react-hot-toast';
 import BookingSummary from "../components/property/bookingSummary.jsx";
 import GuestInformation from "../components/property/guestInformation.jsx";
+import { authService } from "../services/authService";
 
 export default function CompleteBookingPage() {
-  const property = {
-    name: "Sunset Beach Villa",
-    location: "Malibu, California",
-    image: "https://images.unsplash.com/photo-1560448204-e62e0799b871?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=600&q=80",
-  };
+  const navigate = useNavigate();
+  const location = useLocation();
+  const [booking, setBooking] = useState(null);
+  const [loading, setLoading] = useState(false);
 
-  const initialCheckIn = "2024-12-15";
-  const initialCheckOut = "2024-12-18";
-  const initialGuests = 2;
-  const pricePerNight = 450;
+  useEffect(() => {
+    const fromState = location.state?.booking;
+    if (fromState) {
+      setBooking(fromState);
+      return;
+    }
 
-  const handleFormSubmit = (data) => {
-    console.log("Booking submitted:", data);
-    toast.success("Booking details saved! Redirecting to payment...");
-    // Here you would typically redirect to a payment page or process payment
+    const pending = localStorage.getItem('booking_pending');
+    if (pending) {
+      try {
+        setBooking(JSON.parse(pending));
+      } catch (err) {
+        console.error('Invalid booking_pending', err);
+      }
+    }
+  }, [location.state]);
+
+  const handleFormSubmit = async (guestData) => {
+    if (!booking) {
+      toast.error('Missing booking details. Please reselect dates and try again.');
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      const token = authService.getToken();
+      const propertyId = booking.propertyId || booking.propertyId || booking.propertyId || booking.propertyId;
+      const endpoint = `${import.meta.env.VITE_API_BASE_URL}/bookings/${propertyId}`;
+
+      const fd = new FormData();
+      fd.append('propertyId', propertyId);
+      fd.append('checkIn', booking.checkIn);
+      fd.append('checkOut', booking.checkOut);
+      fd.append('guests', booking.guests);
+      fd.append('price', booking.price || booking.pricePerNight || 0);
+      fd.append('nights', booking.nights || 0);
+      fd.append('total', booking.total || 0);
+
+      fd.append('fullName', guestData.fullName);
+      fd.append('email', guestData.email);
+      fd.append('phone', guestData.phone);
+      fd.append('country', guestData.country || '');
+      fd.append('arrivalTime', guestData.arrivalTime || '');
+      fd.append('specialRequests', guestData.specialRequests || '');
+
+      if (guestData.idDocuments && guestData.idDocuments.length) {
+        guestData.idDocuments.forEach((file, idx) => {
+          fd.append('idDocuments', file, file.name || `id-${idx}`);
+        });
+      }
+
+      const res = await fetch(endpoint, {
+        method: 'POST',
+        headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+        body: fd,
+      });
+
+      const result = await res.json().catch(() => ({}));
+
+      if (!res.ok) {
+        throw new Error(result.message || `Booking failed (${res.status})`);
+      }
+
+      const confirmed = result.booking || result.data || result;
+      const key = `booking_confirmed_${confirmed.id || propertyId || Date.now()}`;
+      localStorage.setItem(key, JSON.stringify(confirmed));
+
+      localStorage.removeItem('booking_pending');
+
+      setBooking(confirmed);
+
+      toast.success('Booking confirmed — check your email for details');
+
+      navigate(window.location.pathname, { replace: true, state: { booking: confirmed } });
+    } catch (err) {
+      console.error('Booking error:', err);
+      toast.error(err.message || 'Failed to complete booking');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -41,24 +113,27 @@ export default function CompleteBookingPage() {
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-16 px-4">
           <div className="lg:col-span-2">
-            <GuestInformation
-              onSubmit={handleFormSubmit}
-              property={property}
-              checkIn={initialCheckIn}
-              checkOut={initialCheckOut}
-              guests={initialGuests}
-              pricePerNight={pricePerNight}
-            />
+            {!booking ? (
+              <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+                <p className="text-sm text-gray-600">No booking found — please select dates on the property page first.</p>
+                <div className="mt-4">
+                  <Link to="/explore" className="text-sm text-blue-600 hover:underline">Back to properties</Link>
+                </div>
+              </div>
+            ) : (
+              <GuestInformation
+                onSubmit={handleFormSubmit}
+                property={{ name: booking.propertyTitle || booking.title, image: booking.image }}
+                checkIn={booking.checkIn}
+                checkOut={booking.checkOut}
+                guests={booking.guests}
+                pricePerNight={booking.price || booking.pricePerNight}
+              />
+            )}
           </div>
 
           <div className="static">
-            <BookingSummary
-              property={property}
-              checkIn={initialCheckIn}
-              checkOut={initialCheckOut}
-              guests={initialGuests}
-              pricePerNight={pricePerNight}
-            />
+            <BookingSummary booking={booking} />
           </div>
         </div>
       </div>

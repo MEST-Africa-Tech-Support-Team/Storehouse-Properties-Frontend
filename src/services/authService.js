@@ -1,5 +1,26 @@
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
+const normalizeUser = (user = {}, { cacheBust = false } = {}) => {
+  if (!user) return user;
+  const out = { ...user };
+
+  const photo = out.profilePhoto;
+  if (photo && typeof photo === 'string') {
+    const isAbsolute = /^(?:https?:)?\/\//i.test(photo);
+    if (!isAbsolute && API_BASE_URL) {
+      // join without duplicating slashes
+      out.profilePhoto = `${API_BASE_URL.replace(/\/$/, '')}/${photo.replace(/^\//, '')}`;
+    }
+
+    if (cacheBust && out.profilePhoto) {
+      const sep = out.profilePhoto.includes('?') ? '&' : '?';
+      out.profilePhoto = `${out.profilePhoto}${sep}v=${Date.now()}`;
+    }
+  }
+
+  return out;
+};
+
 export const authService = {
   
   signup: async (userData) => {
@@ -115,12 +136,14 @@ export const authService = {
 
       const profileData = await profileRes.json();
 
-      localStorage.setItem("user", JSON.stringify(profileData.user));
+      const normalized = normalizeUser(profileData.user || profileData, { cacheBust: false });
+
+      localStorage.setItem("user", JSON.stringify(normalized));
 
       return {
         success: true,
         token: loginData.token,
-        user: profileData.user,
+        user: normalized,
       };
     } catch (error) {
       localStorage.removeItem("authToken");
@@ -134,32 +157,34 @@ export const authService = {
     localStorage.removeItem("user");
   },
 
-  /* =========================
-     USER STORAGE HELPERS
-  ========================= */
-
   getCurrentUser: () => {
     const user = localStorage.getItem("user");
-    return user ? JSON.parse(user) : null;
+    if (!user) return null;
+    try {
+      const parsed = JSON.parse(user);
+      return normalizeUser(parsed, { cacheBust: false });
+    } catch (e) {
+      localStorage.removeItem('user');
+      return null;
+    }
   },
 
-  setCurrentUser: (user) => {
-    if (!user) return;
-    localStorage.setItem("user", JSON.stringify(user));
+  setCurrentUser: (user, { cacheBust = false } = {}) => {
+    if (!user) return null;
+    const normalized = normalizeUser(user, { cacheBust });
+    localStorage.setItem("user", JSON.stringify(normalized));
+    return normalized;
   },
 
-  updateCurrentUser: (updates) => {
+  updateCurrentUser: (updates, { cacheBust = false } = {}) => {
     const existing = authService.getCurrentUser();
-    if (!existing) return;
+    if (!existing) return null;
 
     const updatedUser = { ...existing, ...updates };
-    localStorage.setItem("user", JSON.stringify(updatedUser));
-    return updatedUser;
+    const normalized = normalizeUser(updatedUser, { cacheBust });
+    localStorage.setItem("user", JSON.stringify(normalized));
+    return normalized;
   },
-
-  /* =========================
-     TOKEN HELPERS
-  ========================= */
 
   getToken: () => localStorage.getItem("authToken"),
 

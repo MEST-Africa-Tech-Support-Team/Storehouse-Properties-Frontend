@@ -3,7 +3,7 @@ import { toast } from 'react-hot-toast';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { authService } from '../../services/authService';
 
-export default function BookingForm({ price = 180, propertyId, maxGuests = 10, propertyTitle = 'Property' }) {
+export default function BookingForm({ price = 180, propertyId, maxGuests = 10, propertyTitle = 'Property', propertyImage = null, propertyLocation = null }) {
   const [checkIn, setCheckIn] = useState('');
   const [checkOut, setCheckOut] = useState('');
   const [guests, setGuests] = useState(1);
@@ -16,7 +16,6 @@ export default function BookingForm({ price = 180, propertyId, maxGuests = 10, p
   const serviceFee = 35;
   const maxGuestsLimit = Math.min(maxGuests, 10);
 
-  // ✅ Load saved booking data from localStorage on mount
   useEffect(() => {
     if (!propertyId) return;
     
@@ -39,7 +38,6 @@ export default function BookingForm({ price = 180, propertyId, maxGuests = 10, p
     }
   }, [propertyId, maxGuestsLimit]);
 
-  // ✅ Save booking data to localStorage whenever it changes
   useEffect(() => {
     if (!propertyId) return;
     
@@ -52,10 +50,20 @@ export default function BookingForm({ price = 180, propertyId, maxGuests = 10, p
       price,
       cleaningFee,
       serviceFee,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
+      
+      propertyId: propertyId || null,
+      propertyTitle: propertyTitle || null,
+      propertyImage: propertyImage || null,
+      propertyLocation: propertyLocation || null,
     };
-    localStorage.setItem(`booking_${propertyId}`, JSON.stringify(bookingData));
-  }, [checkIn, checkOut, guests, nights, total, price, propertyId]);
+
+    if (propertyId) {
+      localStorage.setItem(`booking_${propertyId}`, JSON.stringify(bookingData));
+    }
+
+    localStorage.setItem('booking_pending', JSON.stringify(bookingData));
+  }, [checkIn, checkOut, guests, nights, total, price, propertyId, propertyTitle, propertyImage, propertyLocation]);
 
   useEffect(() => {
     if (checkIn && checkOut) {
@@ -84,7 +92,6 @@ export default function BookingForm({ price = 180, propertyId, maxGuests = 10, p
   const handleSubmit = (e) => {
     e.preventDefault();
     
-    // ✅ Date validation
     if (!checkIn || !checkOut) {
       toast.error('Please select check-in and check-out dates', { duration: 3000 });
       return;
@@ -105,9 +112,7 @@ export default function BookingForm({ price = 180, propertyId, maxGuests = 10, p
       return;
     }
     
-    // ✅ Authentication check - PROFESSIONAL FLOW
     if (!authService.isAuthenticated()) {
-      // Show elegant toast with clear options
       toast.custom((t) => (
         <div className="bg-white shadow-lg rounded-xl p-4 max-w-md border border-gray-200 animate-fadeIn">
           <div className="flex items-start">
@@ -183,10 +188,8 @@ export default function BookingForm({ price = 180, propertyId, maxGuests = 10, p
       timestamp: new Date().toISOString()
     };
     
-    // Save with unique key for terms & conditions page
     localStorage.setItem('booking_pending', JSON.stringify(bookingData));
     
-    // ✅ Navigate to terms & conditions page
     navigate('/property/terms&conditions', { 
       state: { 
         booking: bookingData,

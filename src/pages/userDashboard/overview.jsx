@@ -1,5 +1,5 @@
 import React from 'react';
-import { useOutletContext } from 'react-router';
+import { useOutletContext } from 'react-router-dom';
 import WelcomeHeader from '../../components/userDashboard/welcomeHeader';
 import ActiveBookingCard from '../../components/userDashboard/activeBookingCard';
 import RecentActivity from '../../components/userDashboard/recentActivity';
@@ -10,7 +10,7 @@ const UserDashboardOverview = () => {
   const { userName } = useOutletContext();
 
   return (
-    <div className="ml-64 p-6 max-w-[1400px]">
+    <div className="w-full p-6 max-w-[1400px] px-4 sm:px-6 lg:px-8 lg:ml-64">
       <WelcomeHeader userName={userName} />
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6 mb-8">

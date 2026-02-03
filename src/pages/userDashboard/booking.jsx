@@ -1,60 +1,73 @@
-import React, { useState, useMemo } from 'react';
-import { useOutletContext } from 'react-router';
+import React, { useState, useMemo, useEffect } from 'react';
+import { useOutletContext, Link } from 'react-router-dom';
+import { toast } from 'react-hot-toast';
 
 import UserSidebar from '../../components/userDashboard/userSidebar.jsx';
 import FilterBar from '../../components/userDashboard/filterBar.jsx';
 import BookingCard from '../../components/userDashboard/bookingCard.jsx';
 import LoadMoreButton from '../../components/userDashboard/loadMoreButton.jsx';
+import ActiveBookingCard from '../../components/userDashboard/activeBookingCard.jsx';
+import authService from '../../services/authService';
 
 const BookingsPage = () => {
   const { userName } = useOutletContext();
 
-  const [bookings, setBookings] = useState([
-    {
-      id: 1,
-      title: "Downtown Luxury Suite",
-      location: "Manhattan, New York",
-      checkIn: "Jan 15, 2024",
-      checkOut: "Jan 20, 2024",
-      guests: "2 adults, 1 child",
-      status: "Confirmed",
-      price: 1250,
-      childrenAllowed: true,
-      image: "https://images.unsplash.com/photo-1560448204-e62e497b1d04?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80",
-      action: "Cancel"
-    },
-    {
-      id: 2,
-      title: "Mountain Retreat Cabin",
-      location: "Aspen, Colorado",
-      checkIn: "Feb 10, 2024",
-      checkOut: "Feb 15, 2024",
-      guests: "2 adults",
-      status: "Pending",
-      price: 890,
-      childrenAllowed: false,
-      image: "https://images.unsplash.com/photo-1512918728675-ed5a9ecdebfd?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80",
-      action: "Cancel"
-    },
-    {
-      id: 3,
-      title: "Oceanfront Villa",
-      location: "Miami Beach, Florida",
-      checkIn: "Dec 20, 2023",
-      checkOut: "Dec 27, 2023",
-      guests: "4 adults, 2 children",
-      status: "Completed",
-      price: 2100,
-      childrenAllowed: true,
-      image: "https://images.unsplash.com/photo-1605276374104-dee2a0ed3cd6?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80",
-      action: "Review"
-    }
-  ]);
+  const [bookings, setBookings] = useState([]);
+  const [page, setPage] = useState(1);
+  const PAGE_SIZE = 20;
+  const [hasMore, setHasMore] = useState(false);
+  const [activeBooking, setActiveBooking] = useState(null);
 
   const [filterStatus, setFilterStatus] = useState('All');
   const [filterChildren, setFilterChildren] = useState('All');
   const [sortMode, setSortMode] = useState('date'); // 'date', 'price-desc', 'price-asc'
   const [loading, setLoading] = useState(false);
+
+  const normalizeList = (data) => Array.isArray(data) ? data : (data.bookings || data.list || []);
+
+  const fetchBookings = async (opts = { page: 1, append: false }) => {
+    const { page: p, append } = opts;
+    setLoading(true);
+    try {
+      const token = authService.getToken();
+      if (!token) throw new Error('Authentication required');
+
+      const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/bookings/me?page=${p}&limit=${PAGE_SIZE}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        throw new Error(body.message || `Failed to load bookings (${res.status})`);
+      }
+
+      const body = await res.json();
+      const list = normalizeList(body);
+
+      setBookings(prev => (append ? [...prev, ...list] : list));
+      setHasMore(list.length === PAGE_SIZE);
+      setPage(p);
+
+      // compute active booking (nearest upcoming confirmed)
+      const combined = append ? [...bookings, ...list] : list;
+      const upcoming = combined
+        .filter(b => (b.status || '').toLowerCase() === 'confirmed')
+        .sort((a, b) => new Date(a.checkIn) - new Date(b.checkIn));
+      setActiveBooking(upcoming[0] || combined[0] || null);
+    } catch (err) {
+      console.error('fetchBookings:', err);
+      toast.error(err.message || 'Failed to load bookings');
+      // leave bookings as-is (no dummy injection)
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchBookings({ page: 1, append: false });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
 
   // Apply filters and sorting **without mutating original bookings**
   const filteredAndSorted = useMemo(() => {
@@ -90,38 +103,38 @@ const BookingsPage = () => {
     setSortMode(mode);
   };
 
-  const handleLoadMore = () => {
-    setLoading(true);
-    setTimeout(() => {
-      setBookings(prev => [
-        ...prev,
-        {
-          id: prev.length + 1,
-          title: "Desert Oasis Villa",
-          location: "Scottsdale, Arizona",
-          checkIn: "Mar 1, 2024",
-          checkOut: "Mar 5, 2024",
-          guests: "3 adults",
-          status: "Confirmed",
-          price: 1500,
-          childrenAllowed: true,
-          image: "https://images.unsplash.com/photo-1554995207-c18c203602cb?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80",
-          action: "Cancel"
-        }
-      ]);
-      setLoading(false);
-    }, 1000);
+  const handleLoadMore = async () => {
+    if (!hasMore) {
+      toast('No more bookings');
+      return;
+    }
+    await fetchBookings({ page: page + 1, append: true });
   };
 
   return (
-    <div className="flex">
+    <div className="flex flex-col lg:flex-row">
       <UserSidebar />
-      <div className="ml-64 p-6 max-w-[1400px] w-full">
+      <div className="w-full p-6 max-w-[1400px] px-4 sm:px-6 lg:px-8 lg:ml-64">
 
         <div className="mb-6">
           <h1 className="text-3xl font-extrabold text-gray-900">My Bookings</h1>
           <p className="text-gray-600 mt-1">Manage your reservations and view important property details.</p>
         </div>
+
+        {/* Active booking (if any) */}
+        {activeBooking && (
+          <div className="mb-6">
+            <ActiveBookingCard booking={activeBooking} />
+          </div>
+        )}
+
+        {/* Empty state */}
+        {!loading && bookings.length === 0 && (
+          <div className="text-center py-12">
+            <p className="text-gray-600 text-lg">You haven't booked any properties yet.</p>
+            <Link to="/explore" className="mt-4 inline-block px-5 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700">Explore properties</Link>
+          </div>
+        )}
 
         <FilterBar
           onStatusChange={setFilterStatus}
