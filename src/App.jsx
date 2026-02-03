@@ -37,6 +37,7 @@ import AdminUsersPage from "./pages/adminDashboard/users.jsx";
 import AdminAddPropertyPage from "./pages/adminDashboard/addProperty.jsx";
 import BookingDetailPage from "./pages/adminDashboard/bookingDetailPage.jsx";
 import UserDetailPage from "./pages/adminDashboard/userDetailsPage.jsx";
+import AdminRecentBookingsPage from "./pages/adminDashboard/AdminRecentBookingsPage.jsx";
 
 const router = createBrowserRouter([
   {
@@ -80,6 +81,7 @@ const router = createBrowserRouter([
       { path: "users", element: <AdminUsersPage /> },
       { path: "users/:id", element: <UserDetailPage /> },
       { path: "settings", element: <AdminSettingsPage /> },
+      { path: "recent-bookings", element: <AdminRecentBookingsPage /> },
     ],
   },
   { path: "/property/terms&conditions", element: <TermsConditions /> },
