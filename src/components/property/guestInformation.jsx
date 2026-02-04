@@ -10,6 +10,8 @@ import {
   FiMinus,
   FiPlus,
 } from "react-icons/fi";
+import { bookingService } from '../../services/bookingService';
+import { toast } from 'react-hot-toast';
 
 export default function GuestInformation({
   onSubmit,
@@ -35,6 +37,7 @@ export default function GuestInformation({
 
   const [errors, setErrors] = useState({});
   const [uploadedFiles, setUploadedFiles] = useState([]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const fileInputRef = useRef(null);
 
   const handleChange = (e) => {
@@ -122,14 +125,40 @@ export default function GuestInformation({
     fileInputRef.current?.click();
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     const newErrors = getValidationErrors();
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
       return;
     }
-    onSubmit({ ...formData, idDocuments: uploadedFiles.map((f) => f.file) });
+
+    // keep existing parent callback for downstream flows (payment screen etc.)
+    const payload = { ...formData, idDocuments: uploadedFiles.map((f) => f.file) };
+
+    // attempt to call booking endpoint (POST /bookings/:propertyId) but don't change UI flow — parent still receives callback
+    const propertyId = property?.id || property?._id || property?.propertyId;
+    if (!propertyId) {
+      toast.error('Missing property identifier — cannot create booking');
+      onSubmit(payload);
+      return;
+    }
+
+    setIsSubmitting(true);
+    const t = toast.loading('Creating booking...');
+    try {
+      const res = await bookingService.createBooking(propertyId, payload);
+      toast.dismiss(t);
+      toast.success(res?.message || 'Booking created');
+      onSubmit(res);
+    } catch (err) {
+      toast.dismiss(t);
+      toast.error(err?.message || 'Failed to create booking');
+      // still call parent so UI can handle offline / alternate flows
+      onSubmit(payload);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -453,15 +482,16 @@ export default function GuestInformation({
 
       <button
         type="submit"
-        disabled={!isFormValid()}
+        disabled={!isFormValid() || isSubmitting}
+        aria-busy={isSubmitting}
         className={`w-full py-3 rounded-xl font-medium text-white transition ${
-          isFormValid()
+          isFormValid() && !isSubmitting
             ? "bg-blue-600 hover:bg-blue-700"
             : "bg-blue-300 cursor-not-allowed"
         }`}
       >
         Continue to payment
-      </button>
+      </button> 
     </form>
   );
 }

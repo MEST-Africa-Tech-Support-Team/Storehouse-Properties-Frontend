@@ -305,7 +305,7 @@ export default function BookingForm({ price = 180, propertyId, maxGuests = 10, p
                 : 'bg-gray-200 text-gray-400 cursor-not-allowed'
             }`}
           >
-           Reserve Property
+           Check Availability
           </button>
           <p className="text-center text-[12px] text-gray-500 mt-2">You won't be charged yet</p>
         </div>
