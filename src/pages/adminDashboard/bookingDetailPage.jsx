@@ -1,5 +1,7 @@
-import React from "react";
+import React, { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import { bookingService } from "../../services/bookingService";
+import { toast } from "react-hot-toast";
 import { 
   RiMapPin2Line, RiExternalLinkLine, 
   RiVisaFill, RiMailLine, RiPhoneLine, 
@@ -9,42 +11,89 @@ import {
 
 const BookingDetailPage = () => {
   const { id } = useParams();
+  const navigate = useNavigate();
 
-  // Simulated Data
-  const booking = {
-    id: id || "BK-2334",
-    status: "confirmed",
-    totalAmount: "$3,434",
-    paymentStatus: "paid",
-    bookingDate: "Jan 12, 2025",
-    created: "2 days ago",
-    property: {
-      name: "Sunset Villa",
-      location: "Miami Beach, FL",
-      price: "$3,434",
-      image: "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=200&h=200",
-      childrenAllowed: "YES"
-    },
-    customer: {
-      name: "Alex Johnson",
-      email: "alex.j@example.com",
-      phone: "+1 (555) 000-1234",
-      status: "verified"
-    },
-    stay: {
-      checkIn: "Jan 15, 2025",
-      checkOut: "Jan 22, 2025",
-      nights: 8,
-      adults: 2,
-      children: 1,
-      requests: "Late check-in requested (around 10 PM). Celebrating anniversary - would appreciate any special touches if available."
-    },
-    payment: {
-      method: "Visa ending in 4242",
-      transactionId: "TRX-9928374",
-      date: "Jan 12, 2025",
-    }
+  // booking loaded from API (admin single-booking endpoint)
+  const [booking, setBooking] = useState(null);
+  const [loadingBooking, setLoadingBooking] = useState(true);
+  const [localStatus, setLocalStatus] = useState('');
+  const [isRejecting, setIsRejecting] = useState(false);
+
+  const mapDetail = (b = {}) => {
+    const idVal = b.bookingId || b.id || b._id || b._doc?._id || b._doc?.id || null;
+    const fmt = (d) => {
+      if (!d) return '—';
+      try { return new Date(d).toLocaleDateString(); } catch { return String(d); }
+    };
+
+    return {
+      _id: idVal || b._id || b.id,
+      id: idVal ? (String(idVal).startsWith('#') ? String(idVal) : `#${String(idVal).slice(-6)}`) : `#${String(b._id || id).slice(-6)}`,
+      status: (b.status || b.bookingStatus || b.state) || 'pending',
+      totalAmount: b.total || b.amount || b.price || '₵0.00',
+      paymentStatus: b.paymentStatus || b.payment || 'pending',
+      bookingDate: fmt(b.createdAt || b.bookingDate || b.created),
+      created: b.createdAgo || b.created || fmt(b.createdAt),
+      property: {
+        name: b.property?.title || b.property?.name || b.propertyTitle || '—',
+        location: b.property?.location || b.location || '—',
+        price: b.property?.price || b.price || '₵0.00',
+        image: b.property?.image || b.property?.coverPhoto || b.propertyImage || '' ,
+        childrenAllowed: (b.property?.childrenAllowed || b.childrenAllowed) ? 'YES' : 'NO'
+      },
+      customer: {
+        name: b.customer?.name || `${b.customer?.firstName || ''} ${b.customer?.lastName || ''}`.trim() || b.user?.email || '—',
+        email: b.customer?.email || b.user?.email || '—',
+        phone: b.customer?.phone || b.user?.phone || '—',
+        status: b.customer?.status || b.user?.status || '—'
+      },
+      stay: {
+        checkIn: fmt(b.startDate || b.checkIn || b.from),
+        checkOut: fmt(b.endDate || b.checkOut || b.to),
+        nights: b.nights || b.duration || '—',
+        adults: b.adults || b.guests || '—',
+        children: b.children || b.childrenCount || '—',
+        requests: b.requests || b.specialRequests || ''
+      },
+      payment: {
+        method: b.payment?.method || b.paymentMethod || '—',
+        transactionId: b.payment?.transactionId || b.transactionId || '—',
+        date: fmt(b.payment?.date || b.paymentDate || b.paidAt)
+      }
+    };
   };
+
+  // fetch booking on mount
+  React.useEffect(() => {
+    let mounted = true;
+    const load = async () => {
+      if (!id) {
+        toast.error('Missing booking id');
+        setLoadingBooking(false);
+        return;
+      }
+      setLoadingBooking(true);
+      const t = toast.loading('Loading booking...');
+      try {
+        const res = await bookingService.getBookingById(id);
+        if (!mounted) return;
+        const mapped = mapDetail(res);
+        setBooking(mapped);
+        setLocalStatus(mapped.status || 'pending');
+        toast.dismiss(t);
+      } catch (err) {
+        toast.dismiss(t);
+        toast.error(err?.message || 'Failed to load booking');
+        // navigate back to list if booking not found
+        navigate('/admin/bookings', { replace: true });
+      } finally {
+        if (mounted) setLoadingBooking(false);
+      }
+    };
+
+    load();
+    return () => { mounted = false; };
+  }, [id]);
 
   const CardWrapper = ({ children, className = "" }) => (
     <div className={`bg-white border border-[#E5E7EB] rounded-xl shadow-sm p-6 ${className}`}>
@@ -54,6 +103,16 @@ const BookingDetailPage = () => {
 
   const Label = ({ text }) => <p className="text-[#6b7280] text-xs font-bold uppercase tracking-wider mb-1">{text}</p>;
   const Value = ({ text }) => <p className="text-[#1a1a1a] font-bold text-sm">{text}</p>;
+
+  if (loadingBooking) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      </div>
+    );
+  }
+
+  if (!booking) return null;
 
   return (
     <div className="max-w-[1200px] mx-auto space-y-6">
@@ -65,8 +124,8 @@ const BookingDetailPage = () => {
         </div>
         <div>
           <Label text="Status" />
-          <span className="inline-flex px-3 py-1 rounded-full text-[10px] font-bold uppercase bg-[#DCFCE7] text-[#15803D]">
-            {booking.status}
+          <span className={`inline-flex px-3 py-1 rounded-full text-[10px] font-bold uppercase ${localStatus === 'confirmed' ? 'bg-[#DCFCE7] text-[#15803D]' : localStatus === 'pending' ? 'bg-[#FEF3C7] text-[#D97706]' : 'bg-[#FEE2E2] text-[#B91C1C]'}`}>
+            {String(localStatus).toUpperCase()}
           </span>
         </div>
         <div>
@@ -184,9 +243,29 @@ const BookingDetailPage = () => {
 
           {/* REPLACED SECTION: ACTION BUTTONS */}
           <div className="flex flex-col sm:flex-row gap-4">
-            <button className="flex-1 flex items-center justify-center gap-2 px-6 py-4 rounded-xl border-2 border-[#EF4444] text-[#EF4444] font-bold text-sm hover:bg-[#EF4444]/5 transition-all">
+            <button
+              onClick={async () => {
+                if (!window.confirm('Reject this booking? This will notify the customer and update the booking status.')) return;
+                setIsRejecting(true);
+                const bid = String(booking.id || booking._id || id).replace('#', '');
+                const t = toast.loading('Rejecting booking...');
+                try {
+                  const res = await bookingService.rejectBooking(bid);
+                  toast.dismiss(t);
+                  toast.success(res?.message || 'Booking rejected');
+                  setLocalStatus(res?.status || 'rejected');
+                } catch (err) {
+                  toast.dismiss(t);
+                  toast.error(err?.message || 'Failed to reject booking');
+                } finally {
+                  setIsRejecting(false);
+                }
+              }}
+              disabled={isRejecting}
+              className={`flex-1 flex items-center justify-center gap-2 px-6 py-4 rounded-xl border-2 border-[#EF4444] text-[#EF4444] font-bold text-sm transition-all ${isRejecting ? 'opacity-60 cursor-not-allowed' : 'hover:bg-[#EF4444]/5'}`}
+            >
               <RiCloseCircleLine size={20} />
-              Cancel Booking
+              {isRejecting ? 'Rejecting…' : 'Cancel Booking'}
             </button>
             <button className="flex-1 flex items-center justify-center gap-2 px-6 py-4 rounded-xl bg-[#1E5EFF] text-white font-bold text-sm hover:bg-blue-700 transition-all shadow-lg shadow-blue-100">
               <RiMoneyDollarCircleLine size={20} />
@@ -221,8 +300,8 @@ const BookingDetailPage = () => {
               </div>
               <div>
                 <Label text="Status" />
-                <span className="inline-flex px-3 py-1 rounded-full text-[10px] font-bold uppercase bg-[#DCFCE7] text-[#15803D]">
-                  Completed
+                <span className={`inline-flex px-3 py-1 rounded-full text-[10px] font-bold uppercase ${localStatus === 'confirmed' ? 'bg-[#DCFCE7] text-[#15803D]' : localStatus === 'pending' ? 'bg-[#FEF3C7] text-[#D97706]' : 'bg-[#FEE2E2] text-[#B91C1C]'}`}>
+                  {String(localStatus).toUpperCase()}
                 </span>
               </div>
             </div>

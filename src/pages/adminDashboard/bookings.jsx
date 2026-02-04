@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   RiSearchLine,
   RiArrowDownSLine,
@@ -8,13 +8,16 @@ import {
   RiFilter3Line,
 } from "react-icons/ri";
 import { Link } from "react-router-dom";
+import { bookingService } from "../../services/bookingService";
+import { useAuth } from "../../context/AuthContext";
+import { toast } from "react-hot-toast";
 
 const AdminBookingsPage = () => {
   const [showFilters, setShowFilters] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
 
-  // Sample Data for the table
-  const bookingsData = [
+  // initial sample data (kept so UI doesn't jump if API is slow)
+  const initialBookings = [
     {
       id: "#BK-2334",
       property: "Sunset Villa",
@@ -26,7 +29,8 @@ const AdminBookingsPage = () => {
       children: "YES",
       status: "pending",
       payment: "paid",
-      amount: "₵3,434"
+      amount: "₵3,434",
+      _id: '697a2334'
     },
     {
       id: "#BK-2335",
@@ -39,7 +43,8 @@ const AdminBookingsPage = () => {
       children: "NO",
       status: "canceled",
       payment: "refunded",
-      amount: "₵1,200"
+      amount: "₵1,200",
+      _id: '697a2335'
     },
     {
       id: "#BK-2336",
@@ -52,7 +57,8 @@ const AdminBookingsPage = () => {
       children: "YES",
       status: "confirmed",
       payment: "paid",
-      amount: "₵5,650"
+      amount: "₵5,650",
+      _id: '697a2336'
     },
     {
       id: "#BK-2337",
@@ -65,7 +71,8 @@ const AdminBookingsPage = () => {
       children: "NO",
       status: "confirmed",
       payment: "paid",
-      amount: "₵2,100"
+      amount: "₵2,100",
+      _id: '697a2337'
     },
     {
       id: "#BK-2338",
@@ -78,7 +85,8 @@ const AdminBookingsPage = () => {
       children: "YES",
       status: "canceled",
       payment: "refunded",
-      amount: "₵4,200"
+      amount: "₵4,200",
+      _id: '697a2338'
     },
     {
       id: "#BK-2339",
@@ -91,7 +99,8 @@ const AdminBookingsPage = () => {
       children: "NO",
       status: "confirmed",
       payment: "paid",
-      amount: "₵3,800"
+      amount: "₵3,800",
+      _id: '697a2339'
     },
     {
       id: "#BK-2340",
@@ -104,9 +113,96 @@ const AdminBookingsPage = () => {
       children: "YES",
       status: "pending",
       payment: "paid",
-      amount: "₵6,120"
+      amount: "₵6,120",
+      _id: '697a2340'
     }
   ];
+
+  const [bookingsData, setBookingsData] = useState(initialBookings);
+  const [loadingBookings, setLoadingBookings] = useState(false);
+  const { currentUser } = useAuth();
+
+  const mapBooking = (b) => {
+    // defensive mapper from API shape to UI shape used below
+    const id = b.bookingId || b.id || b._id || (b._doc && b._doc._id) || null;
+    const displayId = id ? (String(id).startsWith('#') ? String(id) : `#${String(id).slice(-6)}`) : '#UNKNOWN';
+    const prop = b.property || b.propertyTitle || (b.property && b.property.title) || '—';
+    const location = b.property?.location || b.location || b.propertyLocation || '—';
+    const customer = b.customer?.name || `${b.customer?.firstName || ''} ${b.customer?.lastName || ''}`.trim() || b.user?.email || '—';
+
+    const fmt = (d) => {
+      if (!d) return '—';
+      try { return new Date(d).toLocaleDateString(); } catch { return String(d); }
+    };
+
+    return {
+      _id: id || b._id || b.id,
+      id: displayId,
+      property: prop,
+      location,
+      customer,
+      checkIn: fmt(b.startDate || b.checkIn || b.from),
+      checkOut: fmt(b.endDate || b.checkOut || b.to),
+      guests: b.guests || (b.adults ? `${b.adults} Adults` : '—'),
+      children: (b.childrenAllowed || b.children || b.hasChildren) ? 'YES' : 'NO',
+      status: (b.status || b.bookingStatus || b.state) || 'pending',
+      payment: (b.paymentStatus || b.payment) || 'pending',
+      amount: b.amount || b.total || b.price || '₵0.00',
+    };
+  };
+
+  const fetchBookings = async () => {
+    const t = toast.loading('Loading bookings...');
+    setLoadingBookings(true);
+    try {
+      const data = await bookingService.getAllBookings();
+      const list = Array.isArray(data) ? data : (data.bookings || data.data || []);
+      const mapped = list.map(mapBooking);
+      if (mapped.length) setBookingsData(mapped);
+      toast.dismiss(t);
+    } catch (err) {
+      toast.dismiss(t);
+      toast.error(err?.message || 'Failed to load bookings');
+    } finally {
+      setLoadingBookings(false);
+    }
+  };
+
+  useEffect(() => {
+    // defensive: only admins should fetch admin bookings
+    if (currentUser && currentUser.role !== 'admin') return;
+    fetchBookings();
+  }, [currentUser]);
+
+  const handleApprove = async (bookingId) => {
+    const id = bookingId?.replace?.('#', '') || bookingId;
+    const t = toast.loading('Approving booking...');
+    try {
+      const res = await bookingService.approveBooking(id);
+      // optimistic UI update
+      setBookingsData(prev => prev.map(b => (String(b._id) === String(id) || String(b.id).includes(String(id)) ? { ...b, status: (res.status || 'confirmed') } : b)));
+      toast.dismiss(t);
+      toast.success('Booking approved');
+    } catch (err) {
+      toast.dismiss(t);
+      toast.error(err?.message || 'Failed to approve booking');
+    }
+  };
+
+  const handleReject = async (bookingId) => {
+    const id = bookingId?.replace?.('#', '') || bookingId;
+    if (!window.confirm('Reject this booking? This action cannot be undone.')) return;
+    const t = toast.loading('Rejecting booking...');
+    try {
+      const res = await bookingService.rejectBooking(id);
+      setBookingsData(prev => prev.map(b => (String(b._id) === String(id) || String(b.id).includes(String(id)) ? { ...b, status: (res.status || 'rejected') } : b)));
+      toast.dismiss(t);
+      toast.success(res?.message || 'Booking rejected');
+    } catch (err) {
+      toast.dismiss(t);
+      toast.error(err?.message || 'Failed to reject booking');
+    }
+  }; 
 
   return (
     <div className="space-y-6">
@@ -266,12 +362,23 @@ const AdminBookingsPage = () => {
                     {booking.amount}
                   </td>
                   <td className="px-6 py-4">
-                    <Link
-                      to={`/admin/bookings/${booking.id.replace("#", "")}`}
-                      className="text-[#1E5EFF] font-bold text-sm hover:underline"
-                    >
-                      View
-                    </Link>
+                    <div className="flex items-center gap-4">
+                      <Link
+                        to={`/admin/bookings/${booking.id.replace("#", "")}`}
+                        className="text-[#1E5EFF] font-bold text-sm hover:underline"
+                      >
+                        View
+                      </Link>
+
+                      {String(booking.status).toLowerCase() === 'pending' && (
+                        <button
+                          onClick={() => handleReject(booking.id)}
+                          className="text-[#1E5EFF] font-bold text-sm hover:underline"
+                        >
+                          Reject
+                        </button>
+                      )}
+                    </div>
                   </td>
                 </tr>
               ))}
