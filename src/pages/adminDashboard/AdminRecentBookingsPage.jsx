@@ -130,7 +130,7 @@ const AdminRecentBookingsPage = () => {
                   </td>
                   <td className="px-6 py-4">
                     <Link
-                      to={`/admin/bookings/${booking.id.replace("#", "")}`}
+                      to={`/admin/review-booking/${booking.id.replace("#", "")}`}
                       className="text-[#1E5EFF] font-bold text-sm hover:underline"
                     >
                       View

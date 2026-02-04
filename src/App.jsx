@@ -41,6 +41,7 @@ import AdminAddPropertyPage from "./pages/adminDashboard/addProperty.jsx";
 import BookingDetailPage from "./pages/adminDashboard/bookingDetailPage.jsx";
 import UserDetailPage from "./pages/adminDashboard/userDetailsPage.jsx";
 import AdminRecentBookingsPage from "./pages/adminDashboard/AdminRecentBookingsPage.jsx";
+import AdminBookingReviewPage from "./pages/adminDashboard/AdminBookingReviewPage.jsx";
 
 const router = createBrowserRouter([
   {
@@ -86,6 +87,7 @@ const router = createBrowserRouter([
       { path: "users/:id", element: <UserDetailPage /> },
       { path: "settings", element: <AdminSettingsPage /> },
       { path: "recent-bookings", element: <AdminRecentBookingsPage /> },
+      { path: "review-booking/:id", element: <AdminBookingReviewPage />},
     ],
   },
   {
