@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
+import { toast } from 'react-hot-toast';
 import { Avatar } from "@/components/ui/avatar";
 import { MdHome, MdDashboard, MdSettings, MdLogout } from "react-icons/md";
 
@@ -60,10 +61,16 @@ export default function Header() {
   }, []);
 
   const handleLogout = async () => {
-    await logout();
-    navigate("/");
-    setDropdownOpen(false);
-    setMobileMenuOpen(false);
+    try {
+      await logout();
+      toast.success('Signed out — see you soon 👋', { id: 'signed-out', duration: 3000 });
+      navigate("/");
+      setDropdownOpen(false);
+      setMobileMenuOpen(false);
+    } catch (err) {
+      console.error('Logout failed', err);
+      toast.error(err?.message || 'Failed to sign out — please try again', { duration: 4000 });
+    }
   };
 
   const closeMobileMenu = () => {
