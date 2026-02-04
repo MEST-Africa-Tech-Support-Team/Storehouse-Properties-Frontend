@@ -1,43 +1,95 @@
 import React, { useEffect, useState } from "react";
-import { Outlet, useLocation, Link } from "react-router-dom";
+import { Outlet, useLocation, Link, useNavigate } from "react-router-dom";
 import AdminSidebar from "../adminDashboard/adminSidebar";
-import { RiDownloadLine, RiAddCircleLine } from "react-icons/ri";
+import { RiDownloadLine, RiAddCircleLine, RiArrowLeftSLine } from "react-icons/ri";
 
 const AdminLayout = () => {
   const [admin, setAdmin] = useState({ name: "", email: "" });
   const location = useLocation();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const stored = JSON.parse(localStorage.getItem("storehouse_user"));
     if (stored) setAdmin(stored);
   }, []);
 
- const getHeaderContent = () => {
-  const path = location.pathname;
+  const getHeaderContent = () => {
+    const path = location.pathname;
 
-  if (path.includes("properties/add")) {
-    return {
-      title: "Add New Property",
-      subtitle: "List a new property by filling out the information below",
-      action: null, 
-    };
-  }
+    // 1. RECENT BOOKINGS
+    if (path.includes("recent-bookings")) {
+      return {
+        title: "Recent Bookings",
+        subtitle: "Real-time overview of the latest reservation activity",
+        // action: (
+        //   <button className="flex items-center gap-2 bg-white border border-[#E5E7EB] px-4 py-2 rounded-lg text-[#1a1a1a] hover:bg-gray-50 transition-all shadow-sm font-semibold text-sm">
+        //     <RiDownloadLine className="text-lg" />
+        //     Export CSV
+        //   </button>
+        // ),
+      };
+    }
 
-  if (path.includes("properties")) {
-    return {
-      title: "Properties",
-      subtitle: "Manage, review, and organize all property listings",
-      action: (
-        <Link 
-          to="/admin/properties/add" 
-          className="flex items-center gap-2 bg-[#1E5EFF] px-4 py-2 rounded-lg text-white hover:bg-blue-700 transition-all shadow-md font-semibold text-sm"
-        >
-          <RiAddCircleLine className="text-lg" />
-          Add New Property
-        </Link>
-      ),
-    };
-  }
+    // 2. SPECIFIC USER DETAIL
+    if (/\/admin\/users\/.+/.test(path)) {
+      return {
+        title: "User Profile",
+        subtitle: "Detailed overview of customer activity and account status",
+        action: (
+          <button 
+            onClick={() => navigate("/admin/users")} 
+            className="flex items-center gap-1 text-sm font-bold text-[#1E5EFF] hover:underline"
+          >
+            <RiArrowLeftSLine size={18} />
+            Back to Users List
+          </button>
+        ),
+      };
+    }
+    
+
+    // 3. SPECIFIC BOOKING DETAIL
+    if (/\/admin\/bookings\/.+/.test(path)) {
+      return {
+        title: "Booking Details",
+        subtitle: "Review complete reservation information and guest details",
+        // action: (
+        //   <button 
+        //     onClick={() => navigate("/admin/bookings")} 
+        //     className="flex items-center gap-1 text-sm font-bold text-[#1E5EFF] hover:underline"
+        //   >
+        //     <RiArrowLeftSLine size={18} />
+        //     Back to Bookings
+        //   </button>
+        // ),
+      };
+    }
+
+    // 4. ADD PROPERTY PAGE
+    if (path.includes("properties/add")) {
+      return {
+        title: "Add New Property",
+        subtitle: "List a new property by filling out the information below",
+        action: null,
+      };
+    }
+
+    // 5. GENERAL CATEGORIES
+    if (path.includes("properties")) {
+      return {
+        title: "Properties",
+        subtitle: "Manage, review, and organize all property listings",
+        action: (
+          <Link 
+            to="/admin/properties/add" 
+            className="flex items-center gap-2 bg-[#1E5EFF] px-4 py-2 rounded-lg text-white hover:bg-blue-700 transition-all shadow-md font-semibold text-sm"
+          >
+            <RiAddCircleLine className="text-lg" />
+            Add New Property
+          </Link>
+        ),
+      };
+    }
 
     if (path.includes("bookings")) {
       return {
@@ -76,6 +128,7 @@ const AdminLayout = () => {
       };
     }
 
+    // DEFAULT: Dashboard Overview
     return {
       title: "Dashboard Overview",
       subtitle: "Monitor platform activity and performance at a glance",
@@ -103,15 +156,12 @@ const AdminLayout = () => {
                 {subtitle}
               </p>
             </div>
-
             <div className="flex items-center gap-3">{action}</div>
           </div>
         </header>
 
         <main className="p-6 md:p-8">
-          <Outlet
-            context={{ adminName: admin.name, adminEmail: admin.email }}
-          />
+          <Outlet context={{ adminName: admin.name, adminEmail: admin.email }} />
         </main>
       </div>
     </div>
