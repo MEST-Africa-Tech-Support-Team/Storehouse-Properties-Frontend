@@ -25,7 +25,7 @@ const AdminBookingsPage = () => {
       children: "YES",
       status: "confirmed",
       payment: "paid",
-      amount: "$3,434"
+      amount: "₵3,434"
     },
     {
       id: "#BK-2335",
@@ -38,7 +38,7 @@ const AdminBookingsPage = () => {
       children: "NO",
       status: "canceled",
       payment: "refunded",
-      amount: "$1,200"
+      amount: "₵1,200"
     },
     {
       id: "#BK-2336",
@@ -51,7 +51,7 @@ const AdminBookingsPage = () => {
       children: "YES",
       status: "confirmed",
       payment: "paid",
-      amount: "$5,650"
+      amount: "₵5,650"
     },
     {
       id: "#BK-2337",
@@ -64,7 +64,7 @@ const AdminBookingsPage = () => {
       children: "NO",
       status: "confirmed",
       payment: "paid",
-      amount: "$2,100"
+      amount: "₵2,100"
     },
     {
       id: "#BK-2338",
@@ -77,7 +77,7 @@ const AdminBookingsPage = () => {
       children: "YES",
       status: "canceled",
       payment: "refunded",
-      amount: "$4,200"
+      amount: "₵4,200"
     },
     {
       id: "#BK-2339",
@@ -90,7 +90,7 @@ const AdminBookingsPage = () => {
       children: "NO",
       status: "confirmed",
       payment: "paid",
-      amount: "$3,800"
+      amount: "₵3,800"
     },
     {
       id: "#BK-2340",
@@ -103,7 +103,7 @@ const AdminBookingsPage = () => {
       children: "YES",
       status: "confirmed",
       payment: "paid",
-      amount: "$6,120"
+      amount: "₵6,120"
     }
   ];
 

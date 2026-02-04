@@ -66,7 +66,7 @@ const AdminAddPropertyPage = () => {
               <label className="text-sm font-semibold text-[#374151] block mb-2">Price per night</label>
               <input 
                 type="text" 
-                placeholder="$0.00"
+                placeholder="₵0.00"
                 className="w-full md:w-1/2 px-4 py-2.5 rounded-lg border border-[#E5E7EB] focus:outline-none focus:ring-2 focus:ring-[#1E5EFF]/20 focus:border-[#1E5EFF]"
               />
               <p className="text-xs text-[#6B7280] mt-2 italic">Displayed to customers during booking</p>
