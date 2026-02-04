@@ -35,7 +35,7 @@ const AdminOverviewPage = () => {
       customer: "Sarah Jenkins",
       date: "Oct 24, 2025",
       status: "Confirmed",
-      amount: "$1,200",
+      amount: "₵1,200",
     },
     {
       id: "#BK-8825",
@@ -43,7 +43,7 @@ const AdminOverviewPage = () => {
       customer: "Michael Chen",
       date: "Oct 23, 2025",
       status: "Canceled",
-      amount: "$850",
+      amount: "₵850",
     },
     {
       id: "#BK-8826",
@@ -51,7 +51,7 @@ const AdminOverviewPage = () => {
       customer: "Emma Wilson",
       date: "Oct 22, 2025",
       status: "Confirmed",
-      amount: "$2,100",
+      amount: "₵2,100",
     },
     {
       id: "#BK-8827",
@@ -59,7 +59,7 @@ const AdminOverviewPage = () => {
       customer: "James Cooper",
       date: "Oct 21, 2025",
       status: "Confirmed",
-      amount: "$450",
+      amount: "₵450",
     },
   ];
 
@@ -120,7 +120,7 @@ const AdminOverviewPage = () => {
             <div className="w-12 h-12 rounded-xl flex items-center justify-center text-white mb-4 bg-[#F59E0B]">
               <RiMoneyDollarCircleLine size={24} />
             </div>
-            <h3 className="text-3xl font-bold text-[#1a1a1a]">$2.4M</h3>
+            <h3 className="text-3xl font-bold text-[#1a1a1a]">₵2.4M</h3>
             <p className="text-[#6B7280] text-sm font-medium mt-1">
               Completed payments
             </p>
@@ -247,19 +247,19 @@ const AdminOverviewPage = () => {
                 {
                   name: "Skyline Penthouse",
                   bookings: 42,
-                  revenue: "$12,400",
+                  revenue: "₵12,400",
                   color: "bg-blue-100",
                 },
                 {
                   name: "Cedar Wood Cabin",
                   bookings: 38,
-                  revenue: "$9,800",
+                  revenue: "₵9,800",
                   color: "bg-green-100",
                 },
                 {
                   name: "Azure Beach House",
                   bookings: 35,
-                  revenue: "$15,200",
+                  revenue: "₵15,200",
                   color: "bg-purple-100",
                 },
               ].map((prop, idx) => (

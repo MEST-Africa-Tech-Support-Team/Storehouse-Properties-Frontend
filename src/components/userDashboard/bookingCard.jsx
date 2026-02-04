@@ -62,7 +62,7 @@ const BookingCard = ({ booking }) => {
 
       <div className="flex flex-col md:justify-between md:items-end w-full md:w-auto">
         <div className="text-right mb-3 md:mb-0">
-          <div className="text-2xl font-bold text-gray-900">${price.toLocaleString()}</div>
+          <div className="text-2xl font-bold text-gray-900">₵{price.toLocaleString()}</div>
           <div className="text-xs text-gray-500">Total paid</div>
         </div>
 

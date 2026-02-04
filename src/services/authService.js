@@ -99,6 +99,72 @@ export const authService = {
     }
   },
 
+  // Request a password reset email for the given email address
+  forgotPassword: async (email) => {
+    try {
+      const res = await fetch(`${API_BASE_URL}/users/forgot-password`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      });
+
+      if (res.ok) {
+        const data = await res.json().catch(() => ({}));
+        return { success: true, message: data.message || 'Reset instructions sent to email' };
+      }
+
+      let errorMessage = `Request failed (${res.status})`;
+      const text = await res.text().catch(() => '');
+      if (text) {
+        try {
+          const json = JSON.parse(text);
+          errorMessage = json.message || json.error || text;
+        } catch {
+          errorMessage = text;
+        }
+      }
+
+      const err = new Error(errorMessage);
+      throw err;
+    } catch (error) {
+      if (error.message && error.message.toLowerCase().includes('network')) {
+        throw new Error('Network error. Please try again.');
+      }
+      throw error;
+    }
+  },
+
+  // Reset password using token from email link
+  resetPassword: async (token, password, confirmPassword) => {
+    try {
+      if (!token) throw new Error('Missing reset token');
+
+      const res = await fetch(`${API_BASE_URL.replace(/\/$/, '')}/users/reset-password/${encodeURIComponent(token)}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password, confirmPassword }),
+      });
+
+      const text = await res.text().catch(() => '');
+      let json = {};
+      try { json = text ? JSON.parse(text) : {}; } catch (_) { json = {}; }
+
+      if (res.ok) {
+        return { success: true, message: json.message || 'Password has been reset' };
+      }
+
+      const errorMessage = json.message || json.error || text || `Reset failed (${res.status})`;
+      const err = new Error(errorMessage);
+      if (json.errors) err.details = json.errors;
+      throw err;
+    } catch (error) {
+      if (error.message && error.message.toLowerCase().includes('network')) {
+        throw new Error('Network error. Please try again.');
+      }
+      throw error;
+    }
+  },
+
   login: async ({ email, password }) => {
     try {
       const loginRes = await fetch(`${API_BASE_URL}/users/login`, {

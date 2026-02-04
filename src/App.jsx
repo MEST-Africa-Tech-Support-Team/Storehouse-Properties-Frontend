@@ -15,10 +15,15 @@ import Explore from "./pages/explore.jsx";
 import PropertyDetails from "./pages/propertyDetails.jsx";
 import TermsConditions from "./pages/termsAndConditions.jsx";
 import CompleteBookingPage from "./pages/confirmBooking.jsx";
+import NotFound from "./pages/notFound.jsx";
 
 import Signup from "./pages/authPages/signUp.jsx";
 import Login from "./pages/authPages/logIn.jsx";
 import EmailVerification from "./pages/authPages/emailVerification.jsx";
+import ForgotPassword from "./pages/authPages/forgotPassword.jsx";
+import ResetPassword from "./pages/authPages/resetPassword.jsx";
+import CheckEmail from "./pages/authPages/checkEmail.jsx";
+
 
 import UserDashboardOverview from "./pages/userDashboard/overview.jsx";
 import BookingsPage from "./pages/userDashboard/booking.jsx";
@@ -47,6 +52,7 @@ const router = createBrowserRouter([
       { path: "/contact", element: <Contact /> },
       { path: "/explore", element: <Explore /> },
       { path: "/property/:id", element: <PropertyDetails /> },
+      { path: "*", element: <NotFound /> },
     ],
   },
   {
@@ -106,6 +112,9 @@ const router = createBrowserRouter([
       { path: "/auth/signup", element: <Signup /> },
       { path: "/auth/login", element: <Login /> },
       { path: "/auth/verify-email", element: <EmailVerification /> },
+      {path: "/auth/forgot-password", element: <ForgotPassword/>},
+      {path: "/auth/reset-password/:token?", element: <ResetPassword/>},
+      {path: "/auth/check-email", element: <CheckEmail/>},
     ],
   },
 ]);
