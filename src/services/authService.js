@@ -173,12 +173,18 @@ export const authService = {
         body: JSON.stringify({ email, password }),
       });
 
-      const loginData = await loginRes.json();
+      // Safely parse response (may not be JSON on some errors)
+      const rawText = await loginRes.text().catch(() => "");
+      let loginData = {};
+      if (rawText) {
+        try { loginData = JSON.parse(rawText); } catch (_) { /* non-JSON response */ }
+      }
 
       if (!loginRes.ok) {
         throw new Error(
           loginData.message ||
             loginData.error ||
+            rawText ||
             `Login failed (${loginRes.status})`
         );
       }
@@ -189,21 +195,33 @@ export const authService = {
 
       localStorage.setItem("authToken", loginData.token);
 
-      const profileRes = await fetch(`${API_BASE_URL}/users/me`, {
-        headers: {
-          Authorization: `Bearer ${loginData.token}`,
-          "Content-Type": "application/json",
-        },
-      });
+      // Fetch full profile from /users/me for complete user data (names, role, photo)
+      let user = null;
+      try {
+        const profileRes = await fetch(`${API_BASE_URL}/users/me`, {
+          headers: {
+            Authorization: `Bearer ${loginData.token}`,
+            "Content-Type": "application/json",
+          },
+        });
+        if (profileRes.ok) {
+          const profileData = await profileRes.json();
+          user = profileData.user || profileData.data?.user || profileData;
+        }
+      } catch (_) {
+        // Network hiccup — fall back to login response data
+      }
 
-      if (!profileRes.ok) {
+      // Fallback: use user data from the login response if /users/me failed
+      if (!user || !user.email) {
+        user = loginData.user || loginData.data?.user || loginData.data || null;
+      }
+
+      if (!user) {
         throw new Error("Failed to load user profile");
       }
 
-      const profileData = await profileRes.json();
-
-      const normalized = normalizeUser(profileData.user || profileData, { cacheBust: false });
-
+      const normalized = normalizeUser(user, { cacheBust: false });
       localStorage.setItem("user", JSON.stringify(normalized));
 
       return {
@@ -250,6 +268,32 @@ export const authService = {
     const normalized = normalizeUser(updatedUser, { cacheBust });
     localStorage.setItem("user", JSON.stringify(normalized));
     return normalized;
+  },
+
+  // Fetch fresh profile from /users/me and update localStorage
+  getProfile: async () => {
+    const token = localStorage.getItem("authToken");
+    if (!token) return null;
+
+    try {
+      const res = await fetch(`${API_BASE_URL}/users/me`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!res.ok) return authService.getCurrentUser();
+
+      const data = await res.json();
+      const user = data.user || data.data?.user || data;
+      const normalized = normalizeUser(user, { cacheBust: false });
+      localStorage.setItem("user", JSON.stringify(normalized));
+      return normalized;
+    } catch (_) {
+      // Network error — return cached user
+      return authService.getCurrentUser();
+    }
   },
 
   getToken: () => localStorage.getItem("authToken"),

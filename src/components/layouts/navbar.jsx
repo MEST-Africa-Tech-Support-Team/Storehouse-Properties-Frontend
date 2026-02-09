@@ -106,8 +106,8 @@ export default function Header() {
               to={path}
               className={`text-sm font-medium transition-colors ${
                 isActive(path)
-                  ? "text-blue-600 font-bold"
-                  : "text-gray-600 hover:text-blue-600"
+                  ? "text-black-800 font-bold"
+                  : "text-gray-600 hover:text-black-800"
               }`}
             >
               {label}

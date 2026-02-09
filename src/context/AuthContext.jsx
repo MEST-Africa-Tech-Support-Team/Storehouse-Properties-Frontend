@@ -57,12 +57,28 @@ export const AuthProvider = ({ children }) => {
     };
   }, []);
 
-  const initializeAuth = () => {
+  const initializeAuth = async () => {
     try {
       const token = authService.getToken();
-      const user = authService.getCurrentUser();
+      if (!token) {
+        authService.logout();
+        setCurrentUser(null);
+        return;
+      }
 
-      if (token && user) {
+      // Fetch fresh profile from /users/me so names & role are always current
+      let user = null;
+      try {
+        user = await authService.getProfile();
+      } catch (_) {
+        // Network issue — fall back to cached data
+      }
+
+      if (!user) {
+        user = authService.getCurrentUser();
+      }
+
+      if (user) {
         setCurrentUser({ ...user, initials: getInitials(user) });
       } else {
         authService.logout();
