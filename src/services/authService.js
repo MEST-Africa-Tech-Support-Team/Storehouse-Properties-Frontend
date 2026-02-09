@@ -41,8 +41,7 @@ export const authService = {
       if (response.ok) {
         return {
           success: true,
-          message:
-            "Registration successful. Please check your email for verification.",
+          message: "Registration successful. Please check your email for verification.",
         };
       }
 
@@ -111,9 +110,7 @@ export const authService = {
 
       if (!loginRes.ok) {
         throw new Error(
-          loginData.message ||
-            loginData.error ||
-            `Login failed (${loginRes.status})`
+          loginData.message || loginData.error || `Login failed (${loginRes.status})`
         );
       }
 
@@ -121,23 +118,35 @@ export const authService = {
         throw new Error("No authentication token received");
       }
 
+      // 1. SAVE TOKEN IMMEDIATELY
       localStorage.setItem("authToken", loginData.token);
 
-      const profileRes = await fetch(`${API_BASE_URL}/users/me`, {
-        headers: {
-          Authorization: `Bearer ${loginData.token}`,
-          "Content-Type": "application/json",
-        },
-      });
+      let finalUser;
 
-      if (!profileRes.ok) {
-        throw new Error("Failed to load user profile");
+      // 2. CHECK IF LOGIN DATA ALREADY CONTAINS THE USER OBJECT
+      // Many backends return { token, user: {...} }. If yours does, we skip the extra fetch.
+      if (loginData.user) {
+        finalUser = loginData.user;
+      } else {
+        // Fallback: If login only returns a token, we fetch the profile.
+        // NOTE: Ensure your backend route is exactly /users/me or /users/profile
+        const profileRes = await fetch(`${API_BASE_URL}/users/me`, {
+          headers: {
+            Authorization: `Bearer ${loginData.token}`,
+            "Content-Type": "application/json",
+          },
+        });
+
+        if (!profileRes.ok) {
+          throw new Error("Login success, but failed to load user profile (404/500)");
+        }
+
+        const profileData = await profileRes.json();
+        finalUser = profileData.user || profileData;
       }
 
-      const profileData = await profileRes.json();
-
-      const normalized = normalizeUser(profileData.user || profileData, { cacheBust: false });
-
+      // 3. NORMALIZE AND SAVE
+      const normalized = normalizeUser(finalUser, { cacheBust: false });
       localStorage.setItem("user", JSON.stringify(normalized));
 
       return {
@@ -146,6 +155,7 @@ export const authService = {
         user: normalized,
       };
     } catch (error) {
+      // Clear local storage if anything in the process fails
       localStorage.removeItem("authToken");
       localStorage.removeItem("user");
       throw error;

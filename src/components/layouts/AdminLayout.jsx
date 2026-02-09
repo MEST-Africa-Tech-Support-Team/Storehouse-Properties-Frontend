@@ -55,15 +55,15 @@ const AdminLayout = () => {
       return {
         title: "User Profile",
         subtitle: "Detailed overview of customer activity and account status",
-        action: (
-          <button 
-            onClick={() => navigate("/admin/users")} 
-            className="flex items-center gap-1 text-sm font-bold text-[#1E5EFF] hover:underline"
-          >
-            <RiArrowLeftSLine size={18} />
-            Back to Users List
-          </button>
-        ),
+        // action: (
+        //   <button 
+        //     onClick={() => navigate("/admin/users")} 
+        //     className="flex items-center gap-1 text-sm font-bold text-[#1E5EFF] hover:underline"
+        //   >
+        //     <RiArrowLeftSLine size={18} />
+        //     Back to Users List
+        //   </button>
+        // ),
       };
     }
 
