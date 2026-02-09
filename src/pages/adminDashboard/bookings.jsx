@@ -9,9 +9,6 @@ import {
   RiLoader4Line,
 } from "react-icons/ri";
 import { Link } from "react-router-dom";
-import { bookingService } from "../../services/bookingService";
-import { useAuth } from "../../context/AuthContext";
-import { toast } from "react-hot-toast";
 
 const AdminBookingsPage = () => {
   // 1. STATE MANAGEMENT
@@ -20,193 +17,46 @@ const AdminBookingsPage = () => {
   const [showFilters, setShowFilters] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
 
-  // initial sample data (kept so UI doesn't jump if API is slow)
-  const initialBookings = [
-    {
-      id: "#BK-2334",
-      property: "Sunset Villa",
-      location: "Miami Beach, FL",
-      customer: "Alex Johnson",
-      checkIn: "Jan 15, 2025",
-      checkOut: "Jan 22, 2025",
-      guests: "2 Adults / 1 Child",
-      children: "YES",
-      status: "pending",
-      payment: "paid",
-      amount: "₵3,434",
-      _id: '697a2334'
-    },
-    {
-      id: "#BK-2335",
-      property: "Modern Studio",
-      location: "Berlin, Germany",
-      customer: "Sarah Williams",
-      checkIn: "Feb 01, 2025",
-      checkOut: "Feb 05, 2025",
-      guests: "1 Adult",
-      children: "NO",
-      status: "canceled",
-      payment: "refunded",
-      amount: "₵1,200",
-      _id: '697a2335'
-    },
-    {
-      id: "#BK-2336",
-      property: "Mountain Retreat",
-      location: "Aspen, CO",
-      customer: "Michael Chen",
-      checkIn: "Mar 10, 2025",
-      checkOut: "Mar 15, 2025",
-      guests: "2 Adults / 2 Children",
-      children: "YES",
-      status: "confirmed",
-      payment: "paid",
-      amount: "₵5,650",
-      _id: '697a2336'
-    },
-    {
-      id: "#BK-2337",
-      property: "Urban Loft",
-      location: "London, UK",
-      customer: "Emma Watson",
-      checkIn: "Apr 20, 2025",
-      checkOut: "Apr 25, 2025",
-      guests: "2 Adults",
-      children: "NO",
-      status: "confirmed",
-      payment: "paid",
-      amount: "₵2,100",
-      _id: '697a2337'
-    },
-    {
-      id: "#BK-2338",
-      property: "Beachfront Condo",
-      location: "Malibu, CA",
-      customer: "David Miller",
-      checkIn: "May 05, 2025",
-      checkOut: "May 12, 2025",
-      guests: "2 Adults / 1 Child",
-      children: "YES",
-      status: "canceled",
-      payment: "refunded",
-      amount: "₵4,200",
-      _id: '697a2338'
-    },
-    {
-      id: "#BK-2339",
-      property: "Parisian Suite",
-      location: "Paris, France",
-      customer: "Sophie Martin",
-      checkIn: "Jun 12, 2025",
-      checkOut: "Jun 18, 2025",
-      guests: "2 Adults",
-      children: "NO",
-      status: "confirmed",
-      payment: "paid",
-      amount: "₵3,800",
-      _id: '697a2339'
-    },
-    {
-      id: "#BK-2340",
-      property: "Lakeside Cabin",
-      location: "Lake Tahoe, NV",
-      customer: "Robert Brown",
-      checkIn: "Jul 01, 2025",
-      checkOut: "Jul 08, 2025",
-      guests: "4 Adults / 2 Children",
-      children: "YES",
-      status: "pending",
-      payment: "paid",
-      amount: "₵6,120",
-      _id: '697a2340'
-    }
-  ];
-
-  const [bookingsData, setBookingsData] = useState(initialBookings);
-  const [loadingBookings, setLoadingBookings] = useState(false);
-  const { currentUser } = useAuth();
-
-  const mapBooking = (b) => {
-    // defensive mapper from API shape to UI shape used below
-    const id = b.bookingId || b.id || b._id || (b._doc && b._doc._id) || null;
-    const displayId = id ? (String(id).startsWith('#') ? String(id) : `#${String(id).slice(-6)}`) : '#UNKNOWN';
-    const prop = b.property || b.propertyTitle || (b.property && b.property.title) || '—';
-    const location = b.property?.location || b.location || b.propertyLocation || '—';
-    const customer = b.customer?.name || `${b.customer?.firstName || ''} ${b.customer?.lastName || ''}`.trim() || b.user?.email || '—';
-
-    const fmt = (d) => {
-      if (!d) return '—';
-      try { return new Date(d).toLocaleDateString(); } catch { return String(d); }
-    };
-
-    return {
-      _id: id || b._id || b.id,
-      id: displayId,
-      property: prop,
-      location,
-      customer,
-      checkIn: fmt(b.startDate || b.checkIn || b.from),
-      checkOut: fmt(b.endDate || b.checkOut || b.to),
-      guests: b.guests || (b.adults ? `${b.adults} Adults` : '—'),
-      children: (b.childrenAllowed || b.children || b.hasChildren) ? 'YES' : 'NO',
-      status: (b.status || b.bookingStatus || b.state) || 'pending',
-      payment: (b.paymentStatus || b.payment) || 'pending',
-      amount: b.amount || b.total || b.price || '₵0.00',
-    };
-  };
-
-  const fetchBookings = async () => {
-    const t = toast.loading('Loading bookings...');
-    setLoadingBookings(true);
-    try {
-      const data = await bookingService.getAllBookings();
-      const list = Array.isArray(data) ? data : (data.bookings || data.data || []);
-      const mapped = list.map(mapBooking);
-      if (mapped.length) setBookingsData(mapped);
-      toast.dismiss(t);
-    } catch (err) {
-      toast.dismiss(t);
-      toast.error(err?.message || 'Failed to load bookings');
-    } finally {
-      setLoadingBookings(false);
-    }
-  };
-
+  // 2. FETCH DATA FROM API
   useEffect(() => {
-    // defensive: only admins should fetch admin bookings
-    if (currentUser && currentUser.role !== 'admin') return;
+    const fetchBookings = async () => {
+      try {
+        setLoading(true);
+        const token = localStorage.getItem("authToken");
+        const API_URL = import.meta.env.VITE_API_BASE_URL;
+
+        const response = await fetch(`${API_URL}/bookings`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (!response.ok) throw new Error("Failed to fetch bookings");
+
+        const data = await response.json();
+        // Adjust based on your API response structure (e.g., data.bookings or just data)
+        setBookings(Array.isArray(data) ? data : data.bookings || []);
+      } catch (err) {
+        console.error("Booking Fetch Error:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
     fetchBookings();
-  }, [currentUser]);
+  }, []);
 
-  const handleApprove = async (bookingId) => {
-    const id = bookingId?.replace?.('#', '') || bookingId;
-    const t = toast.loading('Approving booking...');
-    try {
-      const res = await bookingService.approveBooking(id);
-      // optimistic UI update
-      setBookingsData(prev => prev.map(b => (String(b._id) === String(id) || String(b.id).includes(String(id)) ? { ...b, status: (res.status || 'confirmed') } : b)));
-      toast.dismiss(t);
-      toast.success('Booking approved');
-    } catch (err) {
-      toast.dismiss(t);
-      toast.error(err?.message || 'Failed to approve booking');
-    }
-  };
-
-  const handleReject = async (bookingId) => {
-    const id = bookingId?.replace?.('#', '') || bookingId;
-    if (!window.confirm('Reject this booking? This action cannot be undone.')) return;
-    const t = toast.loading('Rejecting booking...');
-    try {
-      const res = await bookingService.rejectBooking(id);
-      setBookingsData(prev => prev.map(b => (String(b._id) === String(id) || String(b.id).includes(String(id)) ? { ...b, status: (res.status || 'rejected') } : b)));
-      toast.dismiss(t);
-      toast.success(res?.message || 'Booking rejected');
-    } catch (err) {
-      toast.dismiss(t);
-      toast.error(err?.message || 'Failed to reject booking');
-    }
-  }; 
+  // 3. FILTER LOGIC
+  const filteredBookings = bookings.filter((booking) => {
+    const searchStr = searchQuery.toLowerCase();
+    return (
+      booking._id?.toLowerCase().includes(searchStr) ||
+      booking.customerName?.toLowerCase().includes(searchStr) ||
+      booking.propertyTitle?.toLowerCase().includes(searchStr)
+    );
+  });
 
   return (
     <div className="space-y-6">
@@ -258,95 +108,43 @@ const AdminBookingsPage = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-[#E5E7EB]">
-              {bookingsData.map((booking) => (
-                <tr
-                  key={booking.id}
-                  className="hover:bg-gray-50/50 transition-colors"
-                >
-                  <td className="px-6 py-4 text-sm font-bold text-[#1e5eff]">
-                    {booking.id}
-                  </td>
-                  <td className="px-6 py-4">
-                    <div className="font-bold text-[#1a1a1a] text-sm">
-                      {booking.property}
-                    </div>
-                    <div className="text-xs text-[#6B7280]">
-                      {booking.location}
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 text-sm font-medium text-[#1a1a1a]">
-                    {booking.customer}
-                  </td>
-                  <td className="px-6 py-4">
-                    <div className="text-[13px] text-[#1a1a1a] font-medium">
-                      {booking.checkIn}
-                    </div>
-                    <div className="text-xs text-[#6B7280] flex items-center gap-1">
-                      <RiArrowRightLine size={12} /> {booking.checkOut}
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 text-xs font-medium text-[#1a1a1a]">
-                    {booking.guests}
-                  </td>
-                  <td className="px-6 py-4">
-                    <span
-                      className={`px-3 py-1 rounded-md text-[10px] font-bold ${
-                        booking.children === "YES"
-                          ? "bg-[#1E5EFF] text-white"
-                          : "bg-[#F3F4F6] text-[#1a1a1a]"
-                      }`}
-                    >
-                      {booking.children}
-                    </span>
-                  </td>
-                 <td className="px-6 py-4">
-  <span
-    className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase ${
-      booking.status === "confirmed"
-        ? "bg-[#DCFCE7] text-[#15803D]"
-        : booking.status === "pending"
-        ? "bg-[#FEF3C7] text-[#D97706]"
-        : "bg-[#FEE2E2] text-[#B91C1C]"
-    }`}
-  >
-    {booking.status}
-  </span>
-</td>
-                  <td className="px-6 py-4">
-                    <span
-                      className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase ${
-                        booking.payment === "paid"
-                          ? "bg-[#DCFCE7] text-[#15803D]"
-                          : "bg-[#F3F4F6] text-[#1a1a1a]"
-                      }`}
-                    >
-                      {booking.payment}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 text-sm font-bold text-[#1a1a1a]">
-                    {booking.amount}
-                  </td>
-                  <td className="px-6 py-4">
-                    <div className="flex items-center gap-4">
-                      <Link
-                        to={`/admin/bookings/${booking.id.replace("#", "")}`}
-                        className="text-[#1E5EFF] font-bold text-sm hover:underline"
-                      >
-                        View
-                      </Link>
-
-                      {String(booking.status).toLowerCase() === 'pending' && (
-                        <button
-                          onClick={() => handleReject(booking.id)}
-                          className="text-[#1E5EFF] font-bold text-sm hover:underline"
-                        >
-                          Reject
-                        </button>
-                      )}
-                    </div>
-                  </td>
-                </tr>
-              ))}
+              {filteredBookings.length > 0 ? (
+                filteredBookings.map((booking) => (
+                  <tr key={booking._id} className="hover:bg-gray-50/50 transition-colors">
+                    <td className="px-6 py-4 text-xs font-bold text-[#1e5eff]">#{booking._id?.slice(-6).toUpperCase()}</td>
+                    <td className="px-6 py-4">
+                      <div className="font-bold text-[#1a1a1a] text-sm">{booking.property?.title || "Property"}</div>
+                      <div className="text-xs text-[#6B7280]">{booking.property?.location || "Location"}</div>
+                    </td>
+                    <td className="px-6 py-4 text-sm font-medium text-[#1a1a1a]">{booking.user?.firstName} {booking.user?.lastName}</td>
+                    <td className="px-6 py-4">
+                      <div className="text-[13px] text-[#1a1a1a] font-medium">{new Date(booking.checkIn).toLocaleDateString()}</div>
+                      <div className="text-xs text-[#6B7280] flex items-center gap-1"><RiArrowRightLine size={12} /> {new Date(booking.checkOut).toLocaleDateString()}</div>
+                    </td>
+                    <td className="px-6 py-4 text-xs font-medium text-[#1a1a1a]">{booking.guests?.adults} Adults {booking.guests?.children > 0 && `/ ${booking.guests.children} Children`}</td>
+                    <td className="px-6 py-4">
+                      <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase ${getStatusStyles(booking.status)}`}>
+                        {booking.status}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4">
+                      <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase ${booking.paymentStatus === "paid" ? "bg-[#DCFCE7] text-[#15803D]" : "bg-[#F3F4F6] text-[#1a1a1a]"}`}>
+                        {booking.paymentStatus || "pending"}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 text-sm font-bold text-[#1a1a1a]">${booking.totalPrice?.toLocaleString()}</td>
+                    <td className="px-6 py-4">
+                      <Link to={`/admin/bookings/${booking._id}`} className="text-[#1E5EFF] font-bold text-sm hover:underline">View</Link>
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                !loading && (
+                  <tr>
+                    <td colSpan="9" className="text-center py-20 text-gray-400 font-medium">No bookings found.</td>
+                  </tr>
+                )
+              )}
             </tbody>
           </table>
         </div>
