@@ -100,5 +100,117 @@ export const propertyService = {
 
     console.warn('Unexpected similar properties response format:', data);
     return [];
+  },
+
+  // --- Admin actions: create (draft), publish and update ---
+  createProperty: async (payload = {}, { asDraft = true } = {}) => {
+    const token = authService.getToken();
+    if (!token) throw new Error('Authentication required');
+
+    const form = new FormData();
+    Object.entries(payload).forEach(([k, v]) => {
+      if (v === undefined || v === null) return;
+      // arrays (e.g. images) should be appended individually
+      if (Array.isArray(v)) {
+        v.forEach(item => form.append(k, item));
+        return;
+      }
+      form.append(k, v);
+    });
+
+    if (asDraft) form.append('status', 'draft');
+
+    const res = await fetch(`${API_BASE_URL}/properties`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}` },
+      body: form,
+    });
+
+    const text = await res.text().catch(() => '');
+    let json = {};
+    try { json = text ? JSON.parse(text) : {}; } catch (_) { json = {}; }
+
+    if (!res.ok) {
+      const msg = json.message || json.error || `Create property failed (${res.status})`;
+      throw new Error(msg);
+    }
+
+    return json;
+  },
+
+  publishProperty: async (id) => {
+    if (!id) throw new Error('Property ID is required to publish');
+    const token = authService.getToken();
+    if (!token) throw new Error('Authentication required');
+
+    const res = await fetch(`${API_BASE_URL}/properties/publish/${encodeURIComponent(id)}`, {
+      method: 'PATCH',
+      headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({}),
+    });
+
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) {
+      throw new Error(data.message || data.error || `Publish failed (${res.status})`);
+    }
+
+    return data;
+  },
+
+  // Unlist a property (admin)
+  unlistProperty: async (id) => {
+    if (!id) throw new Error('Property ID is required to unlist');
+    const token = authService.getToken();
+    if (!token) throw new Error('Authentication required');
+
+    const res = await fetch(`${API_BASE_URL}/properties/unlist/${encodeURIComponent(id)}`, {
+      method: 'PATCH',
+      headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({}),
+    });
+
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(data.message || data.error || `Unlist failed (${res.status})`);
+    return data;
+  },
+
+  updateProperty: async (id, updates = {}) => {
+    if (!id) throw new Error('Property ID is required to update');
+    const token = authService.getToken();
+    if (!token) throw new Error('Authentication required');
+
+    // support JSON updates or multipart when files are present
+    const hasFiles = Object.values(updates).some(v => Array.isArray(v) || v instanceof File);
+
+    if (hasFiles) {
+      const form = new FormData();
+      Object.entries(updates).forEach(([k, v]) => {
+        if (v === undefined || v === null) return;
+        if (Array.isArray(v)) return v.forEach(item => form.append(k, item));
+        form.append(k, v);
+      });
+
+      const res = await fetch(`${API_BASE_URL}/properties/${encodeURIComponent(id)}`, {
+        method: 'PATCH',
+        headers: { Authorization: `Bearer ${token}` },
+        body: form,
+      });
+
+      const text = await res.text().catch(() => '');
+      let json = {};
+      try { json = text ? JSON.parse(text) : {}; } catch (_) { json = {}; }
+      if (!res.ok) throw new Error(json.message || json.error || `Update failed (${res.status})`);
+      return json;
+    }
+
+    const res = await fetch(`${API_BASE_URL}/properties/${encodeURIComponent(id)}`, {
+      method: 'PATCH',
+      headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify(updates),
+    });
+
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(data.message || data.error || `Update failed (${res.status})`);
+    return data;
   }
 };

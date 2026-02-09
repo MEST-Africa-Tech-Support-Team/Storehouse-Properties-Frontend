@@ -98,6 +98,72 @@ export const authService = {
     }
   },
 
+  // Request a password reset email for the given email address
+  forgotPassword: async (email) => {
+    try {
+      const res = await fetch(`${API_BASE_URL}/users/forgot-password`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      });
+
+      if (res.ok) {
+        const data = await res.json().catch(() => ({}));
+        return { success: true, message: data.message || 'Reset instructions sent to email' };
+      }
+
+      let errorMessage = `Request failed (${res.status})`;
+      const text = await res.text().catch(() => '');
+      if (text) {
+        try {
+          const json = JSON.parse(text);
+          errorMessage = json.message || json.error || text;
+        } catch {
+          errorMessage = text;
+        }
+      }
+
+      const err = new Error(errorMessage);
+      throw err;
+    } catch (error) {
+      if (error.message && error.message.toLowerCase().includes('network')) {
+        throw new Error('Network error. Please try again.');
+      }
+      throw error;
+    }
+  },
+
+  // Reset password using token from email link
+  resetPassword: async (token, password, confirmPassword) => {
+    try {
+      if (!token) throw new Error('Missing reset token');
+
+      const res = await fetch(`${API_BASE_URL.replace(/\/$/, '')}/users/reset-password/${encodeURIComponent(token)}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password, confirmPassword }),
+      });
+
+      const text = await res.text().catch(() => '');
+      let json = {};
+      try { json = text ? JSON.parse(text) : {}; } catch (_) { json = {}; }
+
+      if (res.ok) {
+        return { success: true, message: json.message || 'Password has been reset' };
+      }
+
+      const errorMessage = json.message || json.error || text || `Reset failed (${res.status})`;
+      const err = new Error(errorMessage);
+      if (json.errors) err.details = json.errors;
+      throw err;
+    } catch (error) {
+      if (error.message && error.message.toLowerCase().includes('network')) {
+        throw new Error('Network error. Please try again.');
+      }
+      throw error;
+    }
+  },
+
   login: async ({ email, password }) => {
     try {
       const loginRes = await fetch(`${API_BASE_URL}/users/login`, {
@@ -106,11 +172,19 @@ export const authService = {
         body: JSON.stringify({ email, password }),
       });
 
-      const loginData = await loginRes.json();
+      // Safely parse response (may not be JSON on some errors)
+      const rawText = await loginRes.text().catch(() => "");
+      let loginData = {};
+      if (rawText) {
+        try { loginData = JSON.parse(rawText); } catch (_) { /* non-JSON response */ }
+      }
 
       if (!loginRes.ok) {
         throw new Error(
-          loginData.message || loginData.error || `Login failed (${loginRes.status})`
+          loginData.message ||
+            loginData.error ||
+            rawText ||
+            `Login failed (${loginRes.status})`
         );
       }
 
@@ -121,32 +195,33 @@ export const authService = {
       // 1. SAVE TOKEN IMMEDIATELY
       localStorage.setItem("authToken", loginData.token);
 
-      let finalUser;
-
-      // 2. CHECK IF LOGIN DATA ALREADY CONTAINS THE USER OBJECT
-      // Many backends return { token, user: {...} }. If yours does, we skip the extra fetch.
-      if (loginData.user) {
-        finalUser = loginData.user;
-      } else {
-        // Fallback: If login only returns a token, we fetch the profile.
-        // NOTE: Ensure your backend route is exactly /users/me or /users/profile
+      // Fetch full profile from /users/me for complete user data (names, role, photo)
+      let user = null;
+      try {
         const profileRes = await fetch(`${API_BASE_URL}/users/me`, {
           headers: {
             Authorization: `Bearer ${loginData.token}`,
             "Content-Type": "application/json",
           },
         });
-
-        if (!profileRes.ok) {
-          throw new Error("Login success, but failed to load user profile (404/500)");
+        if (profileRes.ok) {
+          const profileData = await profileRes.json();
+          user = profileData.user || profileData.data?.user || profileData;
         }
-
-        const profileData = await profileRes.json();
-        finalUser = profileData.user || profileData;
+      } catch (_) {
+        // Network hiccup — fall back to login response data
       }
 
-      // 3. NORMALIZE AND SAVE
-      const normalized = normalizeUser(finalUser, { cacheBust: false });
+      // Fallback: use user data from the login response if /users/me failed
+      if (!user || !user.email) {
+        user = loginData.user || loginData.data?.user || loginData.data || null;
+      }
+
+      if (!user) {
+        throw new Error("Failed to load user profile");
+      }
+
+      const normalized = normalizeUser(user, { cacheBust: false });
       localStorage.setItem("user", JSON.stringify(normalized));
 
       return {
@@ -194,6 +269,32 @@ export const authService = {
     const normalized = normalizeUser(updatedUser, { cacheBust });
     localStorage.setItem("user", JSON.stringify(normalized));
     return normalized;
+  },
+
+  // Fetch fresh profile from /users/me and update localStorage
+  getProfile: async () => {
+    const token = localStorage.getItem("authToken");
+    if (!token) return null;
+
+    try {
+      const res = await fetch(`${API_BASE_URL}/users/me`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!res.ok) return authService.getCurrentUser();
+
+      const data = await res.json();
+      const user = data.user || data.data?.user || data;
+      const normalized = normalizeUser(user, { cacheBust: false });
+      localStorage.setItem("user", JSON.stringify(normalized));
+      return normalized;
+    } catch (_) {
+      // Network error — return cached user
+      return authService.getCurrentUser();
+    }
   },
 
   getToken: () => localStorage.getItem("authToken"),

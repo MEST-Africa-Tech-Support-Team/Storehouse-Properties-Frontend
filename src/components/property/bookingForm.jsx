@@ -209,7 +209,7 @@ export default function BookingForm({ price = 180, propertyId, maxGuests = 10, p
   return (
     <div className="w-full max-w-[380px] bg-white p-5 rounded-2xl border border-gray-200 shadow-sm font-sans">
       <div className="text-center mb-4">
-        <span className="text-2xl md:text-3xl font-bold text-[#1e293b]">${price}</span>
+        <span className="text-2xl md:text-3xl font-bold text-[#1e293b]">₵{price}</span>
         <span className="text-gray-500 text-sm ml-1">/ night</span>
       </div>
 
@@ -274,23 +274,23 @@ export default function BookingForm({ price = 180, propertyId, maxGuests = 10, p
         {nights > 0 && (
           <div className="pt-4 space-y-2">
             <div className="flex justify-between text-[14px] text-[#1e293b]">
-              <span>${price} × {nights} {nights === 1 ? 'night' : 'nights'}</span>
-              <span className="font-medium">${price * nights}</span>
+              <span>₵{price} × {nights} {nights === 1 ? 'night' : 'nights'}</span>
+              <span className="font-medium">₵{price * nights}</span>
             </div>
             <div className="flex justify-between text-[14px] text-[#1e293b]">
               <span>Cleaning fee</span>
-              <span className="font-medium">${cleaningFee}</span>
+              <span className="font-medium">₵{cleaningFee}</span>
             </div>
             <div className="flex justify-between text-[14px] text-[#1e293b]">
               <span>Service fee</span>
-              <span className="font-medium">${serviceFee}</span>
+              <span className="font-medium">₵{serviceFee}</span>
             </div>
             
             <div className="border-t border-gray-100 my-2"></div>
             
             <div className="flex justify-between items-center text-[16px] font-bold text-[#1e293b]">
               <span>Total</span>
-              <span>${total}</span>
+              <span>₵{total}</span>
             </div>
           </div>
         )}
@@ -305,7 +305,7 @@ export default function BookingForm({ price = 180, propertyId, maxGuests = 10, p
                 : 'bg-gray-200 text-gray-400 cursor-not-allowed'
             }`}
           >
-            Book Now
+           Check Availability
           </button>
           <p className="text-center text-[12px] text-gray-500 mt-2">You won't be charged yet</p>
         </div>

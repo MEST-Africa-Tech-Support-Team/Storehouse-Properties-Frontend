@@ -272,20 +272,37 @@ export default function Login() {
         }
       );
       
+      const role = (result.user?.role || authService.getCurrentUser()?.role || '').toString().toLowerCase();
+      const isAdmin = role === 'admin';
+
       const postLoginRedirect = localStorage.getItem('postLoginRedirect');
       if (postLoginRedirect) {
         try {
-          const { pathname, search, state } = JSON.parse(postLoginRedirect);
+          const { pathname = '/', search = '', state } = JSON.parse(postLoginRedirect);
+
+          // Prevent non-admin users from being redirected into the admin area
+          if (pathname.startsWith('/admin') && !isAdmin) {
+            localStorage.removeItem('postLoginRedirect');
+            navigate('/dashboard', { replace: true });
+            return;
+          }
+
+          // Admins are allowed to visit user pages as well; preserve redirect for valid paths
           localStorage.removeItem('postLoginRedirect');
-          navigate(pathname + search, { state: state || {}, replace: true });
+          navigate(pathname + (search || ''), { state: state || {}, replace: true });
           return;
         } catch (error) {
           console.error('Invalid redirect data:', error);
           localStorage.removeItem('postLoginRedirect');
         }
       }
-      
-      navigate("/dashboard", { replace: true });
+
+      // Default landing by role
+      if (isAdmin) {
+        navigate('/admin', { replace: true });
+      } else {
+        navigate('/dashboard', { replace: true });
+      }
       
     } catch (error) {
       setIsSubmitting(false);

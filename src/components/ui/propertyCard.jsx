@@ -167,7 +167,7 @@ const PropertyCard = ({
 
         <div className="flex items-center justify-between pt-2 border-t border-gray-100">
           <div className="flex items-baseline gap-1">
-            <span className="text-xl font-bold text-blue-600">${pricePerNight}</span>
+            <span className="text-xl font-bold text-blue-600">₵{pricePerNight}</span>
             <span className="text-xs text-gray-500">/night</span>
           </div>
           <button
