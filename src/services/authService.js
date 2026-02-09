@@ -41,8 +41,7 @@ export const authService = {
       if (response.ok) {
         return {
           success: true,
-          message:
-            "Registration successful. Please check your email for verification.",
+          message: "Registration successful. Please check your email for verification.",
         };
       }
 
@@ -193,6 +192,7 @@ export const authService = {
         throw new Error("No authentication token received");
       }
 
+      // 1. SAVE TOKEN IMMEDIATELY
       localStorage.setItem("authToken", loginData.token);
 
       // Fetch full profile from /users/me for complete user data (names, role, photo)
@@ -230,6 +230,7 @@ export const authService = {
         user: normalized,
       };
     } catch (error) {
+      // Clear local storage if anything in the process fails
       localStorage.removeItem("authToken");
       localStorage.removeItem("user");
       throw error;

@@ -6,203 +6,57 @@ import {
   RiArrowLeftSLine,
   RiArrowRightSLine,
   RiFilter3Line,
+  RiLoader4Line,
 } from "react-icons/ri";
 import { Link } from "react-router-dom";
-import { bookingService } from "../../services/bookingService";
-import { useAuth } from "../../context/AuthContext";
-import { toast } from "react-hot-toast";
 
 const AdminBookingsPage = () => {
+  // 1. STATE MANAGEMENT
+  const [bookings, setBookings] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [showFilters, setShowFilters] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
 
-  // initial sample data (kept so UI doesn't jump if API is slow)
-  const initialBookings = [
-    {
-      id: "#BK-2334",
-      property: "Sunset Villa",
-      location: "Miami Beach, FL",
-      customer: "Alex Johnson",
-      checkIn: "Jan 15, 2025",
-      checkOut: "Jan 22, 2025",
-      guests: "2 Adults / 1 Child",
-      children: "YES",
-      status: "pending",
-      payment: "paid",
-      amount: "₵3,434",
-      _id: '697a2334'
-    },
-    {
-      id: "#BK-2335",
-      property: "Modern Studio",
-      location: "Berlin, Germany",
-      customer: "Sarah Williams",
-      checkIn: "Feb 01, 2025",
-      checkOut: "Feb 05, 2025",
-      guests: "1 Adult",
-      children: "NO",
-      status: "canceled",
-      payment: "refunded",
-      amount: "₵1,200",
-      _id: '697a2335'
-    },
-    {
-      id: "#BK-2336",
-      property: "Mountain Retreat",
-      location: "Aspen, CO",
-      customer: "Michael Chen",
-      checkIn: "Mar 10, 2025",
-      checkOut: "Mar 15, 2025",
-      guests: "2 Adults / 2 Children",
-      children: "YES",
-      status: "confirmed",
-      payment: "paid",
-      amount: "₵5,650",
-      _id: '697a2336'
-    },
-    {
-      id: "#BK-2337",
-      property: "Urban Loft",
-      location: "London, UK",
-      customer: "Emma Watson",
-      checkIn: "Apr 20, 2025",
-      checkOut: "Apr 25, 2025",
-      guests: "2 Adults",
-      children: "NO",
-      status: "confirmed",
-      payment: "paid",
-      amount: "₵2,100",
-      _id: '697a2337'
-    },
-    {
-      id: "#BK-2338",
-      property: "Beachfront Condo",
-      location: "Malibu, CA",
-      customer: "David Miller",
-      checkIn: "May 05, 2025",
-      checkOut: "May 12, 2025",
-      guests: "2 Adults / 1 Child",
-      children: "YES",
-      status: "canceled",
-      payment: "refunded",
-      amount: "₵4,200",
-      _id: '697a2338'
-    },
-    {
-      id: "#BK-2339",
-      property: "Parisian Suite",
-      location: "Paris, France",
-      customer: "Sophie Martin",
-      checkIn: "Jun 12, 2025",
-      checkOut: "Jun 18, 2025",
-      guests: "2 Adults",
-      children: "NO",
-      status: "confirmed",
-      payment: "paid",
-      amount: "₵3,800",
-      _id: '697a2339'
-    },
-    {
-      id: "#BK-2340",
-      property: "Lakeside Cabin",
-      location: "Lake Tahoe, NV",
-      customer: "Robert Brown",
-      checkIn: "Jul 01, 2025",
-      checkOut: "Jul 08, 2025",
-      guests: "4 Adults / 2 Children",
-      children: "YES",
-      status: "pending",
-      payment: "paid",
-      amount: "₵6,120",
-      _id: '697a2340'
-    }
-  ];
-
-  const [bookingsData, setBookingsData] = useState(initialBookings);
-  const [loadingBookings, setLoadingBookings] = useState(false);
-  const { currentUser } = useAuth();
-
-  const mapBooking = (b) => {
-    // defensive mapper from API shape to UI shape used below
-    const id = b.bookingId || b.id || b._id || (b._doc && b._doc._id) || null;
-    const displayId = id ? (String(id).startsWith('#') ? String(id) : `#${String(id).slice(-6)}`) : '#UNKNOWN';
-    const prop = b.property || b.propertyTitle || (b.property && b.property.title) || '—';
-    const location = b.property?.location || b.location || b.propertyLocation || '—';
-    const customer = b.customer?.name || `${b.customer?.firstName || ''} ${b.customer?.lastName || ''}`.trim() || b.user?.email || '—';
-
-    const fmt = (d) => {
-      if (!d) return '—';
-      try { return new Date(d).toLocaleDateString(); } catch { return String(d); }
-    };
-
-    return {
-      _id: id || b._id || b.id,
-      id: displayId,
-      property: prop,
-      location,
-      customer,
-      checkIn: fmt(b.startDate || b.checkIn || b.from),
-      checkOut: fmt(b.endDate || b.checkOut || b.to),
-      guests: b.guests || (b.adults ? `${b.adults} Adults` : '—'),
-      children: (b.childrenAllowed || b.children || b.hasChildren) ? 'YES' : 'NO',
-      status: (b.status || b.bookingStatus || b.state) || 'pending',
-      payment: (b.paymentStatus || b.payment) || 'pending',
-      amount: b.amount || b.total || b.price || '₵0.00',
-    };
-  };
-
-  const fetchBookings = async () => {
-    const t = toast.loading('Loading bookings...');
-    setLoadingBookings(true);
-    try {
-      const data = await bookingService.getAllBookings();
-      const list = Array.isArray(data) ? data : (data.bookings || data.data || []);
-      const mapped = list.map(mapBooking);
-      if (mapped.length) setBookingsData(mapped);
-      toast.dismiss(t);
-    } catch (err) {
-      toast.dismiss(t);
-      toast.error(err?.message || 'Failed to load bookings');
-    } finally {
-      setLoadingBookings(false);
-    }
-  };
-
+  // 2. FETCH DATA FROM API
   useEffect(() => {
-    // defensive: only admins should fetch admin bookings
-    if (currentUser && currentUser.role !== 'admin') return;
+    const fetchBookings = async () => {
+      try {
+        setLoading(true);
+        const token = localStorage.getItem("authToken");
+        const API_URL = import.meta.env.VITE_API_BASE_URL;
+
+        const response = await fetch(`${API_URL}/bookings`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (!response.ok) throw new Error("Failed to fetch bookings");
+
+        const data = await response.json();
+        // Adjust based on your API response structure (e.g., data.bookings or just data)
+        setBookings(Array.isArray(data) ? data : data.bookings || []);
+      } catch (err) {
+        console.error("Booking Fetch Error:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
     fetchBookings();
-  }, [currentUser]);
+  }, []);
 
-  const handleApprove = async (bookingId) => {
-    const id = bookingId?.replace?.('#', '') || bookingId;
-    const t = toast.loading('Approving booking...');
-    try {
-      const res = await bookingService.approveBooking(id);
-      // optimistic UI update
-      setBookingsData(prev => prev.map(b => (String(b._id) === String(id) || String(b.id).includes(String(id)) ? { ...b, status: (res.status || 'confirmed') } : b)));
-      toast.dismiss(t);
-      toast.success('Booking approved');
-    } catch (err) {
-      toast.dismiss(t);
-      toast.error(err?.message || 'Failed to approve booking');
-    }
-  };
-
-  const handleReject = async (bookingId) => {
-    const id = bookingId?.replace?.('#', '') || bookingId;
-    if (!window.confirm('Reject this booking? This action cannot be undone.')) return;
-    const t = toast.loading('Rejecting booking...');
-    try {
-      const res = await bookingService.rejectBooking(id);
-      setBookingsData(prev => prev.map(b => (String(b._id) === String(id) || String(b.id).includes(String(id)) ? { ...b, status: (res.status || 'rejected') } : b)));
-      toast.dismiss(t);
-      toast.success(res?.message || 'Booking rejected');
-    } catch (err) {
-      toast.dismiss(t);
-      toast.error(err?.message || 'Failed to reject booking');
-    }
-  }; 
+  // 3. FILTER LOGIC
+  const filteredBookings = bookings.filter((booking) => {
+    const searchStr = searchQuery.toLowerCase();
+    return (
+      booking._id?.toLowerCase().includes(searchStr) ||
+      booking.customerName?.toLowerCase().includes(searchStr) ||
+      booking.propertyTitle?.toLowerCase().includes(searchStr)
+    );
+  });
 
   return (
     <div className="space-y-6">
@@ -216,172 +70,81 @@ const AdminBookingsPage = () => {
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search by booking ID, customer, property..."
-                className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-[#E5E7EB] rounded-lg text-sm font-medium focus:outline-none focus:ring-2 focus:ring-[#1E5EFF]/10 focus:border-[#1E5EFF] transition-all"
+                placeholder="Search by ID, customer, or property..."
+                className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-[#E5E7EB] rounded-lg text-sm font-medium focus:outline-none focus:ring-2 focus:ring-[#1E5EFF]/10 transition-all"
               />
             </div>
-            <button
-              onClick={() => setShowFilters(!showFilters)}
-              className="lg:hidden p-2.5 bg-white border border-[#E5E7EB] rounded-lg text-[#1a1a1a]"
-            >
+            <button onClick={() => setShowFilters(!showFilters)} className="lg:hidden p-2.5 bg-white border border-[#E5E7EB] rounded-lg text-[#1a1a1a]">
               <RiFilter3Line size={20} />
             </button>
           </div>
 
-          <div
-            className={`${showFilters ? "flex" : "hidden"} lg:flex flex-col lg:flex-row items-stretch lg:items-center gap-3 animate-in fade-in slide-in-from-top-2 duration-200`}
-          >
-            <FilterSelect
-              label="Booking Status"
-              options={[
-                { value: "confirmed", label: "Confirmed" },
-                { value: "canceled", label: "Canceled" },
-              ]}
-            />
-            <FilterSelect
-              label="Payment Status"
-              options={[
-                { value: "paid", label: "Paid" },
-                { value: "refunded", label: "Refunded" },
-              ]}
-            />
-            <FilterSelect
-              label="Children"
-              options={[
-                { value: "yes", label: "Children: Yes" },
-                { value: "no", label: "Children: No" },
-              ]}
-            />
-
+          <div className={`${showFilters ? "flex" : "hidden"} lg:flex flex-col lg:flex-row items-stretch lg:items-center gap-3`}>
+            <FilterSelect label="Booking Status" options={[{ value: "confirmed", label: "Confirmed" }, { value: "pending", label: "Pending" }, { value: "canceled", label: "Canceled" }]} />
+            <FilterSelect label="Payment" options={[{ value: "paid", label: "Paid" }, { value: "pending", label: "Pending" }]} />
             <div className="flex items-center gap-3">
-              <button className="flex-1 lg:flex-none bg-[#1E5EFF] text-white px-6 py-2.5 rounded-lg font-bold text-xs hover:bg-blue-700 transition-all shadow-md shadow-blue-100">
-                Apply
-              </button>
-              <button className="text-xs font-bold text-[#1E5EFF] hover:underline whitespace-nowrap px-2">
-                Reset
-              </button>
+              <button className="flex-1 lg:flex-none bg-[#1E5EFF] text-white px-6 py-2.5 rounded-lg font-bold text-xs hover:bg-blue-700 transition-all shadow-md">Apply</button>
+              <button className="text-xs font-bold text-[#1E5EFF] hover:underline px-2" onClick={() => setSearchQuery("")}>Reset</button>
             </div>
           </div>
         </div>
       </section>
 
       {/* DATA VIEW (Table) */}
-      <section className="bg-white rounded-xl border border-[#E5E7EB] shadow-sm overflow-hidden">
+      <section className="bg-white rounded-xl border border-[#E5E7EB] shadow-sm overflow-hidden min-h-[300px] relative">
+        {loading && (
+          <div className="absolute inset-0 bg-white/60 backdrop-blur-[1px] flex items-center justify-center z-20">
+            <RiLoader4Line className="animate-spin text-[#1E5EFF]" size={32} />
+          </div>
+        )}
+
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse min-w-[1100px]">
             <thead>
               <tr className="bg-[#F9FAFB] border-b border-[#E5E7EB]">
-                {[
-                  "Booking ID",
-                  "Property",
-                  "Customer",
-                  "Dates",
-                  "Guests",
-                  "Children",
-                  "Status",
-                  "Payment",
-                  "Amount",
-                  "Actions",
-                ].map((head) => (
-                  <th
-                    key={head}
-                    className="px-6 py-4 text-[11px] font-bold text-[#6B7280] uppercase tracking-wider"
-                  >
-                    {head}
-                  </th>
+                {["Booking ID", "Property", "Customer", "Dates", "Guests", "Status", "Payment", "Amount", "Actions"].map((head) => (
+                  <th key={head} className="px-6 py-4 text-[11px] font-bold text-[#6B7280] uppercase tracking-wider">{head}</th>
                 ))}
               </tr>
             </thead>
             <tbody className="divide-y divide-[#E5E7EB]">
-              {bookingsData.map((booking) => (
-                <tr
-                  key={booking.id}
-                  className="hover:bg-gray-50/50 transition-colors"
-                >
-                  <td className="px-6 py-4 text-sm font-bold text-[#1e5eff]">
-                    {booking.id}
-                  </td>
-                  <td className="px-6 py-4">
-                    <div className="font-bold text-[#1a1a1a] text-sm">
-                      {booking.property}
-                    </div>
-                    <div className="text-xs text-[#6B7280]">
-                      {booking.location}
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 text-sm font-medium text-[#1a1a1a]">
-                    {booking.customer}
-                  </td>
-                  <td className="px-6 py-4">
-                    <div className="text-[13px] text-[#1a1a1a] font-medium">
-                      {booking.checkIn}
-                    </div>
-                    <div className="text-xs text-[#6B7280] flex items-center gap-1">
-                      <RiArrowRightLine size={12} /> {booking.checkOut}
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 text-xs font-medium text-[#1a1a1a]">
-                    {booking.guests}
-                  </td>
-                  <td className="px-6 py-4">
-                    <span
-                      className={`px-3 py-1 rounded-md text-[10px] font-bold ${
-                        booking.children === "YES"
-                          ? "bg-[#1E5EFF] text-white"
-                          : "bg-[#F3F4F6] text-[#1a1a1a]"
-                      }`}
-                    >
-                      {booking.children}
-                    </span>
-                  </td>
-                 <td className="px-6 py-4">
-  <span
-    className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase ${
-      booking.status === "confirmed"
-        ? "bg-[#DCFCE7] text-[#15803D]"
-        : booking.status === "pending"
-        ? "bg-[#FEF3C7] text-[#D97706]"
-        : "bg-[#FEE2E2] text-[#B91C1C]"
-    }`}
-  >
-    {booking.status}
-  </span>
-</td>
-                  <td className="px-6 py-4">
-                    <span
-                      className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase ${
-                        booking.payment === "paid"
-                          ? "bg-[#DCFCE7] text-[#15803D]"
-                          : "bg-[#F3F4F6] text-[#1a1a1a]"
-                      }`}
-                    >
-                      {booking.payment}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 text-sm font-bold text-[#1a1a1a]">
-                    {booking.amount}
-                  </td>
-                  <td className="px-6 py-4">
-                    <div className="flex items-center gap-4">
-                      <Link
-                        to={`/admin/bookings/${booking.id.replace("#", "")}`}
-                        className="text-[#1E5EFF] font-bold text-sm hover:underline"
-                      >
-                        View
-                      </Link>
-
-                      {String(booking.status).toLowerCase() === 'pending' && (
-                        <button
-                          onClick={() => handleReject(booking.id)}
-                          className="text-[#1E5EFF] font-bold text-sm hover:underline"
-                        >
-                          Reject
-                        </button>
-                      )}
-                    </div>
-                  </td>
-                </tr>
-              ))}
+              {filteredBookings.length > 0 ? (
+                filteredBookings.map((booking) => (
+                  <tr key={booking._id} className="hover:bg-gray-50/50 transition-colors">
+                    <td className="px-6 py-4 text-xs font-bold text-[#1e5eff]">#{booking._id?.slice(-6).toUpperCase()}</td>
+                    <td className="px-6 py-4">
+                      <div className="font-bold text-[#1a1a1a] text-sm">{booking.property?.title || "Property"}</div>
+                      <div className="text-xs text-[#6B7280]">{booking.property?.location || "Location"}</div>
+                    </td>
+                    <td className="px-6 py-4 text-sm font-medium text-[#1a1a1a]">{booking.user?.firstName} {booking.user?.lastName}</td>
+                    <td className="px-6 py-4">
+                      <div className="text-[13px] text-[#1a1a1a] font-medium">{new Date(booking.checkIn).toLocaleDateString()}</div>
+                      <div className="text-xs text-[#6B7280] flex items-center gap-1"><RiArrowRightLine size={12} /> {new Date(booking.checkOut).toLocaleDateString()}</div>
+                    </td>
+                    <td className="px-6 py-4 text-xs font-medium text-[#1a1a1a]">{booking.guests?.adults} Adults {booking.guests?.children > 0 && `/ ${booking.guests.children} Children`}</td>
+                    <td className="px-6 py-4">
+                      <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase ${getStatusStyles(booking.status)}`}>
+                        {booking.status}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4">
+                      <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase ${booking.paymentStatus === "paid" ? "bg-[#DCFCE7] text-[#15803D]" : "bg-[#F3F4F6] text-[#1a1a1a]"}`}>
+                        {booking.paymentStatus || "pending"}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 text-sm font-bold text-[#1a1a1a]">${booking.totalPrice?.toLocaleString()}</td>
+                    <td className="px-6 py-4">
+                      <Link to={`/admin/bookings/${booking._id}`} className="text-[#1E5EFF] font-bold text-sm hover:underline">View</Link>
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                !loading && (
+                  <tr>
+                    <td colSpan="9" className="text-center py-20 text-gray-400 font-medium">No bookings found.</td>
+                  </tr>
+                )
+              )}
             </tbody>
           </table>
         </div>
@@ -389,18 +152,12 @@ const AdminBookingsPage = () => {
 
       {/* PAGINATION SECTION */}
       <div className="px-6 py-5 bg-white rounded-xl border border-[#E5E7EB] flex flex-col sm:flex-row items-center justify-between gap-4">
-        <p className="text-sm text-[#6B7280] font-medium text-center sm:text-left">
-          Showing{" "}
-          <span className="text-[#1a1a1a] font-bold">
-            {bookingsData.length}
-          </span>{" "}
-          of <span className="text-[#1a1a1a] font-bold">247</span> bookings
+        <p className="text-sm text-[#6B7280] font-medium">
+          Showing <span className="text-[#1a1a1a] font-bold">{filteredBookings.length}</span> of <span className="text-[#1a1a1a] font-bold">{bookings.length}</span> bookings
         </p>
         <div className="flex items-center gap-2">
           <PaginationButton icon={<RiArrowLeftSLine />} disabled />
           <PaginationButton label="1" active />
-          <PaginationButton label="2" />
-          <PaginationButton label="3" />
           <PaginationButton icon={<RiArrowRightSLine />} />
         </div>
       </div>
@@ -408,16 +165,22 @@ const AdminBookingsPage = () => {
   );
 };
 
-// --- REUSABLE COMPONENTS ---
+// Helper for dynamic colors
+const getStatusStyles = (status) => {
+  switch (status) {
+    case "confirmed": return "bg-[#DCFCE7] text-[#15803D]";
+    case "pending": return "bg-[#FEF3C7] text-[#D97706]";
+    case "canceled": return "bg-[#FEE2E2] text-[#B91C1C]";
+    default: return "bg-gray-100 text-gray-600";
+  }
+};
 
 const FilterSelect = ({ label, options }) => (
   <div className="relative flex-1 lg:min-w-[160px]">
-    <select className="appearance-none w-full bg-white border border-[#E5E7EB] rounded-lg px-4 py-2.5 pr-10 text-sm font-semibold text-[#1a1a1a] cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#1E5EFF]/10 focus:border-[#1E5EFF] transition-all">
+    <select className="appearance-none w-full bg-white border border-[#E5E7EB] rounded-lg px-4 py-2.5 pr-10 text-sm font-semibold text-[#1a1a1a] focus:outline-none focus:ring-2 focus:ring-[#1E5EFF]/10 transition-all">
       <option value="">{label}</option>
       {options.map((opt) => (
-        <option key={opt.value} value={opt.value}>
-          {opt.label}
-        </option>
+        <option key={opt.value} value={opt.value}>{opt.label}</option>
       ))}
     </select>
     <div className="absolute inset-y-0 right-0 flex items-center px-3 pointer-events-none text-gray-400">
@@ -427,14 +190,7 @@ const FilterSelect = ({ label, options }) => (
 );
 
 const PaginationButton = ({ label, icon, active, disabled }) => (
-  <button
-    disabled={disabled}
-    className={`w-9 h-9 flex items-center justify-center rounded-lg text-sm font-bold transition-all border ${
-      active
-        ? "bg-[#1E5EFF] border-[#1E5EFF] text-white"
-        : "bg-white border-[#E5E7EB] text-[#1a1a1a] hover:bg-gray-50"
-    } ${disabled ? "opacity-40 cursor-not-allowed" : "cursor-pointer"}`}
-  >
+  <button disabled={disabled} className={`w-9 h-9 flex items-center justify-center rounded-lg text-sm font-bold border ${active ? "bg-[#1E5EFF] border-[#1E5EFF] text-white" : "bg-white border-[#E5E7EB] text-[#1a1a1a] hover:bg-gray-50"} ${disabled ? "opacity-40 cursor-not-allowed" : "cursor-pointer"}`}>
     {label || icon}
   </button>
 );
