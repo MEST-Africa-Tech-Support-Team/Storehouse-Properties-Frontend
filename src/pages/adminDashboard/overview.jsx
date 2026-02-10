@@ -1,233 +1,224 @@
-// import React from "react";
-
-// const AdminAnalyticsPage = () => {
-//   return (
-//     <div>
-//       <h1 className="text-2xl font-bold">Admin Analytics</h1>
-//     </div>
-//   );
-// };
-
-// export default AdminAnalyticsPage;
-
-import React from "react";
+import React, { useEffect, useState } from "react";
+import toast from "react-hot-toast";
+import { Link } from "react-router-dom"; // Assuming you use react-router
 import {
-  RiDownloadLine,
-  RiDashboardLine,
+  RiBuilding2Line,
   RiCalendarCheckLine,
-  RiArrowRightLine,
   RiArrowUpLine,
   RiAddCircleLine,
   RiSettings4Line,
   RiTeamLine,
-  RiBuilding2Line,
   RiMoneyDollarCircleLine,
+  RiLoader4Line,
 } from "react-icons/ri";
-import { FaUsers, FaArrowRight } from "react-icons/fa6";
+import { FaArrowRight, FaUsers } from "react-icons/fa6";
 import { MdOutlineChevronRight } from "react-icons/md";
 
 const AdminOverviewPage = () => {
-  // Dummy Data for Table
-  const recentBookings = [
-    {
-      id: "#BK-8824",
-      property: "Ocean View Villa",
-      customer: "Sarah Jenkins",
-      date: "Oct 24, 2025",
-      status: "Confirmed",
-      amount: "₵1,200",
-    },
-    {
-      id: "#BK-8825",
-      property: "Modern Loft",
-      customer: "Michael Chen",
-      date: "Oct 23, 2025",
-      status: "Canceled",
-      amount: "₵850",
-    },
-    {
-      id: "#BK-8826",
-      property: "Mountain Retreat",
-      customer: "Emma Wilson",
-      date: "Oct 22, 2025",
-      status: "Confirmed",
-      amount: "₵2,100",
-    },
-    {
-      id: "#BK-8827",
-      property: "Urban Studio",
-      customer: "James Cooper",
-      date: "Oct 21, 2025",
-      status: "Confirmed",
-      amount: "₵450",
-    },
-  ];
+  const [stats, setStats] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchDashboardData = async () => {
+      try {
+        setLoading(true);
+        const token = localStorage.getItem("authToken");
+        const API_BASE = import.meta.env.VITE_API_BASE_URL;
+
+        const response = await fetch(`${API_BASE}/dashboard`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (!response.ok) throw new Error("Failed to fetch dashboard stats");
+
+        const data = await response.json();
+        // The error shows data is an object with {activeListings, totalBookings, totalUsers, totalRevenue, recentBookings}
+        setStats(data);
+      } catch (err) {
+        toast.error(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchDashboardData();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="h-[60vh] flex flex-col items-center justify-center gap-4">
+        <RiLoader4Line className="animate-spin text-[#1E5EFF]" size={40} />
+        <p className="text-sm font-medium text-gray-500">Loading dashboard analytics...</p>
+      </div>
+    );
+  }
 
   return (
-    <div className="min-h-screen  pb-12">
-      {/* 1. HEADER SECTION */}
-
+    <div className="min-h-screen pb-12">
       <div className="space-y-8">
-        {/* 2. ANALYSIS CARDS SECTION */}
+        {/* ANALYSIS CARDS */}
         <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {/* Card 1 */}
+          {/* Card 1: Listings */}
           <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
             <div className="w-12 h-12 rounded-xl flex items-center justify-center text-white mb-4 bg-[#1E5EFF]">
               <RiBuilding2Line size={24} />
             </div>
-            <h3 className="text-3xl font-bold text-[#1a1a1a]">1,247</h3>
-            <p className="text-[#6B7280] text-sm font-medium mt-1">
-              Active listings
-            </p>
+            {/* FIXED: Pointing to specific property activeListings */}
+            <h3 className="text-3xl font-bold text-[#1a1a1a]">
+              {stats?.activeListings?.toLocaleString() || "0"}
+            </h3>
+            <p className="text-[#6B7280] text-sm font-medium mt-1">Active listings</p>
             <div className="flex items-center gap-1 mt-4 text-[#16A34A] text-sm font-bold">
-              <RiArrowUpLine />
-              <span>12% from last month</span>
+              <RiArrowUpLine /> <span>12% growth</span>
             </div>
           </div>
 
-          {/* Card 2 */}
+          {/* Card 2: Bookings */}
           <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
             <div className="w-12 h-12 rounded-xl flex items-center justify-center text-white mb-4 bg-[#16A34A]">
               <RiCalendarCheckLine size={24} />
             </div>
-            <h3 className="text-3xl font-bold text-[#1a1a1a]">8,942</h3>
-            <p className="text-[#6B7280] text-sm font-medium mt-1">
-              All time bookings
-            </p>
+            {/* FIXED: totalBookings */}
+            <h3 className="text-3xl font-bold text-[#1a1a1a]">
+              {stats?.totalBookings?.toLocaleString() || "0"}
+            </h3>
+            <p className="text-[#6B7280] text-sm font-medium mt-1">Total bookings</p>
             <div className="flex items-center gap-1 mt-4 text-[#16A34A] text-sm font-bold">
-              <RiArrowUpLine />
-              <span>8% from last month</span>
+              <RiArrowUpLine /> <span>8% growth</span>
             </div>
           </div>
 
-          {/* Card 3 */}
+          {/* Card 3: Users */}
           <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
             <div className="w-12 h-12 rounded-xl flex items-center justify-center text-white mb-4 bg-[#9333EA]">
               <FaUsers size={22} />
             </div>
-            <h3 className="text-3xl font-bold text-[#1a1a1a]">15,384</h3>
-            <p className="text-[#6B7280] text-sm font-medium mt-1">
-              Registered customers
-            </p>
+            {/* FIXED: totalUsers */}
+            <h3 className="text-3xl font-bold text-[#1a1a1a]">
+              {stats?.totalUsers?.toLocaleString() || "0"}
+            </h3>
+            <p className="text-[#6B7280] text-sm font-medium mt-1">Registered users</p>
             <div className="flex items-center gap-1 mt-4 text-[#16A34A] text-sm font-bold">
-              <RiArrowUpLine />
-              <span>24% from last month</span>
+              <RiArrowUpLine /> <span>24% growth</span>
             </div>
           </div>
 
-          {/* Card 4 */}
+          {/* Card 4: Revenue */}
           <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
             <div className="w-12 h-12 rounded-xl flex items-center justify-center text-white mb-4 bg-[#F59E0B]">
               <RiMoneyDollarCircleLine size={24} />
             </div>
-            <h3 className="text-3xl font-bold text-[#1a1a1a]">₵2.4M</h3>
-            <p className="text-[#6B7280] text-sm font-medium mt-1">
-              Completed payments
-            </p>
+            {/* FIXED: totalRevenue */}
+            <h3 className="text-3xl font-bold text-[#1a1a1a]">
+              ₵{(stats?.totalRevenue / 1000).toFixed(1)}k
+            </h3>
+            <p className="text-[#6B7280] text-sm font-medium mt-1">Total Revenue</p>
             <div className="flex items-center gap-1 mt-4 text-[#16A34A] text-sm font-bold">
-              <RiArrowUpLine />
-              <span>18% from last month</span>
+              <RiArrowUpLine /> <span>18% growth</span>
             </div>
           </div>
         </section>
 
-        {/* 3. TABLE & QUICK ACTIONS SECTION */}
+        {/* TABLE & QUICK ACTIONS */}
         <section className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Recent Bookings Table */}
-          <div className="lg:col-span-2 bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-            <div className="p-6 flex items-center justify-between">
-              <h2 className="text-lg font-bold text-[#1a1a1a]">
-                Recent Bookings
-              </h2>
-              <a
-                href="#"
-                className="text-[#1E5EFF] text-sm font-bold flex items-center gap-0.5 hover:underline"
-              >
-                View all bookings <MdOutlineChevronRight size={20} />
-              </a>
-            </div>
-            <div className="overflow-x-auto">
-              <table className="w-full text-left">
-                <thead className="bg-[#F9FAFB] border-y border-gray-100">
-                  <tr className="text-[#6B7280] text-xs uppercase font-bold tracking-wider">
-                    <th className="px-6 py-4">Booking ID</th>
-                    <th className="px-6 py-4">Property</th>
-                    <th className="px-6 py-4">Customers</th>
-                    <th className="px-6 py-4">Dates</th>
-                    <th className="px-6 py-4">Status</th>
-                    <th className="px-6 py-4">Amount</th>
-                    <th className="px-6 py-4">Action</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-100">
-                  {recentBookings.map((booking, i) => (
-                    <tr key={i} className="hover:bg-gray-50 transition-colors">
-                      <td className="px-6 py-4 text-sm font-medium text-[#1a1a1a]">
-                        {booking.id}
-                      </td>
-                      <td className="px-6 py-4 text-sm text-[#1a1a1a]">
-                        {booking.property}
-                      </td>
-                      <td className="px-6 py-4 text-sm text-[#1a1a1a]">
-                        {booking.customer}
-                      </td>
-                      <td className="px-6 py-4 text-sm text-[#6B7280]">
-                        {booking.date}
-                      </td>
-                      <td className="px-6 py-4">
-                        <span
-                          className={`px-3 py-1 rounded-full text-xs font-bold ${
-                            booking.status === "Confirmed"
-                              ? "bg-[#F0FDF4] text-[#15803D]"
-                              : "bg-[#FEF2F2] text-[#B91C1C]"
-                          }`}
-                        >
-                          {booking.status}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 text-sm font-bold text-[#1a1a1a]">
-                        {booking.amount}
-                      </td>
-                      <td className="px-6 py-4">
-                        <button className="text-[#1E5EFF] font-bold text-sm hover:underline">
-                          View
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
+          {/* RECENT BOOKINGS TABLE */}
+<div className="lg:col-span-2 bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+  <div className="p-6 flex items-center justify-between">
+    <h2 className="text-lg font-bold text-[#1a1a1a]">Recent Bookings</h2>
+    <button 
+      onClick={() => navigate("/admin/bookings")} 
+      className="text-[#1E5EFF] text-sm font-bold flex items-center gap-0.5 hover:underline"
+    >
+      View all bookings <MdOutlineChevronRight size={20} />
+    </button>
+  </div>
+  
+  <div className="overflow-x-auto">
+    <table className="w-full text-left">
+      <thead className="bg-[#F9FAFB] border-y border-gray-100">
+        <tr className="text-[#6B7280] text-xs uppercase font-bold tracking-wider">
+          <th className="px-6 py-4">Booking ID</th>
+          <th className="px-6 py-4">Property</th>
+          <th className="px-6 py-4">Customers</th>
+          <th className="px-6 py-4">Status</th>
+          <th className="px-6 py-4">Amount</th>
+          <th className="px-6 py-4">Action</th>
+        </tr>
+      </thead>
+      <tbody className="divide-y divide-gray-100">
+        {stats?.recentBookings?.length > 0 ? (
+          stats.recentBookings.map((booking) => (
+            <tr key={booking._id} className="hover:bg-gray-50 transition-colors">
+              {/* 1. Booking ID (Shortened) */}
+              <td className="px-6 py-4 text-sm font-medium text-[#1a1a1a]">
+                #{booking._id?.slice(-6).toUpperCase()}
+              </td>
+              
+              {/* 2. Property Name */}
+              <td className="px-6 py-4 text-sm text-[#1a1a1a]">
+                {booking.hotelName || "N/A"}
+              </td>
+              
+              {/* 3. Customer Name */}
+              <td className="px-6 py-4 text-sm text-[#1a1a1a]">
+                {booking.user?.firstName} {booking.user?.lastName}
+              </td>
+              
+              {/* 4. Status Badge */}
+              <td className="px-6 py-4">
+                <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase border ${
+                  booking.status === "active" || booking.status === "Confirmed"
+                    ? "bg-[#F0FDF4] text-[#15803D] border-[#DCFCE7]" 
+                    : "bg-[#FEF2F2] text-[#B91C1C] border-[#FEE2E2]"
+                }`}>
+                  {booking.status}
+                </span>
+              </td>
+              
+              {/* 5. Amount */}
+              <td className="px-6 py-4 text-sm font-bold text-[#1a1a1a]">
+                ₵{booking.totalPrice?.toLocaleString()}
+              </td>
+              
+              {/* 6. Action Button */}
+              <td className="px-6 py-4">
+                <Link 
+                  to={`/admin/bookings/${booking._id}`} 
+                  className="text-[#1E5EFF] font-bold text-sm hover:underline"
+                >
+                  View
+                </Link>
+              </td>
+            </tr>
+          ))
+        ) : (
+          <tr>
+            <td colSpan="6" className="px-6 py-12 text-center text-gray-400 text-sm">
+              No recent bookings found.
+            </td>
+          </tr>
+        )}
+      </tbody>
+    </table>
+  </div>
+</div>
 
-          {/* Quick Actions Card */}
+          {/* Quick Actions remains the same */}
           <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 h-fit">
-            <h2 className="text-lg font-bold text-[#1a1a1a] mb-6">
-              Quick Actions
-            </h2>
+            <h2 className="text-lg font-bold text-[#1a1a1a] mb-6">Quick Actions</h2>
             <div className="space-y-3">
               {[
-                {
-                  label: "Add New Property",
-                  icon: <RiAddCircleLine size={20} />,
-                },
-                {
-                  label: "View All Bookings",
-                  icon: <RiCalendarCheckLine size={20} />,
-                },
+                { label: "Add New Property", icon: <RiAddCircleLine size={20} /> },
+                { label: "View All Bookings", icon: <RiCalendarCheckLine size={20} /> },
                 { label: "Manage Users", icon: <RiTeamLine size={20} /> },
-                {
-                  label: "Platform Settings",
-                  icon: <RiSettings4Line size={20} />,
-                },
+                { label: "Platform Settings", icon: <RiSettings4Line size={20} /> },
               ].map((action, idx) => (
-                <button
-                  key={idx}
-                  className="w-full flex items-center gap-3 px-4 py-3.5 rounded-lg border border-gray-100 text-[#1a1a1a] font-semibold transition-all hover:bg-[#1E5EFF] hover:text-white group"
-                >
-                  <span className="text-gray-400 group-hover:text-white transition-colors">
-                    {action.icon}
-                  </span>
+                <button key={idx} className="w-full flex items-center gap-3 px-4 py-3.5 rounded-lg border border-gray-100 text-[#1a1a1a] font-semibold transition-all hover:bg-[#1E5EFF] hover:text-white group">
+                  <span className="text-gray-400 group-hover:text-white transition-colors">{action.icon}</span>
                   {action.label}
                 </button>
               ))}
@@ -235,8 +226,7 @@ const AdminOverviewPage = () => {
           </div>
         </section>
 
-        {/* 4. PERFORMANCE SECTION */}
-        <section className="grid grid-cols-1 md:grid-cols-2 gap-8 pb-10">
+         <section className="grid grid-cols-1 md:grid-cols-2 gap-8 pb-10">
           {/* Top Performing */}
           <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
             <h2 className="text-lg font-bold text-[#1a1a1a] mb-6">
@@ -326,6 +316,7 @@ const AdminOverviewPage = () => {
             </div>
           </div>
         </section>
+
       </div>
     </div>
   );
