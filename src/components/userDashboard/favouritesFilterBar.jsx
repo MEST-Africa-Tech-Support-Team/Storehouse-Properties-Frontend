@@ -66,7 +66,7 @@ const FavoritesFilterBar = ({ onApply, onReset }) => {
               placeholder="City (e.g., Lekki)"
               value={filters.city}
               onChange={(e) => updateFilter('city', e.target.value)}
-              className="w-full pl-3 pr-9 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full pl-3 pr-9 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary"
             />
             <IoLocationSharp className="absolute right-2.5 top-1/2 transform -translate-y-1/2 text-gray-500 text-base" />
           </div>
@@ -81,7 +81,7 @@ const FavoritesFilterBar = ({ onApply, onReset }) => {
             value={filters.minPrice}
             onChange={(e) => updateFilter('minPrice', e.target.value)}
             placeholder="0"
-            className="w-full py-2 px-3 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full py-2 px-3 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary"
           />
         </div>
 
@@ -94,7 +94,7 @@ const FavoritesFilterBar = ({ onApply, onReset }) => {
             value={filters.maxPrice}
             onChange={(e) => updateFilter('maxPrice', e.target.value)}
             placeholder="5000"
-            className="w-full py-2 px-3 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full py-2 px-3 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary"
           />
         </div>
 
@@ -104,7 +104,7 @@ const FavoritesFilterBar = ({ onApply, onReset }) => {
           <select
             value={filters.childrenAllowed}
             onChange={(e) => updateFilter('childrenAllowed', e.target.value)}
-            className="w-full py-2 px-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full py-2 px-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary"
           >
             <option value="">Any</option>
             <option value="true">Yes</option>
@@ -118,7 +118,7 @@ const FavoritesFilterBar = ({ onApply, onReset }) => {
           <select
             value={filters.petsAllowed}
             onChange={(e) => updateFilter('petsAllowed', e.target.value)}
-            className="w-full py-2 px-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full py-2 px-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary"
           >
             <option value="">Any</option>
             <option value="true">Yes</option>
@@ -134,7 +134,7 @@ const FavoritesFilterBar = ({ onApply, onReset }) => {
           <select
             value={filters.propertyType}
             onChange={(e) => updateFilter('propertyType', e.target.value)}
-            className="w-full py-2 px-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full py-2 px-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary"
           >
             <option value="">All Types</option>
             <option value="House">House</option>
@@ -152,7 +152,7 @@ const FavoritesFilterBar = ({ onApply, onReset }) => {
             placeholder="e.g., Parking, WiFi"
             value={filters.amenities}
             onChange={(e) => updateFilter('amenities', e.target.value)}
-            className="w-full py-2 px-3 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full py-2 px-3 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary"
           />
         </div> */}
 
@@ -164,7 +164,7 @@ const FavoritesFilterBar = ({ onApply, onReset }) => {
             placeholder="Search title..."
             value={filters.title}
             onChange={(e) => updateFilter('title', e.target.value)}
-            className="w-full py-2 px-3 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full py-2 px-3 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary"
           />
         </div>
 
@@ -177,7 +177,7 @@ const FavoritesFilterBar = ({ onApply, onReset }) => {
               onChange={(e) => updateFilter('featured', e.target.checked)}
               className="sr-only"
             />
-            <div className={`relative w-10 h-5 rounded-full transition-colors ${filters.featured ? 'bg-blue-600' : 'bg-gray-300'}`}>
+            <div className={`relative w-10 h-5 rounded-full transition-colors ${filters.featured ? 'bg-primary' : 'bg-gray-300'}`}>
               <div className={`absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-white transition-transform ${filters.featured ? 'translate-x-5' : ''}`}></div>
             </div>
             <span className="ml-2 text-xs text-gray-700">Featured Only</span>
@@ -188,7 +188,7 @@ const FavoritesFilterBar = ({ onApply, onReset }) => {
         <div className="flex items-end gap-2">
           <button
             onClick={handleApply}
-            className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-full hover:bg-blue-700 transition-colors w-full"
+            className="px-4 py-2 bg-primary text-white text-sm font-medium rounded-full hover:bg-hover transition-colors w-full"
           >
             Apply Filters
           </button>

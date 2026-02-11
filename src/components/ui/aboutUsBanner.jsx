@@ -13,7 +13,7 @@ export default function AboutUsBanner() {
       />
 
       {/* Overlay */}
-      <div className="absolute inset-0 bg-black/40 z-10"></div>
+      <div className="absolute inset-0 bg-black/50 z-10"></div>
 
       {/* Content */}
       <div className="absolute inset-0 z-20 flex flex-col items-center justify-center text-white px-4 text-center">

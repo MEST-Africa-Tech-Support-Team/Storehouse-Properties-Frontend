@@ -63,7 +63,7 @@ export default function ReviewsSection({ location = {} }) {
                 <div className="flex items-center gap-2 mb-1">
                   <h3 className="font-medium text-gray-900 text-sm">{review.name}</h3>
                   {review.verified && (
-                    <span className="flex items-center text-xs text-blue-600">
+                    <span className="flex items-center text-xs text-primary">
                       <FaCheckCircle className="w-3 h-3 mr-0.5" />
                       Verified
                     </span>

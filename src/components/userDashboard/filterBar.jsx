@@ -32,7 +32,7 @@ const FilterBar = ({ onStatusChange, onChildrenChange, onSortChange }) => {
             <label className="text-sm font-medium text-gray-700 whitespace-nowrap">Status:</label>
             <select
               onChange={(e) => onStatusChange(e.target.value)}
-              className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 w-32"
+              className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary w-32"
             >
               <option value="All">All</option>
               <option value="Confirmed">Confirmed</option>
@@ -45,7 +45,7 @@ const FilterBar = ({ onStatusChange, onChildrenChange, onSortChange }) => {
             <label className="text-sm font-medium text-gray-700 whitespace-nowrap">Children Allowed:</label>
             <select
               onChange={(e) => onChildrenChange(e.target.value)}
-              className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 w-32"
+              className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary w-32"
             >
               <option value="All">All</option>
               <option value="true">Yes</option>

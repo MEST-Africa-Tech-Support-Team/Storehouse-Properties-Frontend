@@ -7,8 +7,9 @@ import { RiCalendarCheckFill } from "react-icons/ri";
 import { AiOutlineHeart } from "react-icons/ai";
 import { FaRegUser } from "react-icons/fa6";
 import { TbProgressHelp } from "react-icons/tb";
-import { FaHouse } from "react-icons/fa6";
 import { FaBars, FaTimes } from "react-icons/fa";
+import Logo from "../../images/storehouse-logo.png";
+
 
 const getInitials = (user) => {
   if (!user) return 'U';
@@ -25,7 +26,7 @@ const UserSidebar = () => {
   const isActive = (path) => location.pathname === path;
 
   const linkClasses = "flex items-center gap-3 px-4 py-3 rounded-lg text-gray-700 no-underline transition-colors hover:bg-gray-100";
-  const activeClasses = "bg-blue-50 text-blue-600 font-semibold hover:bg-blue-50";
+  const activeClasses = "bg-light-primary/20 text-primary font-semibold hover:bg-light-primary/20";
 
   const displayName = currentUser?.firstName && currentUser?.lastName
     ? `${currentUser.firstName} ${currentUser.lastName}`
@@ -53,10 +54,10 @@ const UserSidebar = () => {
         <div>
           <Link
             to="/"
-            className="flex items-center gap-2 mb-6 text-blue-600 font-bold text-xl no-underline hover:text-blue-700 transition-colors"
+            className="flex items-center gap-2 mb-6 text-primary font-bold text-xl no-underline hover:text-hover transition-colors"
             aria-label="Go to homepage"
           >
-            <FaHouse className="text-blue-600" />
+            <img src={Logo} alt="Storehouse Logo" className="h-10 w-auto brightness-0" />
             Storehouse
           </Link>
 
@@ -114,15 +115,15 @@ const UserSidebar = () => {
             <img
               src={currentUser.profilePhoto}
               alt={displayName}
-              className="w-10 h-10 rounded-full object-cover group-hover:ring-2 group-hover:ring-blue-300 transition"
+              className="w-10 h-10 rounded-full object-cover group-hover:ring-2 group-hover:ring-primary/30 transition"
             />
           ) : (
-            <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-semibold text-sm group-hover:bg-blue-200 transition">
+            <div className="w-10 h-10 rounded-full bg-light-primary/20 flex items-center justify-center text-primary font-semibold text-sm group-hover:bg-light-primary/30 transition">
               {initials}
             </div>
           )}
           <div>
-            <div className="font-medium text-gray-900 group-hover:text-blue-600 transition">
+            <div className="font-medium text-gray-900 group-hover:text-primary transition">
               {displayName}
             </div>
             <div className="text-xs text-gray-500">{userEmail}</div>

@@ -33,16 +33,16 @@ export default function SupportOptions() {
           {options.map((opt, index) => (
             <div
               key={index}
-              className="bg-white p-6 rounded-xl border border-gray-100 hover:border-blue-200 transition-colors shadow-sm hover:shadow-md"
+              className="bg-white p-6 rounded-xl border border-gray-100 hover:border-primary/30 transition-colors shadow-sm hover:shadow-md"
             >
-              <div className="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center mb-4 text-white">
+              <div className="w-12 h-12 bg-primary rounded-full flex items-center justify-center mb-4 text-white">
                 {opt.icon}
               </div>
               <h3 className="text-lg font-bold text-gray-800 mb-2">{opt.title}</h3>
               <p className="text-gray-600 text-sm mb-4">{opt.desc}</p>
               <a
                 href={opt.link}
-                className="text-blue-600 hover:text-blue-800 text-sm font-medium"
+                className="text-primary hover:text-hover text-sm font-medium"
               >
                 {opt.linkText}
               </a>

@@ -37,10 +37,10 @@ const faqData = [
 // Passing isOpen and toggle function from parent to ensure isolation
 const FAQItem = ({ question, answer, isOpen, toggle }) => {
   return (
-    <div className="bg-[#F4F8FF] rounded-4xl overflow-hidden transition-all duration-300">
+    <div className="bg-light-primary/20 rounded-4xl overflow-hidden transition-all duration-300">
       <button
         onClick={toggle}
-        className="flex justify-between items-center w-full p-5 text-left focus:outline-none"
+        className="flex justify-between items-center w-full p-5 text-left focus:outline-none hover:bg-light-primary/30 transition-colors"
         aria-expanded={isOpen}
       >
         <h3 className="text-lg font-bold text-gray-600">{question}</h3>
@@ -84,7 +84,7 @@ const FAQSection = () => {
           />
         </div>
         
-        <span className="block text-[#2563eb] font-bold text-sm uppercase tracking-wider mb-3">
+        <span className="block text-primary font-bold text-sm uppercase tracking-wider mb-3">
           Frequently Asked Questions
         </span>
         <h2 className="text-[#0f1d37] text-3xl md:text-4xl font-extrabold tracking-tight">

@@ -32,15 +32,15 @@ const AboutSection = () => {
               alt="Happy couple moving" 
             />
           </div>
-          <div className="bg-[#2563eb] text-white p-10 rounded-3xl shadow-xl hover:shadow-blue-200 transition-shadow">
+          <div className="bg-primary text-white p-10 rounded-3xl shadow-xl hover:shadow-primary transition-shadow">
             <div className="text-4xl font-extrabold mb-2">50K+</div>
-            <div className="text-blue-100 font-medium text-lg">Happy Guests</div>
+            <div className="text-white/80 font-medium text-lg">Happy Guests</div>
           </div>
         </div>
         
         <div className="space-y-6 pt-12">
-          <div className="bg-[#F0F7FF] p-10 rounded-3xl border border-blue-50 shadow-sm hover:border-blue-200 transition-colors">
-            <div className="text-[#2563eb] text-4xl font-extrabold mb-2">10K+</div>
+          <div className="bg-light-primary/20 p-10 rounded-3xl border border-light-primary shadow-sm hover:border-primary transition-colors">
+            <div className="text-primary text-4xl font-extrabold mb-2">10K+</div>
             <div className="text-gray-600 font-medium text-lg">Properties Listed</div>
           </div>
           <div className="overflow-hidden rounded-3xl shadow-lg">

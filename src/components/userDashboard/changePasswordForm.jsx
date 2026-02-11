@@ -109,7 +109,7 @@ const ChangePasswordForm = ({ token }) => {
             className={`w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 ${
               errors.oldPassword 
                 ? 'border-red-500 focus:ring-red-200' 
-                : 'border-gray-300 focus:ring-blue-500'
+                : 'border-gray-300 focus:ring-primary'
             }`}
             disabled={!!token} // disabled if resetting via token
           />
@@ -137,7 +137,7 @@ const ChangePasswordForm = ({ token }) => {
             className={`w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 ${
               errors.newPassword 
                 ? 'border-red-500 focus:ring-red-200' 
-                : 'border-gray-300 focus:ring-blue-500'
+                : 'border-gray-300 focus:ring-primary'
             }`}
           />
           <button
@@ -164,7 +164,7 @@ const ChangePasswordForm = ({ token }) => {
             className={`w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 ${
               errors.confirmPassword 
                 ? 'border-red-500 focus:ring-red-200' 
-                : 'border-gray-300 focus:ring-blue-500'
+                : 'border-gray-300 focus:ring-primary'
             }`}
           />
           <button
@@ -182,7 +182,7 @@ const ChangePasswordForm = ({ token }) => {
       <div className="pt-4 border-t border-gray-200 flex justify-end">
         <button
           type="submit"
-          className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2"
+          className="px-4 py-2 bg-primary text-white text-sm font-medium rounded-lg hover:bg-hover transition-colors flex items-center gap-2"
         >
           <MdSave className="text-base" />
           Save Password

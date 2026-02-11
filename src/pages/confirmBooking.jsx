@@ -117,7 +117,7 @@ export default function CompleteBookingPage() {
               <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
                 <p className="text-sm text-gray-600">No booking found — please select dates on the property page first.</p>
                 <div className="mt-4">
-                  <Link to="/explore" className="text-sm text-blue-600 hover:underline">Back to properties</Link>
+                  <Link to="/explore" className="text-sm text-primary hover:underline">Back to properties</Link>
                 </div>
               </div>
             ) : (

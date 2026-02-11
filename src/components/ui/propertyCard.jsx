@@ -17,6 +17,7 @@ const PropertyCard = ({
   rules,
   location,
   isFavorite: initialIsLiked = false,
+  onFavoriteChange,
 }) => {
   const navigate = useNavigate();
   const [isLiked, setIsLiked] = useState(initialIsLiked);
@@ -92,6 +93,11 @@ const PropertyCard = ({
           icon: newLikedState ? '❤️' : '👋'
         }
       );
+
+      // ✅ Notify parent component of the change
+      if (onFavoriteChange) {
+        onFavoriteChange(id, newLikedState);
+      }
     } catch (error) {
       // ✅ Revert on error
       setIsLiked(!newLikedState);
@@ -107,12 +113,12 @@ const PropertyCard = ({
     } finally {
       setLoading(false);
     }
-  }, [isLiked, id]);
+  }, [isLiked, id, onFavoriteChange]);
 
   return (
     <article
       onClick={handleNavigation}
-      className="max-w-[340px] w-full bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-shadow duration-300 ease-out cursor-pointer group outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+      className="max-w-[340px] w-full bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-shadow duration-300 ease-out cursor-pointer group outline-none focus-visible:ring-2 focus-visible:ring-primary"
       tabIndex={0}
       onKeyDown={(e) => {
         if (e.key === "Enter" || e.key === " ") handleNavigation();
@@ -161,13 +167,13 @@ const PropertyCard = ({
         </div>
 
         <div className="flex items-center gap-1.5 text-gray-500 mb-3">
-          <FaMapMarkerAlt className="text-blue-600 text-xs flex-shrink-0" aria-hidden="true" />
+          <FaMapMarkerAlt className="text-primary text-xs flex-shrink-0" aria-hidden="true" />
           <span className="text-xs font-medium truncate">{locationString}</span>
         </div>
 
         <div className="flex items-center justify-between pt-2 border-t border-gray-100">
           <div className="flex items-baseline gap-1">
-            <span className="text-xl font-bold text-blue-600">₵{pricePerNight}</span>
+            <span className="text-xl font-bold text-primary">₵{pricePerNight}</span>
             <span className="text-xs text-gray-500">/night</span>
           </div>
           <button
@@ -175,7 +181,7 @@ const PropertyCard = ({
               e.stopPropagation();
               handleNavigation();
             }}
-            className="text-xs font-bold text-blue-600 hover:text-blue-800 transition-colors whitespace-nowrap px-2 py-1 rounded-md hover:bg-blue-50"
+            className="text-xs font-bold text-primary hover:text-hover transition-colors whitespace-nowrap px-2 py-1 rounded-md hover:bg-light-primary/20"
             aria-label={`View details for ${title}`}
           >
             View Details

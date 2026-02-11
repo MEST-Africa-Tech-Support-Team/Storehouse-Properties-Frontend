@@ -3,9 +3,11 @@ import { FaArrowRight } from "react-icons/fa";
 import { Link } from "react-router";
 import PropertyCard from "../ui/propertyCard";
 import { propertyService } from "../../services/propertyService";
+import { authService } from "../../services/authService";
 
 const FeaturedStays = () => {
   const [featuredProperties, setFeaturedProperties] = useState([]);
+  const [favoriteIds, setFavoriteIds] = useState(new Set());
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -30,7 +32,35 @@ const FeaturedStays = () => {
       }
     };
 
+    // ✅ Fetch user's favorite property IDs
+    const fetchFavorites = async () => {
+      const token = authService.getToken();
+      if (!token) {
+        setFavoriteIds(new Set());
+        return;
+      }
+
+      try {
+        const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/favorites/me`, {
+          method: 'GET',
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (!response.ok) return;
+
+        const data = await response.json();
+        const favoritesData = Array.isArray(data) ? data : (data.favorites || data.properties || []);
+        const ids = new Set(favoritesData.map(p => p._id || p.id));
+        setFavoriteIds(ids);
+      } catch (error) {
+        console.error('Failed to fetch favorites:', error);
+      }
+    };
+
     fetchFeaturedProperties();
+    fetchFavorites();
   }, []);
 
   // ✅ Loading state - show skeleton while fetching
@@ -79,6 +109,19 @@ const FeaturedStays = () => {
     );
   }
 
+  // ✅ Handle when a favorite is toggled from PropertyCard
+  const handleFavoriteChange = (propertyId, isFavorited) => {
+    setFavoriteIds(prev => {
+      const newSet = new Set(prev);
+      if (isFavorited) {
+        newSet.add(propertyId);
+      } else {
+        newSet.delete(propertyId);
+      }
+      return newSet;
+    });
+  };
+
   // ✅ No featured properties found
   if (featuredProperties.length === 0) {
     return null;
@@ -94,7 +137,7 @@ const FeaturedStays = () => {
 
           <Link
             to="/explore"
-            className="group flex items-center gap-3 text-[16px] font-bold text-[#2563eb] transition-colors hover:text-blue-800"
+            className="group flex items-center gap-3 text-[16px] font-bold text-primary transition-colors hover:text-hover"
           >
             View All
             <FaArrowRight className="transition-transform duration-300 group-hover:translate-x-2" />
@@ -133,7 +176,8 @@ const FeaturedStays = () => {
                 maxGuests={property.maxGuests}
                 amenities={property.amenities}
                 rules={property.rules}
-                isFavorite={property.isFavorite || false}
+                isFavorite={favoriteIds.has(property._id || property.id)}
+                onFavoriteChange={handleFavoriteChange}
               />
             );
           })}

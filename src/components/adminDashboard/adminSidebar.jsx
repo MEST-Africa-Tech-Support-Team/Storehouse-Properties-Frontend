@@ -47,8 +47,8 @@ const AdminSidebar = ({ userName, userEmail, onLogout }) => {
 
   const linkClasses =
     "flex items-center gap-3 px-4 py-3 rounded-lg no-underline transition-all duration-200";
-  const activeClasses = "bg-[#1E5EFF] text-white shadow-md shadow-blue-100 font-semibold";
-  const inactiveClasses = "text-gray-600 hover:bg-gray-50 hover:text-[#1E5EFF]";
+  const activeClasses = "bg-primary text-white shadow-md shadow-primary/30 font-semibold";
+  const inactiveClasses = "text-gray-600 hover:bg-gray-50 hover:text-primary";
 
   // Updated Navigation Links
   const adminNavLinks = [
@@ -90,8 +90,8 @@ const AdminSidebar = ({ userName, userEmail, onLogout }) => {
         <div className="flex flex-col h-full">
           {/* Logo */}
           <div className="flex items-center justify-between mb-10">
-            <Link to="/" className="flex items-center gap-2.5 text-[#1E5EFF] font-bold text-2xl tracking-tight">
-              <div className="bg-[#1E5EFF] p-1.5 rounded-lg">
+            <Link to="/" className="flex items-center gap-2.5 text-primary font-bold text-2xl tracking-tight">
+              <div className="bg-primary p-1.5 rounded-lg">
                 <FaHouse className="text-white text-lg" />
               </div>
               <span className="text-[#1a1a1a]">Storehouse</span>
@@ -143,7 +143,7 @@ const AdminSidebar = ({ userName, userEmail, onLogout }) => {
                 showUserMenu ? "bg-gray-100 border-gray-200" : "bg-gray-50/50 border-gray-50 hover:bg-gray-100"
               }`}
             >
-              <div className="w-10 h-10 rounded-lg bg-blue-100 flex-shrink-0 flex items-center justify-center text-[#1E5EFF] font-bold text-sm">
+              <div className="w-10 h-10 rounded-lg bg-light-primary/30 flex-shrink-0 flex items-center justify-center text-primary font-bold text-sm">
                 {getInitials(userName)}
               </div>
               <div className="overflow-hidden text-left">

@@ -185,7 +185,7 @@ export default function TermsAndConditions() {
   if (!bookingData) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-600"></div>
+        <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-primary"></div>
       </div>
     );
   }
@@ -200,7 +200,7 @@ export default function TermsAndConditions() {
           className="w-full h-full object-cover"
           loading="lazy"
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-blue-900/70 to-blue-800/90"></div>
+        <div className="absolute inset-0 bg-black/50"></div>
         <div className="absolute inset-0 flex flex-col items-center justify-center text-white px-4 text-center">
           <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-2">Terms & Conditions</h1>
           <p className="text-sm opacity-95 max-w-2xl px-2">
@@ -211,9 +211,9 @@ export default function TermsAndConditions() {
 
       <div className="py-6 sm:py-8 max-w-4xl mx-auto px-4 sm:px-6">
         {/* ✅ Introduction Section */}
-        <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 sm:p-5 mb-6">
+        <div className="bg-light-primary/20 border border-primary/30 rounded-xl p-4 sm:p-5 mb-6">
           <div className="flex items-start gap-3">
-            <FaCheckCircle className="text-blue-600 mt-1 flex-shrink-0" size={20} />
+            <FaCheckCircle className="text-primary mt-1 flex-shrink-0" size={20} />
             <p className="text-sm sm:text-base text-gray-800 leading-relaxed">
               These Terms & Conditions govern your use of the Storehouse platform and services. By accessing or using our website and booking services, you agree to be bound by these terms. Please read them carefully before proceeding with any reservation. Your continued use of our platform constitutes acceptance of these terms.
             </p>

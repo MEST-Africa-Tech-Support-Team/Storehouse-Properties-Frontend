@@ -118,7 +118,7 @@ export default function BookingForm({ price = 180, propertyId, maxGuests = 10, p
           <div className="flex items-start">
             <div className="flex-1">
               <div className="flex items-center gap-2 mb-2">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-blue-600" viewBox="0 0 20 20" fill="currentColor">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-primary" viewBox="0 0 20 20" fill="currentColor">
                   <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
                 </svg>
                 <h3 className="font-bold text-gray-900">Continue your booking</h3>
@@ -136,7 +136,7 @@ export default function BookingForm({ price = 180, propertyId, maxGuests = 10, p
                     }));
                     navigate('/auth/login', { state: { from: location, bookingAttempt: true } });
                   }}
-                  className="flex-1 px-3 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition shadow-sm"
+                  className="flex-1 px-3 py-2 bg-primary text-white rounded-lg text-sm font-medium hover:bg-hover transition shadow-sm"
                 >
                   Log In
                 </button>
@@ -215,7 +215,7 @@ export default function BookingForm({ price = 180, propertyId, maxGuests = 10, p
 
       <form onSubmit={handleSubmit} className="space-y-3">
         <div className="grid grid-cols-2 gap-2">
-          <div className="relative border border-gray-200 rounded-xl p-3 focus-within:ring-1 focus-within:ring-blue-500 focus-within:border-blue-500 transition">
+          <div className="relative border border-gray-200 rounded-xl p-3 focus-within:ring-1 focus-within:ring-primary focus-within:border-primary transition">
             <label className="block text-[10px] font-medium text-gray-500 uppercase tracking-wider">Check-in</label>
             <div className="flex items-center justify-between mt-1">
               <input
@@ -228,7 +228,7 @@ export default function BookingForm({ price = 180, propertyId, maxGuests = 10, p
             </div>
           </div>
 
-          <div className="relative border border-gray-200 rounded-xl p-3 focus-within:ring-1 focus-within:ring-blue-500 focus-within:border-blue-500 transition">
+          <div className="relative border border-gray-200 rounded-xl p-3 focus-within:ring-1 focus-within:ring-primary focus-within:border-primary transition">
             <label className="block text-[10px] font-medium text-gray-500 uppercase tracking-wider">Check-out</label>
             <div className="flex items-center justify-between mt-1">
               <input
@@ -242,7 +242,7 @@ export default function BookingForm({ price = 180, propertyId, maxGuests = 10, p
           </div>
         </div>
 
-        <div className="relative border border-gray-200 rounded-xl p-3 focus-within:ring-1 focus-within:ring-blue-500 focus-within:border-blue-500 transition">
+        <div className="relative border border-gray-200 rounded-xl p-3 focus-within:ring-1 focus-within:ring-primary focus-within:border-primary transition">
           <label className="block text-[10px] font-medium text-gray-500 uppercase tracking-wider">Guests</label>
           <div className="flex items-center justify-between mt-1">
             <span className="text-[14px] text-[#1e293b]">
@@ -301,7 +301,7 @@ export default function BookingForm({ price = 180, propertyId, maxGuests = 10, p
             disabled={nights <= 0}
             className={`w-full font-semibold py-3 rounded-xl text-[15px] transition shadow-sm ${
               nights > 0
-                ? 'bg-blue-600 hover:bg-blue-700 text-white hover:shadow-md'
+                ? 'bg-primary hover:bg-hover text-white hover:shadow-md'
                 : 'bg-gray-200 text-gray-400 cursor-not-allowed'
             }`}
           >

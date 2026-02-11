@@ -14,10 +14,10 @@ const QuickActions = () => {
           to="/dashboard/bookings"
           className="w-full sm:flex-1 flex items-center gap-3 p-4 bg-white rounded-2xl shadow-[0_4px_12px_rgba(0,0,0,0.08)] hover:-translate-y-1 hover:shadow-[0_6px_16px_rgba(0,0,0,0.12)] transition-transform duration-200 cursor-pointer"
         >
-          <div className="w-11 h-11 rounded-full bg-blue-50 flex items-center justify-center shadow-[0_4px_10px_rgba(59,130,246,0.12)]">
-            <RiCalendarCheckFill className="text-blue-500 text-xl" />
+          <div className="w-11 h-11 rounded-full bg-light-primary/20 flex items-center justify-center shadow-[0_4px_10px_rgba(235,158,52,0.12)]">
+            <RiCalendarCheckFill className="text-primary text-xl" />
           </div>
-          <span className="font-semibold text-blue-500 whitespace-nowrap">My Bookings</span>
+          <span className="font-semibold text-primary whitespace-nowrap">My Bookings</span>
         </Link>
 
         <Link

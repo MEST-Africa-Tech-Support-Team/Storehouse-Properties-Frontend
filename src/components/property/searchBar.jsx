@@ -128,7 +128,7 @@ export default function SearchBar() {
               value={location}
               onChange={(e) => setLocation(e.target.value)}
               placeholder="Where are you going?"
-              className="w-full rounded-xl border border-gray-300 py-3 pl-9 pr-3 text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
+              className="w-full rounded-xl border border-gray-300 py-3 pl-9 pr-3 text-sm focus:border-primary focus:ring-2 focus:ring-primary"
             />
           </div>
         </div>
@@ -143,7 +143,7 @@ export default function SearchBar() {
               type="date"
               value={formatDateForInput(checkIn)}
               onChange={(e) => setCheckIn(formatInputForDisplay(e.target.value))}
-              className="w-full rounded-xl border border-gray-300 py-3 px-3 text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
+              className="w-full rounded-xl border border-gray-300 py-3 px-3 text-sm focus:border-primary focus:ring-2 focus:ring-primary"
             />
           </div>
 
@@ -155,7 +155,7 @@ export default function SearchBar() {
               type="date"
               value={formatDateForInput(checkOut)}
               onChange={(e) => setCheckOut(formatInputForDisplay(e.target.value))}
-              className="w-full rounded-xl border border-gray-300 py-3 px-3 text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
+              className="w-full rounded-xl border border-gray-300 py-3 px-3 text-sm focus:border-primary focus:ring-2 focus:ring-primary"
             />
           </div>
         </div>
@@ -163,7 +163,7 @@ export default function SearchBar() {
         <div className="sm:col-span-1 flex items-end">
           <button
             disabled={loading}
-            className="w-full rounded-full bg-blue-600 py-3 text-sm font-medium text-white shadow-md transition hover:bg-blue-700 disabled:opacity-70"
+            className="w-full rounded-full bg-primary py-3 text-sm font-medium text-white shadow-md transition hover:bg-hover disabled:opacity-70"
           >
             <span className="flex items-center justify-center gap-2">
               {loading ? (
