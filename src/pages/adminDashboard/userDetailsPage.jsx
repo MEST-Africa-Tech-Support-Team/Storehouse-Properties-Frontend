@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
-import toast from "react-hot-toast"; // Import toast
+import toast from "react-hot-toast";
 import { 
   RiArrowLeftLine, RiUserLine, RiMailLine, RiPhoneLine, 
-  RiCalendarLine, RiMapPinLine, RiShieldUserLine, 
-  RiLockPasswordLine, RiStopCircleLine, RiExternalLinkLine,
+  RiCalendarLine, RiShieldUserLine, 
+  RiLockPasswordLine, RiStopCircleLine, 
   RiArrowDownSLine, RiLoader4Line, RiCheckboxCircleLine
 } from "react-icons/ri";
 
@@ -16,7 +16,7 @@ const UserDetailPage = () => {
   const [loading, setLoading] = useState(true);
   const [processing, setProcessing] = useState(false);
   const [error, setError] = useState(null);
-  const [role, setRole] = useState("User");
+  const [role, setRole] = useState("user");
 
   const token = localStorage.getItem("authToken");
   const API_BASE = import.meta.env.VITE_API_BASE_URL;
@@ -37,7 +37,7 @@ const UserDetailPage = () => {
         const data = await response.json();
         const userData = data.user || data; 
         setUser(userData);
-        setRole(userData.role || "User");
+        setRole(userData.role?.toLowerCase() || "user");
       } catch (err) {
         setError(err.message);
         toast.error("Failed to load user profile");
@@ -48,25 +48,35 @@ const UserDetailPage = () => {
     if (id) fetchUserDetail();
   }, [id, token, API_BASE]);
 
-  // 2. UPDATE ROLE (PROMOTION)
+  // 2. UPDATE ROLE (DYNAMIC PROMOTION / DEMOTION)
   const handleRoleChange = async (newRole) => {
-    const loadingToast = toast.loading(`Updating role to ${newRole}...`);
+    // Determine action based on newRole value
+    const isDemoting = newRole === "user";
+    const endpoint = isDemoting ? "demote" : "promote";
+    const label = isDemoting ? "Demoting to Customer" : "Promoting to Admin";
+
+    const loadingToast = toast.loading(`${label}...`);
+
     try {
       setProcessing(true);
-      const response = await fetch(`${API_BASE}/users/promote/${id}`, {
+      const response = await fetch(`${API_BASE}/users/${endpoint}/${id}`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ role: newRole.toLowerCase() }),
+        body: JSON.stringify({ role: newRole }), // sending "user" or "admin"
       });
 
-      if (!response.ok) throw new Error("Failed to update role");
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || `Failed to ${endpoint} user`);
+      }
       
       setRole(newRole);
-      setUser(prev => ({ ...prev, role: newRole.toLowerCase() }));
-      toast.success(`User promoted to ${newRole} successfully!`, { id: loadingToast });
+      setUser(prev => ({ ...prev, role: newRole }));
+      toast.success(`User role updated to ${newRole} successfully!`, { id: loadingToast });
     } catch (err) {
       toast.error(err.message, { id: loadingToast });
     } finally {
@@ -74,7 +84,7 @@ const UserDetailPage = () => {
     }
   };
 
-  // 3. TOGGLE ACCOUNT STATUS (DEACTIVATE/REACTIVATE)
+  // 3. TOGGLE ACCOUNT STATUS
   const toggleAccountStatus = async () => {
     const isCurrentlyActive = user.status === "active";
     const endpoint = isCurrentlyActive ? "deactivate" : "reactivate";
@@ -189,7 +199,7 @@ const UserDetailPage = () => {
               <InfoRow label="Last Name" value={user.lastName} />
               <InfoRow label="Email" value={user.email} />
               <InfoRow label="Phone" value={user.phone} />
-              <InfoRow label="Role" value={user.role} />
+              <InfoRow label="Current Role" value={user.role} />
               <InfoRow label="Database ID" value={user._id} />
             </div>
           </PaperCard>
