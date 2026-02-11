@@ -139,11 +139,12 @@ export default function ResetPasswordPage() {
       {/* Background image with overlay */}
       <div className="absolute inset-0">
         <div 
-          className="absolute inset-0 bg-cover bg-center opacity-70"
+          className="absolute inset-0 bg-cover bg-center"
           style={{
             backgroundImage: 'url("https://images.unsplash.com/photo-1501594907352-04c994ea1c55?ixlib=rb-4.0.3&auto=format&fit=crop&w=1950&q=80")'
           }}
         />
+        <div className="absolute inset-0 bg-black/50" />
       </div>
       {/* Main content */}
       <div className="relative z-10 flex min-h-screen items-center justify-center px-4 py-12">

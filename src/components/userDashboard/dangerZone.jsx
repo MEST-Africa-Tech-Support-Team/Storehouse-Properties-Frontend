@@ -34,7 +34,7 @@ const DangerZone = () => {
             </button>
             <button
               className={`px-3 py-1.5 text-sm rounded-lg text-white ${
-                actionType === 'delete' ? 'bg-red-600 hover:bg-red-700' : 'bg-blue-600 hover:bg-blue-700'
+                actionType === 'delete' ? 'bg-red-600 hover:bg-red-700' : 'bg-primary hover:bg-hover'
               }`}
               onClick={() => {
                 toast.dismiss(t.id);

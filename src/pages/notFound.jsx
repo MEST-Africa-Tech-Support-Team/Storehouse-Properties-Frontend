@@ -74,14 +74,14 @@ export default function NotFoundPage() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 overflow-hidden relative">
+    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-orange-100/50 to-orange-50/30 overflow-hidden relative">
       {/* Background decorative elements */}
       <div className="absolute inset-0 overflow-hidden">
         {/* Floating bubbles */}
         {particles.map((particle) => (
           <div
             key={particle.id}
-            className="absolute bg-blue-200/30 rounded-full animate-float"
+            className="absolute bg-orange-200/30 rounded-full animate-float"
             style={{
               width: `${particle.size}px`,
               height: `${particle.size}px`,
@@ -125,7 +125,7 @@ export default function NotFoundPage() {
           {/* 404 Number with 3D effect */}
           <div className="mb-8 relative">
             <div 
-              className="text-[180px] md:text-[240px] font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-700"
+              className="text-[180px] md:text-[240px] font-black text-transparent bg-clip-text bg-gradient-to-r from-primary to-hover"
               style={{ 
                 textShadow: '0 10px 30px rgba(59, 130, 246, 0.3)',
                 transform: 'translateZ(0)',
@@ -136,9 +136,9 @@ export default function NotFoundPage() {
             </div>
             
             {/* Floating decorative elements around 404 */}
-            <div className="absolute -top-8 -left-8 w-16 h-16 bg-blue-300/20 rounded-full animate-float-slow" />
-            <div className="absolute -bottom-12 right-16 w-12 h-12 bg-indigo-300/20 rounded-full animate-float" />
-            <div className="absolute top-16 -right-12 w-20 h-20 bg-purple-300/20 rounded-full animate-float-reverse" />
+            <div className="absolute -top-8 -left-8 w-16 h-16 bg-orange-300/20 rounded-full animate-float-slow" />
+            <div className="absolute -bottom-12 right-16 w-12 h-12 bg-orange-300/20 rounded-full animate-float" />
+            <div className="absolute top-16 -right-12 w-20 h-20 bg-orange-300/20 rounded-full animate-float-reverse" />
           </div>
 
           {/* Animated house and key */}
@@ -149,7 +149,7 @@ export default function NotFoundPage() {
               className="relative transform transition-all duration-300"
               style={{ willChange: 'transform' }}
             >
-              <div className="w-24 h-24 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg shadow-2xl flex items-center justify-center transform rotate-6 hover:rotate-0 transition-transform duration-500">
+              <div className="w-24 h-24 bg-gradient-to-br from-primary to-hover rounded-lg shadow-2xl flex items-center justify-center transform rotate-6 hover:rotate-0 transition-transform duration-500">
                 <FaHouse className="text-white text-4xl" />
               </div>
               <div className="absolute -bottom-2 -right-2 w-6 h-6 bg-yellow-400 rounded-full animate-pulse" />
@@ -168,16 +168,16 @@ export default function NotFoundPage() {
               className="relative transform transition-all duration-300"
               style={{ willChange: 'transform' }}
             >
-              <div className="w-24 h-24 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg shadow-2xl flex items-center justify-center transform -rotate-6 hover:rotate-0 transition-transform duration-500">
+              <div className="w-24 h-24 bg-gradient-to-br from-hover to-primary rounded-lg shadow-2xl flex items-center justify-center transform -rotate-6 hover:rotate-0 transition-transform duration-500">
                 <FaKey className="text-white text-4xl" />
               </div>
-              <div className="absolute -top-2 -left-2 w-4 h-4 bg-blue-400 rounded-full animate-bounce" />
+              <div className="absolute -top-2 -left-2 w-4 h-4 bg-primary rounded-full animate-bounce" />
             </div>
           </div>
 
           {/* Title and message */}
           <h1 className="text-4xl md:text-6xl font-bold text-gray-900 mb-6 animate-fade-in">
-            <span className="bg-gradient-to-r from-blue-600 to-indigo-700 bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-primary to-hover bg-clip-text text-transparent">
               Lost Your Way?
             </span>
           </h1>
@@ -191,11 +191,11 @@ export default function NotFoundPage() {
           <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12 animate-fade-in animation-delay-300">
             <Link
               to="/"
-              className="group relative px-8 py-4 bg-gradient-to-r from-blue-600 to-indigo-700 text-white font-semibold rounded-xl shadow-xl overflow-hidden transform hover:scale-105 transition-all duration-300"
+              className="group relative px-8 py-4 bg-gradient-to-r from-primary to-hover text-white font-semibold rounded-xl shadow-xl overflow-hidden transform hover:scale-105 transition-all duration-300"
               onMouseEnter={() => setIsHovered(true)}
               onMouseLeave={() => setIsHovered(false)}
             >
-              <div className="absolute inset-0 bg-gradient-to-r from-blue-700 to-indigo-800 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+              <div className="absolute inset-0 bg-gradient-to-r from-hover to-primary opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
               <div className="relative flex items-center justify-center gap-2">
                 <MdHome className="text-xl" />
                 <span>Go to Homepage</span>
@@ -206,9 +206,9 @@ export default function NotFoundPage() {
 
             <Link
               to="/explore"
-              className="group relative px-8 py-4 bg-white text-gray-900 font-semibold rounded-xl shadow-md border-2 border-gray-200 overflow-hidden transform hover:scale-105 transition-all duration-300 hover:border-blue-400 hover:shadow-2xl"
+              className="group relative px-8 py-4 bg-white text-gray-900 font-semibold rounded-xl shadow-md border-2 border-gray-200 overflow-hidden transform hover:scale-105 transition-all duration-300 hover:border-primary hover:shadow-2xl"
             >
-              <div className="absolute inset-0 bg-gradient-to-r from-blue-50 to-indigo-50 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+              <div className="absolute inset-0 bg-gradient-to-r from-light-primary/20 to-light-primary/30 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
               <div className="relative flex items-center justify-center gap-2">
                 <MdExplore className="text-xl" />
                 <span>Explore Properties</span>
@@ -237,7 +237,7 @@ export default function NotFoundPage() {
       {/* Footer decoration */}
       <div className="relative z-10 py-8 text-center">
         <div className="inline-flex items-center gap-2 bg-white/80 backdrop-blur-sm px-6 py-3 rounded-full shadow-lg border border-gray-200">
-          <FaMapMarkedAlt className="text-blue-600" />
+          <FaMapMarkedAlt className="text-primary" />
           <span className="text-gray-700 font-medium">Back on the map in no time!</span>
         </div>
       </div>

@@ -1,21 +1,23 @@
 import { FaFacebookF, FaTwitter, FaInstagram, FaHome } from "react-icons/fa";
+import { Link } from "react-router";
+import Logo from "../../images/storehouse-logo.png";
 
 const Footer = () => {
   return (
-    <footer className="bg-[#0f2a44] text-gray-300">
+    <footer className="bg-white text-gray-800">
       <div className="max-w-7xl mx-auto px-6 py-6 grid grid-cols-1 md:grid-cols-4 gap-12">
 
         <section>
-          <div className="flex items-center gap-3 mb-5">
-            <div className="bg-blue-500 p-2 rounded-lg">
-              <FaHome className="text-white text-lg" />
-            </div>
-            <h2 className="text-white text-xl font-semibold">
+          <Link to="/">
+          <div className="flex items-center mb-5">
+              <img src={Logo} alt="Storehouse Logo" className="h-10 w-auto brightness-0" />
+            <h2 className="text-gray-900 text-xl font-semibold">
               Storehouse
             </h2>
           </div>
+          </Link>
 
-          <p className="text-gray-400 leading-relaxed max-w-xs">
+          <p className="text-gray-600 leading-relaxed max-w-xs">
             Find your perfect rental property with ease and confidence.
           </p>
 
@@ -37,19 +39,19 @@ const Footer = () => {
         />
 
         <section>
-          <h3 className="text-white font-semibold mb-4">Support</h3>
-          <p className="hover:text-white transition-colors duration-200 cursor-pointer">
+          <h3 className="text-gray-900 font-semibold mb-4">Support</h3>
+          <p className="hover:text-primary transition-colors duration-200 cursor-pointer">
             Call Us: +233 20 687 9876
           </p>
-          <p className="mt-2 hover:text-white transition-colors duration-200 cursor-pointer">
+          <p className="mt-2 hover:text-primary transition-colors duration-200 cursor-pointer">
             storehouse@gmail.com
           </p>
         </section>
       </div>
 
-      <div className="border-t border-white/10 mx-6"></div>
+      <div className="border-t border-gray-200 mx-6"></div>
 
-      <div className="text-center py-3 text-gray-400 text-sm">
+      <div className="text-center py-3 text-gray-600 text-sm">
         © 2026 Storehouse. All rights reserved.
       </div>
     </footer>
@@ -59,14 +61,14 @@ const Footer = () => {
 const FooterColumn = ({ title, links }) => {
   return (
     <section>
-      <h3 className="text-white font-semibold mb-4">
+      <h3 className="text-gray-900 font-semibold mb-4">
         {title}
       </h3>
       <ul className="space-y-3">
         {links.map((item) => (
           <li
             key={item}
-            className="cursor-pointer hover:text-white hover:translate-x-1 transition-all duration-200"
+            className="cursor-pointer hover:text-primary hover:translate-x-1 transition-all duration-200"
           >
             {item}
           </li>
@@ -78,7 +80,7 @@ const FooterColumn = ({ title, links }) => {
 
 const SocialIcon = ({ icon: Icon }) => {
   return (
-    <div className="w-6 h-6 flex items-center justify-center rounded-full bg-white text-[#0f2a44] cursor-pointer hover:bg-blue-500 hover:text-white transition-all duration-300">
+    <div className="w-6 h-6 flex items-center justify-center rounded-full bg-gray-900 text-white cursor-pointer hover:bg-primary hover:text-white transition-all duration-300">
       <Icon />
     </div>
   );

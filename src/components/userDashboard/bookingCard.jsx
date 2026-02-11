@@ -13,7 +13,7 @@ const BookingCard = ({ booking }) => {
       case 'Confirmed': return 'bg-green-100 text-green-800';
       case 'Pending': return 'bg-yellow-100 text-yellow-800';
       case 'Completed': return 'bg-gray-100 text-gray-800';
-      default: return 'bg-blue-100 text-blue-800';
+      default: return 'bg-light-primary/30 text-primary';
     }
   };
 
@@ -69,7 +69,7 @@ const BookingCard = ({ booking }) => {
         <div className="flex flex-col sm:flex-row sm:space-x-2 gap-2">
           <Link
             to={`/booking/${id}/details`}
-            className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-full hover:bg-blue-700 transition-colors text-center"
+            className="px-4 py-2 bg-primary text-white text-sm font-medium rounded-full hover:bg-hover transition-colors text-center"
           >
             View Details
           </Link>

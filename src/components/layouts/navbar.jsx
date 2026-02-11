@@ -3,7 +3,8 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { toast } from 'react-hot-toast';
 import { Avatar } from "@/components/ui/avatar";
-import { MdHome, MdDashboard, MdSettings, MdLogout } from "react-icons/md";
+import { MdDashboard, MdSettings, MdLogout } from "react-icons/md";
+import Logo from "../../images/storehouse-logo.png";
 
 const getInitials = (user) => {
   if (!user) return "U";
@@ -29,9 +30,9 @@ export default function Header() {
   ];
 
   const buttonClasses =
-    "px-4 py-1.5 bg-blue-600 text-white text-sm font-medium " +
-    "rounded-full hover:bg-blue-700 transition duration-200 " +
-    "focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2";
+    "px-4 py-1.5 bg-primary text-white text-sm font-medium " +
+    "rounded-full hover:bg-hover transition duration-200 " +
+    "focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2";
 
   const isActive = (path) => location.pathname === path;
 
@@ -94,7 +95,7 @@ export default function Header() {
           onClick={closeMobileMenu}
           className="flex items-center gap-1.5 text-xl font-bold text-gray-900"
         >
-          <MdHome className="h-6 w-6 text-blue-600" />
+          <img src={Logo} alt="Storehouse Logo" className="h-10 w-auto brightness-0" />
           Storehouse
         </Link>
 
@@ -117,7 +118,7 @@ export default function Header() {
 
         <button
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          className="md:hidden p-2 rounded-md text-gray-600 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="md:hidden p-2 rounded-md text-gray-600 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-primary"
           aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
           aria-expanded={mobileMenuOpen}
         >
@@ -195,7 +196,7 @@ export default function Header() {
             <>
               <Link
                 to="/auth/login"
-                className="text-gray-700 hover:text-blue-600 text-sm font-medium"
+                className="text-gray-700 hover:text-primary text-sm font-medium"
               >
                 Sign In
               </Link>
@@ -225,7 +226,7 @@ export default function Header() {
                 onClick={closeMobileMenu}
                 className="flex items-center gap-2 text-xl font-bold text-gray-900"
               >
-                <MdHome className="h-6 w-6 text-blue-600" />
+                <img src={Logo} alt="Storehouse Logo" className="h-6 w-6" />
                 Storehouse
               </Link>
               <button
@@ -274,7 +275,7 @@ export default function Header() {
                   onClick={closeMobileMenu}
                   className={`block px-4 py-3 rounded-lg text-base font-medium transition-colors ${
                     isActive(path)
-                      ? "bg-blue-50 text-blue-600"
+                      ? "bg-light-primary/30 text-primary"
                       : "text-gray-700 hover:bg-gray-50"
                   }`}
                 >
@@ -322,7 +323,7 @@ export default function Header() {
                   <Link
                     to="/auth/signup"
                     onClick={closeMobileMenu}
-                    className="block px-4 py-3 text-center rounded-lg bg-blue-600 text-white font-medium hover:bg-blue-700"
+                    className="block px-4 py-3 text-center rounded-lg bg-primary text-white font-medium hover:bg-hover"
                   >
                     Create Account
                   </Link>

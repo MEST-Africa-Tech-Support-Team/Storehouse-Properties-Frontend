@@ -1,5 +1,12 @@
 @import "tailwindcss";
- @keyframes fade-in {
+
+@theme {
+  --color-primary: oklch(0.68 0.15 50);
+  --color-hover: oklch(0.62 0.14 45);
+  --color-light-primary: oklch(0.88 0.08 52);
+}
+
+@keyframes fade-in {
   from {
     opacity: 0;
     transform: translateY(10px);

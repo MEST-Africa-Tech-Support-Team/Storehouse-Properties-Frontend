@@ -14,7 +14,7 @@ export default function GetInTouchSection() {
 
             <div className="space-y-6">
               <div className="flex items-start gap-4">
-                <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center text-white">
+                <div className="w-10 h-10 bg-primary rounded-full flex items-center justify-center text-white">
                   <FiMapPin className="w-5 h-5" />
                 </div>
                 <div>
@@ -28,7 +28,7 @@ export default function GetInTouchSection() {
               </div>
 
               <div className="flex items-start gap-4">
-                <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center text-white">
+                <div className="w-10 h-10 bg-primary rounded-full flex items-center justify-center text-white">
                   <FiPhone className="w-5 h-5" />
                 </div>
                 <div>
@@ -38,7 +38,7 @@ export default function GetInTouchSection() {
               </div>
 
               <div className="flex items-start gap-4">
-                <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center text-white">
+                <div className="w-10 h-10 bg-primary rounded-full flex items-center justify-center text-white">
                   <FiMail className="w-5 h-5" />
                 </div>
                 <div>
@@ -48,7 +48,7 @@ export default function GetInTouchSection() {
               </div>
 
               <div className="flex items-start gap-4">
-                <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center text-white">
+                <div className="w-10 h-10 bg-primary rounded-full flex items-center justify-center text-white">
                   <FiClock className="w-5 h-5" />
                 </div>
                 <div className="">
@@ -75,7 +75,7 @@ export default function GetInTouchSection() {
                     <input
                       type="text"
                       placeholder="Your full name"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-full focus:outline-none focus:ring-1 focus:ring-blue-500 text-sm"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-full focus:outline-none focus:ring-1 focus:ring-primary text-sm"
                     />
                   </div>
                   <div>
@@ -83,14 +83,14 @@ export default function GetInTouchSection() {
                     <input
                       type="email"
                       placeholder="your@email.com"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-full focus:outline-none focus:ring-1 focus:ring-blue-500 text-sm"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-full focus:outline-none focus:ring-1 focus:ring-primary text-sm"
                     />
                   </div>
                 </div>
 
                 <div>
                   <label className="block text-xs font-medium text-gray-700 mb-1">Subject</label>
-                  <select className="w-full px-3 py-2 border border-gray-300 rounded-full focus:outline-none focus:ring-1 focus:ring-blue-500 text-sm">
+                  <select className="w-full px-3 py-2 border border-gray-300 rounded-full focus:outline-none focus:ring-1 focus:ring-primary text-sm">
                     <option>General Inquiry</option>
                     <option>Technical Support</option>
                     <option>Billing Question</option>
@@ -103,13 +103,13 @@ export default function GetInTouchSection() {
                   <textarea
                     placeholder="Tell us how we can help you..."
                     rows={5}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-1 focus:ring-blue-500 text-sm resize-none"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-1 focus:ring-primary text-sm resize-none"
                   ></textarea>
                 </div>
 
                 <button
                   type="submit"
-                  className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-full font-medium text-sm transition"
+                  className="w-full bg-primary hover:bg-hover text-white py-2 rounded-full font-medium text-sm transition"
                 >
                   Send Message
                 </button>

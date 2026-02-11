@@ -40,9 +40,9 @@ export default function StorehouseFeaturesSection() {
           ].map((item, index) => (
             <div
               key={index}
-              className="bg-blue-50 p-6 rounded-xl text-center transition-all duration-300 hover:bg-blue-100 hover:shadow-md hover:-translate-y-1 cursor-pointer"
+              className="bg-light-primary/20 p-6 rounded-xl text-center transition-all duration-300 hover:bg-light-primary/30 hover:shadow-md hover:-translate-y-1 cursor-pointer"
             >
-              <div className="w-16 h-16 bg-white rounded-xl flex items-center justify-center mx-auto mb-4 text-blue-600">
+              <div className="w-16 h-16 bg-white rounded-xl flex items-center justify-center mx-auto mb-4 text-primary">
                 {item.icon}
               </div>
               <h3 className="font-bold text-gray-800 mb-3">{item.title}</h3>
@@ -87,9 +87,9 @@ export default function StorehouseFeaturesSection() {
           ].map((item, index, arr) => (
             <React.Fragment key={index}>
               <div
-                className="flex flex-col items-center text-center flex-1 transition-all duration-300 hover:bg-blue-50 hover:shadow-md hover:-translate-y-1 rounded-xl p-4 cursor-pointer"
+                className="flex flex-col items-center text-center flex-1 transition-all duration-300 hover:bg-light-primary/20 hover:shadow-md hover:-translate-y-1 rounded-xl p-4 cursor-pointer"
               >
-                <div className="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center text-white font-bold mb-3">
+                <div className="w-12 h-12 bg-primary rounded-full flex items-center justify-center text-white font-bold mb-3">
                   {item.step}
                 </div>
                 <h3 className="font-bold text-gray-800 mb-2">{item.title}</h3>
@@ -100,7 +100,7 @@ export default function StorehouseFeaturesSection() {
 
               {index < arr.length - 1 && (
                 <div className="hidden md:block mx-2">
-                  <FiArrowRight className="text-blue-400 w-6 h-6" />
+                  <FiArrowRight className="text-primary/60 w-6 h-6" />
                 </div>
               )}
             </React.Fragment>
@@ -136,9 +136,9 @@ export default function StorehouseFeaturesSection() {
           ].map((item, index) => (
             <div
               key={index}
-              className="bg-blue-50 p-6 rounded-xl text-center transition-all duration-300 hover:bg-blue-100 hover:shadow-md hover:-translate-y-1 cursor-pointer"
+              className="bg-light-primary/20 p-6 rounded-xl text-center transition-all duration-300 hover:bg-light-primary/30 hover:shadow-md hover:-translate-y-1 cursor-pointer"
             >
-              <div className="w-16 h-16 bg-white rounded-xl flex items-center justify-center mx-auto mb-4 text-blue-600">
+              <div className="w-16 h-16 bg-white rounded-xl flex items-center justify-center mx-auto mb-4 text-primary">
                 {item.icon}
               </div>
               <h3 className="font-bold text-gray-800 mb-3">{item.title}</h3>

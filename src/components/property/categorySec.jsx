@@ -15,7 +15,7 @@ const BrowseByCategory = () => {
   ];
 
   return (
-    <section className="bg-[#F4F8FF] py-12 px-4 flex flex-col items-center justify-center">
+    <section className="bg-light-primary/20 py-12 px-4 flex flex-col items-center justify-center">
       <div className="text-center mb-8">
         <h2 className="text-[#0f1d37] text-4xl font-bold mb-4 tracking-tight">
           Browse by Category

@@ -53,41 +53,8 @@ const AdminSidebar = ({ userName, onLogout }) => {
     return location.pathname.startsWith(path);
   };
 
-  // --- INTEGRATED LOGOUT LOGIC ---
-  const handleSignOut = async () => {
-    if (isLoggingOut) return;
-
-    try {
-      setIsLoggingOut(true);
-      
-      // 1. Call the global logout from Context
-      // This clears the Firebase/API session and sets currentUser to null
-      await logout(); 
-
-      // 2. Clear local storage safety nets
-      localStorage.removeItem("authToken");
-      localStorage.removeItem("userData"); 
-
-      // 3. Execute optional callback from Parent (AdminLayout)
-      if (onLogout) onLogout();
-
-      // 4. Success UI Feedback
-      toast.success("Signed out — see you soon 👋", { id: 'admin-logout' });
-
-      // 5. Close menus and redirect to home
-      setShowUserMenu(false);
-      setIsOpen(false);
-      navigate("/", { replace: true });
-      
-    } catch (err) {
-      console.error('Logout failed', err);
-      toast.error(err?.message || 'Failed to sign out. Please try again.');
-    } finally {
-      setIsLoggingOut(false);
-    }
-  };
-
-  const linkClasses = "flex items-center gap-3 px-4 py-3 rounded-lg no-underline transition-all duration-200";
+  const linkClasses =
+    "flex items-center gap-3 px-4 py-3 rounded-lg no-underline transition-all duration-200";
   const activeClasses = "bg-[#1E5EFF] text-white shadow-md shadow-blue-100 font-semibold";
   const inactiveClasses = "text-gray-600 hover:bg-gray-50 hover:text-[#1E5EFF]";
 
@@ -100,6 +67,22 @@ const AdminSidebar = ({ userName, onLogout }) => {
     { to: "/admin/analytics", label: "Analytics", icon: <RiBarChartBoxLine className="text-xl" /> },
     { to: "/admin/settings", label: "Settings", icon: <IoSettingsOutline className="text-xl" /> },
   ];
+
+  const handleSignOut = async () => {
+    setIsLoggingOut(true);
+    try {
+      await logout();
+      toast.success("Signed out successfully", { duration: 3000 });
+      navigate("/");
+      setShowUserMenu(false);
+      if (onLogout) onLogout();
+    } catch (error) {
+      console.error("Logout failed", error);
+      toast.error("Failed to sign out. Please try again.", { duration: 4000 });
+    } finally {
+      setIsLoggingOut(false);
+    }
+  };
 
   return (
     <>
@@ -130,8 +113,8 @@ const AdminSidebar = ({ userName, onLogout }) => {
         <div className="flex flex-col h-full">
           {/* Logo */}
           <div className="flex items-center justify-between mb-10">
-            <Link to="/" className="flex items-center gap-2.5 text-[#1E5EFF] font-bold text-2xl tracking-tight">
-              <div className="bg-[#1E5EFF] p-1.5 rounded-lg">
+            <Link to="/" className="flex items-center gap-2.5 text-primary font-bold text-2xl tracking-tight">
+              <div className="bg-primary p-1.5 rounded-lg">
                 <FaHouse className="text-white text-lg" />
               </div>
               <span className="text-[#1a1a1a]">Storehouse</span>
@@ -179,7 +162,7 @@ const AdminSidebar = ({ userName, onLogout }) => {
                 showUserMenu ? "bg-gray-100 border-gray-200" : "bg-gray-50/50 border-gray-50 hover:bg-gray-100"
               }`}
             >
-              <div className="w-10 h-10 rounded-lg bg-blue-100 flex-shrink-0 flex items-center justify-center text-[#1E5EFF] font-bold text-sm">
+              <div className="w-10 h-10 rounded-lg bg-light-primary/30 flex-shrink-0 flex items-center justify-center text-primary font-bold text-sm">
                 {getInitials(userName)}
               </div>
               <div className="overflow-hidden text-left">

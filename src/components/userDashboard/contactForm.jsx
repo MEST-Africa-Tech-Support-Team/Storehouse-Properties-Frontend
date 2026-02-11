@@ -54,7 +54,7 @@ const ContactForm = () => {
               value={formData.fullName}
               onChange={handleChange}
               placeholder="Your full name"
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
             />
           </div>
           <div>
@@ -65,7 +65,7 @@ const ContactForm = () => {
               value={formData.email}
               onChange={handleChange}
               placeholder="your@email.com"
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
             />
           </div>
         </div>
@@ -76,7 +76,7 @@ const ContactForm = () => {
             name="subject"
             value={formData.subject}
             onChange={handleChange}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
           >
             <option>General Inquiry</option>
             <option>Technical Support</option>
@@ -93,13 +93,13 @@ const ContactForm = () => {
             onChange={handleChange}
             placeholder="Tell us how we can help you..."
             rows={5}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary resize-none"
           ></textarea>
         </div>
 
         <button
           type="submit"
-          className="w-full py-3 bg-blue-600 text-white font-medium rounded-full hover:bg-blue-700 transition-colors"
+          className="w-full py-3 bg-primary text-white font-medium rounded-full hover:bg-hover transition-colors"
         >
           Send Message
         </button>

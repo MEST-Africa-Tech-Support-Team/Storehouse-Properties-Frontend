@@ -76,14 +76,14 @@ export default function EmailVerification() {
         )}
 
         <div className="bg-white rounded-3xl p-8 shadow-xl border border-gray-100 text-center relative overflow-hidden">
-          <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 to-indigo-600"></div>
+          <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary to-hover"></div>
 
           {verifying ? (
             <>
               <div className="relative inline-block">
-                <div className="animate-spin rounded-full h-16 w-16 border-4 border-blue-200 mx-auto mb-5"></div>
+                <div className="animate-spin rounded-full h-16 w-16 border-4 border-primary/20 mx-auto mb-5"></div>
                 <div className="absolute inset-0 flex items-center justify-center">
-                  <RotateCw className="h-8 w-8 text-blue-600 animate-pulse" />
+                  <RotateCw className="h-8 w-8 text-primary animate-pulse" />
                 </div>
               </div>
               <h2 className="text-xl font-semibold text-gray-800 mb-2">
@@ -104,7 +104,7 @@ export default function EmailVerification() {
               </p>
               <button
                 onClick={() => navigate('/auth/login')}
-                className="w-full py-3.5 bg-blue-600 text-white rounded-full font-medium hover:bg-blue-700 transition-all duration-200 shadow-md hover:shadow-lg"
+                className="w-full py-3.5 bg-primary text-white rounded-full font-medium hover:bg-hover transition-all duration-200 shadow-md hover:shadow-lg"
               >
                 Go to Login
               </button>
@@ -121,7 +121,7 @@ export default function EmailVerification() {
               </p>
               <button
                 onClick={() => navigate('/auth/signup')}
-                className="w-full py-3.5 bg-blue-600 text-white rounded-full font-medium hover:bg-blue-700 transition-all duration-200 shadow-md hover:shadow-lg"
+                className="w-full py-3.5 bg-primary text-white rounded-full font-medium hover:bg-hover transition-all duration-200 shadow-md hover:shadow-lg"
               >
                 Back to Signup
               </button>
@@ -129,8 +129,8 @@ export default function EmailVerification() {
           )}
         </div>
 
-        <div className="absolute -bottom-6 -right-6 w-24 h-24 rounded-full bg-blue-100 opacity-30 blur-xl"></div>
-        <div className="absolute -top-6 -left-6 w-20 h-20 rounded-full bg-indigo-100 opacity-30 blur-xl"></div>
+        <div className="absolute -bottom-6 -right-6 w-24 h-24 rounded-full bg-light-primary/30 opacity-30 blur-xl"></div>
+        <div className="absolute -top-6 -left-6 w-20 h-20 rounded-full bg-light-primary/30 opacity-30 blur-xl"></div>
       </div>
 
       {/* Tailwind animation for confetti */}

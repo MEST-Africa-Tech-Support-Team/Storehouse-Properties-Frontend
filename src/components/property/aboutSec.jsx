@@ -46,8 +46,8 @@ const AboutSection = () => {
           className="
             mt-8 lg:mt-10 
             inline-flex items-center gap-2 
-            text-[#2563eb] font-bold text-lg 
-            group transition-colors hover:text-blue-800
+            text-primary font-bold text-lg 
+            group transition-colors hover:text-hover
           "
         >
           Learn More About Us
@@ -78,16 +78,16 @@ const AboutSection = () => {
             to="/about"
             className="
               block
-              bg-[#2563eb] text-white 
+              bg-primary text-white 
               p-8 sm:p-10 
               rounded-3xl shadow-xl 
-              hover:shadow-blue-200 transition-shadow
+              hover:shadow-primary transition-shadow
             "
           >
             <div className="text-3xl sm:text-4xl font-extrabold mb-2">
               50K+
             </div>
-            <div className="text-blue-100 font-medium text-lg">
+            <div className="text-white/80 font-medium text-lg">
               Happy Guests
             </div>
           </Link>
@@ -99,14 +99,14 @@ const AboutSection = () => {
             to="/about"
             className="
               block
-              bg-[#F0F7FF] 
+              bg-light-primary/20 
               p-8 sm:p-10 
               rounded-3xl 
-              border border-blue-50 
-              shadow-sm hover:border-blue-200 transition-colors
+              border border-light-primary 
+              shadow-sm hover:border-primary transition-colors
             "
           >
-            <div className="text-[#2563eb] text-3xl sm:text-4xl font-extrabold mb-2">
+            <div className="text-primary text-3xl sm:text-4xl font-extrabold mb-2">
               10K+
             </div>
             <div className="text-gray-600 font-medium text-lg">
