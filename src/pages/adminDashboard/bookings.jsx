@@ -10,6 +10,51 @@ import {
 } from "react-icons/ri";
 import { Link } from "react-router-dom";
 
+// --- NEW COMPONENT: INDIVIDUAL PAYMENT STATUS CELL ---
+const PaymentStatusCell = ({ bookingId, token, API_URL }) => {
+  const [status, setStatus] = useState("loading...");
+
+  useEffect(() => {
+    const fetchStatus = async () => {
+      try {
+        const response = await fetch(`${API_URL}/payments/status/${bookingId}`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (!response.ok) throw new Error();
+        const data = await response.json();
+        
+        // Adjust key based on your backend response (e.g., data.status or data.paymentStatus)
+        setStatus(data.status || data.paymentStatus || "pending");
+      } catch (err) {
+        setStatus("error");
+      }
+    };
+
+    if (bookingId) fetchStatus();
+  }, [bookingId, token, API_URL]);
+
+  const getStyle = (s) => {
+    switch (s?.toLowerCase()) {
+      case "paid": return "bg-[#DCFCE7] text-[#15803D]";
+      case "pending": return "bg-[#FEF3C7] text-[#D97706]";
+      case "failed": 
+      case "error": return "bg-[#FEE2E2] text-[#B91C1C]";
+      default: return "bg-[#F3F4F6] text-[#1a1a1a]";
+    }
+  };
+
+  return (
+    <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase ${getStyle(status)}`}>
+      {status}
+    </span>
+  );
+};
+
 const AdminBookingsPage = () => {
   // 1. STATE MANAGEMENT
   const [bookings, setBookings] = useState([]);
@@ -17,14 +62,14 @@ const AdminBookingsPage = () => {
   const [showFilters, setShowFilters] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
 
+  const token = localStorage.getItem("authToken");
+  const API_URL = import.meta.env.VITE_API_BASE_URL;
+
   // 2. FETCH DATA FROM API
   useEffect(() => {
     const fetchBookings = async () => {
       try {
         setLoading(true);
-        const token = localStorage.getItem("authToken");
-        const API_URL = import.meta.env.VITE_API_BASE_URL;
-
         const response = await fetch(`${API_URL}/bookings`, {
           method: "GET",
           headers: {
@@ -36,7 +81,6 @@ const AdminBookingsPage = () => {
         if (!response.ok) throw new Error("Failed to fetch bookings");
 
         const data = await response.json();
-        // Adjust based on your API response structure (e.g., data.bookings or just data)
         setBookings(Array.isArray(data) ? data : data.bookings || []);
       } catch (err) {
         console.error("Booking Fetch Error:", err);
@@ -46,15 +90,15 @@ const AdminBookingsPage = () => {
     };
 
     fetchBookings();
-  }, []);
+  }, [API_URL, token]);
 
   // 3. FILTER LOGIC
   const filteredBookings = bookings.filter((booking) => {
     const searchStr = searchQuery.toLowerCase();
     return (
       booking._id?.toLowerCase().includes(searchStr) ||
-      booking.customerName?.toLowerCase().includes(searchStr) ||
-      booking.propertyTitle?.toLowerCase().includes(searchStr)
+      booking.user?.firstName?.toLowerCase().includes(searchStr) ||
+      booking.property?.title?.toLowerCase().includes(searchStr)
     );
   });
 
@@ -101,8 +145,8 @@ const AdminBookingsPage = () => {
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse min-w-[1100px]">
             <thead>
-              <tr className="bg-[#F9FAFB] border-b border-[#E5E7EB]">
-                {["Booking ID", "Property", "Customer", "Dates", "Guests", "Status", "Payment", "Amount", "Actions"].map((head) => (
+              <tr className="bg-[#F9FAFB] border-b border-[#E5E7EB] text-center">
+                {["Booking ID", "Property", "Customer", "Dates", "Guests", "Status", "Payment Status", "Amount", "Actions"].map((head) => (
                   <th key={head} className="px-6 py-4 text-[11px] font-bold text-[#6B7280] uppercase tracking-wider">{head}</th>
                 ))}
               </tr>
@@ -112,28 +156,34 @@ const AdminBookingsPage = () => {
                 filteredBookings.map((booking) => (
                   <tr key={booking._id} className="hover:bg-gray-50/50 transition-colors">
                     <td className="px-6 py-4 text-xs font-bold text-[#1e5eff]">#{booking._id?.slice(-6).toUpperCase()}</td>
-                    <td className="px-6 py-4">
+                    <td className="px-6 py-4 text-center">
                       <div className="font-bold text-[#1a1a1a] text-sm">{booking.property?.title || "Property"}</div>
-                      <div className="text-xs text-[#6B7280]">{booking.property?.location || "Location"}</div>
                     </td>
-                    <td className="px-6 py-4 text-sm font-medium text-[#1a1a1a]">{booking.user?.firstName} {booking.user?.lastName}</td>
-                    <td className="px-6 py-4">
+                    <td className="px-6 py-4 text-sm font-medium text-[#1a1a1a] text-center">
+                      {booking.user?.firstName} {booking.user?.lastName}
+                    </td>
+                    <td className="px-6 py-4 text-center">
                       <div className="text-[13px] text-[#1a1a1a] font-medium">{new Date(booking.checkIn).toLocaleDateString()}</div>
-                      <div className="text-xs text-[#6B7280] flex items-center gap-1"><RiArrowRightLine size={12} /> {new Date(booking.checkOut).toLocaleDateString()}</div>
+                      <div className="text-xs text-[#6B7280] flex items-center justify-center gap-1"><RiArrowRightLine size={12} /> {new Date(booking.checkOut).toLocaleDateString()}</div>
                     </td>
-                    <td className="px-6 py-4 text-xs font-medium text-[#1a1a1a]">{booking.guests?.adults} Adults {booking.guests?.children > 0 && `/ ${booking.guests.children} Children`}</td>
-                    <td className="px-6 py-4">
+                    <td className="px-6 py-4 text-xs font-medium text-[#1a1a1a] text-center">
+                      {booking.guests} Guests
+                    </td>
+                    <td className="px-6 py-4 text-center">
                       <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase ${getStatusStyles(booking.status)}`}>
                         {booking.status}
                       </span>
                     </td>
-                    <td className="px-6 py-4">
-                      <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase ${booking.paymentStatus === "paid" ? "bg-[#DCFCE7] text-[#15803D]" : "bg-[#F3F4F6] text-[#1a1a1a]"}`}>
-                        {booking.paymentStatus || "pending"}
-                      </span>
+                    {/* INTEGRATED PAYMENT STATUS CELL */}
+                    <td className="px-6 py-4 text-center">
+                      <PaymentStatusCell 
+                        bookingId={booking._id} 
+                        token={token} 
+                        API_URL={API_URL} 
+                      />
                     </td>
-                    <td className="px-6 py-4 text-sm font-bold text-[#1a1a1a]">${booking.totalPrice?.toLocaleString()}</td>
-                    <td className="px-6 py-4">
+                    <td className="px-6 py-4 text-sm font-bold text-[#1a1a1a] text-center">${booking.totalAmount?.toLocaleString()}</td>
+                    <td className="px-6 py-4 text-center">
                       <Link to={`/admin/bookings/${booking._id}`} className="text-[#1E5EFF] font-bold text-sm hover:underline">View</Link>
                     </td>
                   </tr>
@@ -165,7 +215,7 @@ const AdminBookingsPage = () => {
   );
 };
 
-// Helper for dynamic colors
+// Helpers
 const getStatusStyles = (status) => {
   switch (status) {
     case "confirmed": return "bg-[#DCFCE7] text-[#15803D]";

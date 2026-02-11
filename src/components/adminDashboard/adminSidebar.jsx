@@ -1,23 +1,30 @@
 import React, { useState, useEffect } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext"; // Ensure this path is correct
+import { toast } from "react-hot-toast";
 import {
   RiDashboardLine,
   RiBarChartBoxLine,
   RiMenuLine,
   RiCloseLine,
   RiCalendarCheckFill,
-  RiHistoryLine, // Icon for Recent Bookings
-  RiLogoutBoxRLine, // Icon for Logout
+  RiHistoryLine,
+  RiLogoutBoxRLine,
 } from "react-icons/ri";
 import { FaHouse, FaRegBuilding } from "react-icons/fa6";
 import { HiOutlineUsers } from "react-icons/hi2";
 import { IoSettingsOutline } from "react-icons/io5";
 
-const AdminSidebar = ({ userName, userEmail, onLogout }) => {
+const AdminSidebar = ({ userName, onLogout }) => {
+  const { logout } = useAuth(); // Hook into your global Auth state
   const location = useLocation();
+  const navigate = useNavigate();
+  
   const [isOpen, setIsOpen] = useState(false);
-  const [showUserMenu, setShowUserMenu] = useState(false); // State for logout dropdown
+  const [showUserMenu, setShowUserMenu] = useState(false);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
 
+  // Handle mobile resize
   useEffect(() => {
     const handleResize = () => {
       if (window.innerWidth >= 1024) setIsOpen(false);
@@ -26,6 +33,7 @@ const AdminSidebar = ({ userName, userEmail, onLogout }) => {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
+  // Prevent scrolling when mobile menu is open
   useEffect(() => {
     document.body.style.overflow = isOpen ? "hidden" : "unset";
   }, [isOpen]);
@@ -45,15 +53,47 @@ const AdminSidebar = ({ userName, userEmail, onLogout }) => {
     return location.pathname.startsWith(path);
   };
 
-  const linkClasses =
-    "flex items-center gap-3 px-4 py-3 rounded-lg no-underline transition-all duration-200";
+  // --- INTEGRATED LOGOUT LOGIC ---
+  const handleSignOut = async () => {
+    if (isLoggingOut) return;
+
+    try {
+      setIsLoggingOut(true);
+      
+      // 1. Call the global logout from Context
+      // This clears the Firebase/API session and sets currentUser to null
+      await logout(); 
+
+      // 2. Clear local storage safety nets
+      localStorage.removeItem("authToken");
+      localStorage.removeItem("userData"); 
+
+      // 3. Execute optional callback from Parent (AdminLayout)
+      if (onLogout) onLogout();
+
+      // 4. Success UI Feedback
+      toast.success("Signed out — see you soon 👋", { id: 'admin-logout' });
+
+      // 5. Close menus and redirect to home
+      setShowUserMenu(false);
+      setIsOpen(false);
+      navigate("/", { replace: true });
+      
+    } catch (err) {
+      console.error('Logout failed', err);
+      toast.error(err?.message || 'Failed to sign out. Please try again.');
+    } finally {
+      setIsLoggingOut(false);
+    }
+  };
+
+  const linkClasses = "flex items-center gap-3 px-4 py-3 rounded-lg no-underline transition-all duration-200";
   const activeClasses = "bg-[#1E5EFF] text-white shadow-md shadow-blue-100 font-semibold";
   const inactiveClasses = "text-gray-600 hover:bg-gray-50 hover:text-[#1E5EFF]";
 
-  // Updated Navigation Links
   const adminNavLinks = [
     { to: "/admin", label: "Overview", icon: <RiDashboardLine className="text-xl" /> },
-    { to: "/admin/recent-bookings", label: "Recent Bookings", icon: <RiHistoryLine className="text-xl" /> }, // New Item
+    { to: "/admin/recent-bookings", label: "Recent Bookings", icon: <RiHistoryLine className="text-xl" /> },
     { to: "/admin/properties", label: "Properties", icon: <FaRegBuilding className="text-lg" /> },
     { to: "/admin/bookings", label: "Bookings", icon: <RiCalendarCheckFill className="text-xl" /> },
     { to: "/admin/users", label: "Users", icon: <HiOutlineUsers className="text-xl" /> },
@@ -71,7 +111,7 @@ const AdminSidebar = ({ userName, userEmail, onLogout }) => {
         <RiMenuLine size={22} />
       </button>
 
-      {/* Overlay */}
+      {/* Mobile Overlay */}
       {isOpen && (
         <div
           className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[40] lg:hidden"
@@ -118,25 +158,21 @@ const AdminSidebar = ({ userName, userEmail, onLogout }) => {
             ))}
           </nav>
 
-          {/* Admin User Footer with Logout Option */}
+          {/* Admin User Footer */}
           <div className="mt-auto pt-6 border-t border-gray-100 relative">
-            {/* Logout Dropdown Menu */}
             {showUserMenu && (
               <div className="absolute bottom-20 left-0 w-full bg-white border border-gray-100 rounded-xl shadow-xl overflow-hidden animate-in fade-in slide-in-from-bottom-2 duration-200">
                 <button 
-                  onClick={() => {
-                    setShowUserMenu(false);
-                    onLogout?.(); // Call your logout function here
-                  }}
-                  className="w-full flex items-center gap-3 px-4 py-3 text-red-600 hover:bg-red-50 transition-colors text-sm font-semibold"
+                  onClick={handleSignOut}
+                  disabled={isLoggingOut}
+                  className="w-full flex items-center gap-3 px-4 py-3 text-red-600 hover:bg-red-50 disabled:opacity-50 transition-colors text-sm font-semibold"
                 >
                   <RiLogoutBoxRLine className="text-lg" />
-                  Sign Out
+                  {isLoggingOut ? "Signing Out..." : "Sign Out"}
                 </button>
               </div>
             )}
 
-            {/* User Profile Trigger */}
             <button 
               onClick={() => setShowUserMenu(!showUserMenu)}
               className={`w-full flex items-center gap-3 p-2 rounded-xl transition-all border ${
@@ -159,7 +195,7 @@ const AdminSidebar = ({ userName, userEmail, onLogout }) => {
         </div>
       </aside>
 
-      {/* Close user menu when clicking backdrop */}
+      {/* Backdrop for closing user menu dropdown */}
       {showUserMenu && (
         <div className="fixed inset-0 z-[45]" onClick={() => setShowUserMenu(false)} />
       )}
