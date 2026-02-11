@@ -56,7 +56,7 @@ const AdminUsersPage = () => {
     const matchesSearch = 
       fullName.includes(searchQuery.toLowerCase()) ||
       user.email?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      user.userId?.toString().includes(searchQuery);
+      user.user_id?.toString().includes(searchQuery);
 
     // 2. Status Filter Logic
     const matchesStatus = statusFilter === "" || user.status === statusFilter;
@@ -161,13 +161,13 @@ const AdminUsersPage = () => {
               <tbody className="divide-y divide-[#E5E7EB]">
                 {currentItems.length > 0 ? (
                   currentItems.map((user) => (
-                    <tr key={user.userId} className="hover:bg-gray-50/50 transition-colors">
+                    <tr key={user.user_id} className="hover:bg-gray-50/50 transition-colors">
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-3">
                           <div className="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center text-[#1E5EFF]"><RiUserLine size={16} /></div>
                           <div>
                             <div className="font-bold text-[#1a1a1a] text-sm">{user.username}</div>
-                            <div className="text-[10px] text-[#6B7280] font-bold">ID: {user.userId?.slice(-6).toUpperCase()}</div>
+                            <div className="text-[10px] text-[#6B7280] font-bold">ID: {user.user_id?.slice(-6).toUpperCase()}</div>
                           </div>
                         </div>
                       </td>
@@ -182,7 +182,7 @@ const AdminUsersPage = () => {
                         </span>
                       </td>
                       <td className="px-6 py-4">
-                        <Link to={`/admin/users/${user.userId}`} className="text-[#1E5EFF] font-bold text-sm hover:underline">View</Link>
+                        <Link to={`/admin/users/${user.user_id}`} className="text-[#1E5EFF] font-bold text-sm hover:underline">View</Link>
                       </td>
                     </tr>
                   ))
