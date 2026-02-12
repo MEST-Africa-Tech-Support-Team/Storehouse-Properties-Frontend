@@ -12,7 +12,7 @@ const Footer = () => {
           <div className="flex items-center mb-5">
               <img src={Logo} alt="Storehouse Logo" className="h-10 w-auto brightness-0" />
             <h2 className="text-gray-900 text-xl font-semibold">
-              Storehouse
+              Storehouse Property
             </h2>
           </div>
           </Link>

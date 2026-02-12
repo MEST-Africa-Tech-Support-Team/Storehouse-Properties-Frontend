@@ -5,12 +5,11 @@ import { FaCheckCircle, FaTimesCircle, FaChevronDown } from 'react-icons/fa';
 
 export default function TermsAndConditions() {
   const [isAccepted, setIsAccepted] = useState(false);
-  const [openSection, setOpenSection] = useState(null); // ✅ All sections closed by default
+  const [openSection, setOpenSection] = useState(null); 
   const [bookingData, setBookingData] = useState(null);
   const navigate = useNavigate();
   const location = useLocation();
 
-  // ✅ Load booking data from state or localStorage
   useEffect(() => {
     const data = location.state?.booking || JSON.parse(localStorage.getItem('booking_pending'));
     if (data) {
@@ -27,7 +26,6 @@ export default function TermsAndConditions() {
   const handleAccept = () => {
     if (!isAccepted || !bookingData) return;
     
-    // ✅ Save confirmed booking
     const confirmedBooking = {
       ...bookingData,
       status: 'confirmed',
@@ -37,7 +35,6 @@ export default function TermsAndConditions() {
     localStorage.setItem(`booking_confirmed_${Date.now()}`, JSON.stringify(confirmedBooking));
     localStorage.removeItem('booking_pending');
     
-    // ✅ Navigate to confirmation page
     navigate(`/property/booking/confirmation`, { 
       state: { 
         booking: confirmedBooking,
@@ -192,7 +189,6 @@ export default function TermsAndConditions() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* ✅ Hero Section - Clean & Minimal */}
       <div className="relative h-[180px] sm:h-[240px] w-full overflow-hidden">
         <img
           src="https://images.unsplash.com/photo-1583847268964-b28dc8f51f92?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80"
@@ -210,7 +206,6 @@ export default function TermsAndConditions() {
       </div>
 
       <div className="py-6 sm:py-8 max-w-4xl mx-auto px-4 sm:px-6">
-        {/* ✅ Introduction Section */}
         <div className="bg-light-primary/20 border border-primary/30 rounded-xl p-4 sm:p-5 mb-6">
           <div className="flex items-start gap-3">
             <FaCheckCircle className="text-primary mt-1 flex-shrink-0" size={20} />
@@ -225,13 +220,13 @@ export default function TermsAndConditions() {
           {sections.map((section) => (
             <div
               key={section.id}
-              className={`bg-white border ${openSection === section.id ? 'border-blue-500' : 'border-gray-200'} rounded-xl overflow-hidden transition-all duration-300 ${
+              className={`bg-white border ${openSection === section.id ? 'border-primary' : 'border-gray-200'} rounded-xl overflow-hidden transition-all duration-300 ${
                 openSection === section.id ? 'shadow-md' : 'shadow-sm hover:shadow'
               }`}
             >
               <button
                 onClick={() => handleToggle(section.id)}
-                className="flex items-center justify-between w-full p-4 text-left focus:outline-none focus:ring-2 focus:ring-blue-500 hover:bg-gray-50 transition-colors"
+                className="flex items-center justify-between w-full p-4 text-left focus:outline-none focus:ring-2 focus:ring-primary hover:bg-gray-50 transition-colors"
                 aria-expanded={openSection === section.id}
                 aria-controls={`section-${section.id}`}
               >
@@ -271,13 +266,13 @@ export default function TermsAndConditions() {
                 type="checkbox"
                 checked={isAccepted}
                 onChange={(e) => setIsAccepted(e.target.checked)}
-                className="w-4 h-4 mt-1 text-blue-600 border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:ring-offset-0"
+                className="w-4 h-4 mt-1 text-primary rounded"
               />
               <label 
                 htmlFor="acceptTerms" 
                 className="text-sm text-gray-800 cursor-pointer leading-relaxed"
               >
-                I have read and agree to the <span className="font-medium text-blue-600">Terms & Conditions</span> of Storehouse. I understand that by accepting, I am entering into a binding agreement for my reservation.
+                I have read and agree to the <span className="font-medium text-primary">Terms & Conditions</span> of Storehouse. I understand that by accepting, I am entering into a binding agreement for my reservation.
               </label>
             </div>
 
@@ -296,7 +291,7 @@ export default function TermsAndConditions() {
                 disabled={!isAccepted}
                 className={`w-full sm:w-auto px-4 py-2.5 text-sm font-semibold rounded-lg transition-all flex items-center justify-center gap-2 ${
                   isAccepted
-                    ? 'bg-blue-600 hover:bg-blue-700 text-white shadow hover:shadow-md'
+                    ? 'bg-primary hover:bg-hover text-white shadow hover:shadow-md'
                     : 'bg-gray-100 text-gray-400 cursor-not-allowed'
                 }`}
               >

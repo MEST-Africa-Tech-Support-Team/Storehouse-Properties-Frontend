@@ -19,7 +19,7 @@ const AboutSection = () => {
           font-bold mb-6 lg:mb-8 
           tracking-tight
         ">
-          About Storehouse
+          About Storehouse Property
         </h2>
 
         <div className="
@@ -29,15 +29,10 @@ const AboutSection = () => {
           leading-relaxed
         ">
           <p>
-            Storehouse is your trusted partner in finding the perfect rental
-            property. We connect travelers and renters with verified,
-            high-quality properties across the globe.
+            Storehouse Property and Consult Ltd is a real estate property management and consulting company that provides quality, affordable short, medium, and long-term lodging solutions as well as comprehensive property management services. 
           </p>
           <p>
-            Our mission is to make property rental simple, secure, and
-            stress-free. With thousands of verified listings and 24/7 support,
-            we're committed to providing you with the best rental experience
-            possible.
+            We serve individuals, small groups, and organizations seeking a reliable alternative to traditional hotels, while helping property owners maximize returns on their real estate investments.
           </p>
         </div>
 
@@ -77,18 +72,30 @@ const AboutSection = () => {
           <Link
             to="/about"
             className="
-              block
+              group
+              block relative
               bg-primary text-white 
               p-8 sm:p-10 
               rounded-3xl shadow-xl 
-              hover:shadow-primary transition-shadow
+              hover:shadow-primary transition-all duration-300
+              overflow-hidden
             "
           >
-            <div className="text-3xl sm:text-4xl font-extrabold mb-2">
-              50K+
+            {/* Default Content */}
+            <div className="group-hover:opacity-0 transition-opacity duration-300">
+              <div className="text-3xl sm:text-4xl font-extrabold mb-2">
+                10+
+              </div>
+              <div className="text-white/80 font-medium text-lg">
+                Years of Experience
+              </div>
             </div>
-            <div className="text-white/80 font-medium text-lg">
-              Happy Guests
+
+            {/* Hover Description */}
+            <div className="absolute inset-0 p-8 sm:p-10 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+              <p className="text-white text-sm sm:text-base leading-relaxed text-center">
+                Our Company has over 10 years experience in the property management business.
+              </p>
             </div>
           </Link>
         </div>
@@ -98,19 +105,31 @@ const AboutSection = () => {
           <Link
             to="/about"
             className="
-              block
+              group
+              block relative
               bg-light-primary/20 
               p-8 sm:p-10 
               rounded-3xl 
               border border-light-primary 
-              shadow-sm hover:border-primary transition-colors
+              shadow-sm hover:border-primary transition-all duration-300
+              overflow-hidden
             "
           >
-            <div className="text-primary text-3xl sm:text-4xl font-extrabold mb-2">
-              10K+
+            {/* Default Content */}
+            <div className="group-hover:opacity-0 transition-opacity duration-300">
+              <div className="text-primary text-3xl sm:text-4xl font-extrabold mb-2">
+                24/7
+              </div>
+              <div className="text-gray-600 font-medium text-lg">
+                Property Management
+              </div>
             </div>
-            <div className="text-gray-600 font-medium text-lg">
-              Properties Listed
+
+            {/* Hover Description */}
+            <div className="absolute inset-0 p-8 sm:p-10 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+              <p className="text-primary text-sm sm:text-base leading-relaxed text-center font-medium">
+                Storehouse Property and Consult Ltd manages your Real Estate Properties 24−7!
+              </p>
             </div>
           </Link>
 

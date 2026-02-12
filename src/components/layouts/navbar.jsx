@@ -93,10 +93,10 @@ export default function Header() {
         <Link
           to="/"
           onClick={closeMobileMenu}
-          className="flex items-center gap-1.5 text-xl font-bold text-gray-900"
+          className="flex items-center gap-1.5 text-xl font-medium text-gray-900"
         >
           <img src={Logo} alt="Storehouse Logo" className="h-10 w-auto brightness-0" />
-          Storehouse
+          Storehouse Property
         </Link>
 
         {/* Desktop Navigation */}
@@ -224,10 +224,10 @@ export default function Header() {
               <Link
                 to="/"
                 onClick={closeMobileMenu}
-                className="flex items-center gap-2 text-xl font-bold text-gray-900"
+                className="flex items-center text-xl font-medium text-gray-900"
               >
-                <img src={Logo} alt="Storehouse Logo" className="h-6 w-6" />
-                Storehouse
+                <img src={Logo} alt="Storehouse Logo" className="h-6 w-6 brightness-0" />
+                Storehouse Property
               </Link>
               <button
                 onClick={() => setMobileMenuOpen(false)}
