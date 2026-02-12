@@ -435,7 +435,7 @@ export default function Signup() {
                 value={form.firstName}
                 onChange={handleChange}
                 disabled={loading || !navigator.onLine}
-                className={`w-full px-3 py-2 border rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+              className={`w-full px-3 py-2 border rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-primary ${
                   formErrors.firstName 
                     ? 'border-red-500 focus:ring-red-200' 
                     : 'border-gray-300'
@@ -460,7 +460,7 @@ export default function Signup() {
                 value={form.lastName}
                 onChange={handleChange}
                 disabled={loading || !navigator.onLine}
-                className={`w-full px-3 py-2 border rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+              className={`w-full px-3 py-2 border rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-primary ${
                   formErrors.lastName 
                     ? 'border-red-500 focus:ring-red-200' 
                     : 'border-gray-300'
@@ -487,7 +487,7 @@ export default function Signup() {
               value={form.email}
               onChange={handleChange}
               disabled={loading || !navigator.onLine}
-              className={`w-full px-3 py-2 border rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+              className={`w-full px-3 py-2 border rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-primary ${
                 formErrors.email 
                   ? 'border-red-500 focus:ring-red-200' 
                   : 'border-gray-300'
@@ -515,7 +515,7 @@ export default function Signup() {
               className={`!w-full !px-3 !py-2 !border !rounded-full text-sm ${
                 formErrors.phone 
                   ? '!border-red-500 focus:!ring-red-200' 
-                  : '!border-gray-300 focus:!ring-blue-500'
+                  : '!border-gray-300 focus:!ring-primary'
               }`}
               placeholder="+1 234 567 8900"
               aria-invalid={!!formErrors.phone}
@@ -538,7 +538,7 @@ export default function Signup() {
                 value={form.country}
                 onChange={handleChange}
                 disabled={loading || !navigator.onLine}
-                className={`w-full px-3 py-2 border rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                className={`w-full px-3 py-2 border rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-primary ${
                   formErrors.country 
                     ? 'border-red-500 focus:ring-red-200' 
                     : 'border-gray-300'
@@ -567,7 +567,7 @@ export default function Signup() {
                 value={form.state}
                 onChange={handleChange}
                 disabled={!form.country || states.length === 0 || loading || !navigator.onLine}
-                className={`w-full px-3 py-2 border rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                className={`w-full px-3 py-2 border rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-primary ${
                   formErrors.state 
                     ? 'border-red-500 focus:ring-red-200' 
                     : 'border-gray-300'
@@ -600,7 +600,7 @@ export default function Signup() {
               onFocus={() => setShowPasswordRules(true)}
               onBlur={() => setShowPasswordRules(false)}
               disabled={loading || !navigator.onLine}
-              className={`w-full px-3 py-2 border rounded-full text-sm pr-10 focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+              className={`w-full px-3 py-2 border rounded-full text-sm pr-10 focus:outline-none focus:ring-2 focus:ring-primary ${
                 formErrors.password 
                   ? 'border-red-500 focus:ring-red-200' 
                   : 'border-gray-300'
@@ -654,7 +654,7 @@ export default function Signup() {
               value={form.confirmPassword}
               onChange={handleChange}
               disabled={loading || !navigator.onLine}
-              className={`w-full px-3 py-2 border rounded-full text-sm pr-10 focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+              className={`w-full px-3 py-2 border rounded-full text-sm pr-10 focus:outline-none focus:ring-2 focus:ring-primary ${
                 formErrors.confirmPassword 
                   ? 'border-red-500 focus:ring-red-200' 
                   : 'border-gray-300'
@@ -683,8 +683,8 @@ export default function Signup() {
             disabled={loading || !navigator.onLine || isSubmitting}
             className={`w-full py-2 rounded-full text-white text-sm mb-4 transition-all duration-200 ${
               loading || !navigator.onLine || isSubmitting
-                ? 'bg-gray-400 cursor-not-allowed transform scale-100'
-                : 'bg-blue-600 hover:bg-blue-700 transform hover:scale-[1.02]'
+                ? 'bg-primary/50 cursor-not-allowed transform scale-100'
+                : 'bg-primary hover:bg-hover transform hover:scale-[1.02]'
             } flex items-center justify-center`}
           >
             {loading ? (
@@ -712,7 +712,7 @@ export default function Signup() {
             <button
               type="button"
               onClick={() => navigate("/auth/login")}
-              className="text-blue-600 hover:text-blue-800 font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+              className="text-primary hover:text-hover font-medium disabled:opacity-50 disabled:cursor-not-allowed"
               disabled={loading || isSubmitting}
             >
               Sign in

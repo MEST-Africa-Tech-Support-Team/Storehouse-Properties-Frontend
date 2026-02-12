@@ -12,27 +12,29 @@ const FeaturedStays = () => {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    // ✅ Fetch featured properties from API endpoint
+    const abortController = new AbortController();
+    
     const fetchFeaturedProperties = async () => {
       try {
         setLoading(true);
         setError(null);
         
-        // ✅ Call endpoint: GET /properties?featured=true
-        const data = await propertyService.getProperties({ featured: true });
+        const data = await propertyService.getProperties(
+          { featured: true },
+          { signal: abortController.signal }
+        );
         
-        // ✅ Limit to max 8 properties
-        const limitedProperties = data.slice(0, 8);
-        setFeaturedProperties(limitedProperties);
+        setFeaturedProperties(data.slice(0, 8));
       } catch (err) {
-        console.error('Failed to fetch featured properties:', err);
-        setError('Failed to load featured properties');
+        if (err.name !== 'AbortError') {
+          console.error('Failed to fetch featured properties:', err);
+          setError('Failed to load featured properties');
+        }
       } finally {
         setLoading(false);
       }
     };
 
-    // ✅ Fetch user's favorite property IDs
     const fetchFavorites = async () => {
       const token = authService.getToken();
       if (!token) {
@@ -42,29 +44,61 @@ const FeaturedStays = () => {
 
       try {
         const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/favorites/me`, {
-          method: 'GET',
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+          headers: { Authorization: `Bearer ${token}` },
+          signal: abortController.signal
         });
 
-        if (!response.ok) return;
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        
+        const contentType = response.headers.get('content-type');
+        if (!contentType?.includes('application/json')) {
+          throw new Error('Invalid response format');
+        }
 
         const data = await response.json();
-        const favoritesData = Array.isArray(data) ? data : (data.favorites || data.properties || []);
-        const ids = new Set(favoritesData.map(p => p._id || p.id));
+        
+        const favoritesArray = Array.isArray(data) 
+          ? data 
+          : data.favorites || data.data || data.properties || [];
+        
+        const ids = new Set(
+          favoritesArray
+            .map(item => {
+             
+              if (item.property) return item.property._id || item.property.id;
+              return item._id || item.id;
+            })
+            .filter(Boolean) 
+        );
+        
         setFavoriteIds(ids);
-      } catch (error) {
-        console.error('Failed to fetch favorites:', error);
+      } catch (err) {
+        if (err.name !== 'AbortError') {
+          console.error('Failed to fetch favorites:', err);
+        }
       }
     };
 
     fetchFeaturedProperties();
     fetchFavorites();
+
+    return () => abortController.abort(); 
   }, []);
 
-  // ✅ Loading state - show skeleton while fetching
-  if (loading) {
+  const handleFavoriteChange = (propertyId, isFavorited) => {
+    setFavoriteIds(prev => {
+      const newSet = new Set(prev);
+      if (isFavorited) {
+        newSet.add(propertyId);
+      } else {
+        newSet.delete(propertyId);
+      }
+      return newSet;
+    });
+  };
+
+  // ✅ Loading state
+  if (loading && featuredProperties.length === 0) {
     return (
       <section className="bg-white py-20 px-4 md:px-20">
         <div className="mx-auto max-w-[1400px]">
@@ -90,7 +124,6 @@ const FeaturedStays = () => {
     );
   }
 
-  // ✅ Error state - show error message
   if (error) {
     return (
       <section className="bg-white py-20 px-4 md:px-20">
@@ -109,20 +142,6 @@ const FeaturedStays = () => {
     );
   }
 
-  // ✅ Handle when a favorite is toggled from PropertyCard
-  const handleFavoriteChange = (propertyId, isFavorited) => {
-    setFavoriteIds(prev => {
-      const newSet = new Set(prev);
-      if (isFavorited) {
-        newSet.add(propertyId);
-      } else {
-        newSet.delete(propertyId);
-      }
-      return newSet;
-    });
-  };
-
-  // ✅ No featured properties found
   if (featuredProperties.length === 0) {
     return null;
   }
@@ -144,39 +163,37 @@ const FeaturedStays = () => {
           </Link>
         </div>
 
-        <div
-          className="
-            grid gap-6
-            grid-flow-col grid-rows-2 auto-cols-[85%]
-            overflow-x-auto scroll-smooth pb-4
-
-            sm:grid-flow-row sm:grid-cols-2 sm:auto-cols-auto sm:overflow-visible
-            lg:grid-cols-4
-
-            [-ms-overflow-style:none] [scrollbar-width:none]
-            [&::-webkit-scrollbar]:hidden
-          "
-        >
+        <div className="
+          grid gap-6
+          grid-flow-col grid-rows-2 auto-cols-[85%]
+          overflow-x-auto scroll-smooth pb-4
+          sm:grid-flow-row sm:grid-cols-2 sm:auto-cols-auto sm:overflow-visible
+          lg:grid-cols-4
+          [-ms-overflow-style:none] [scrollbar-width:none]
+          [&::-webkit-scrollbar]:hidden
+        ">
           {featuredProperties.map((property) => {
-            // ✅ Normalize property data to match PropertyCard props
             const locationString = property.location?.city 
               ? `${property.location.city}, ${property.location.region || ''}`.trim()
               : property.location?.address || 'Location not available';
 
+            const propertyId = property._id || property.id;
+            const isFavorited = favoriteIds.has(propertyId);
+
             return (
               <PropertyCard
-                key={property._id || property.id}
-                id={property._id || property.id}
+                key={propertyId}
+                id={propertyId}
                 images={property.images || []}
                 title={property.title}
+                description={property.description || ''}
+                propertyType={property.propertyType || 'Apartment'}
+                pricePerNight={property.pricePerNight || 0}
+                maxGuests={property.maxGuests || 2}
+                amenities={property.amenities || []}
+                rules={property.rules || {}}
                 location={locationString}
-                pricePerNight={property.pricePerNight}
-                description={property.description}
-                propertyType={property.propertyType}
-                maxGuests={property.maxGuests}
-                amenities={property.amenities}
-                rules={property.rules}
-                isFavorite={favoriteIds.has(property._id || property.id)}
+                isFavorite={isFavorited}
                 onFavoriteChange={handleFavoriteChange}
               />
             );

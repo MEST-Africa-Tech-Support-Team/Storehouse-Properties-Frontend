@@ -44,7 +44,7 @@ const ProfilePage = () => {
     setUser((prev) => ({ ...prev, [field]: value }));
   };
 
-  // ✅ Save ALL profile info (text + avatar handled inside ProfileInfoForm)
+  
   const handleSaveChanges = async () => {
     setIsSaving(true);
 
@@ -162,7 +162,7 @@ const ProfilePage = () => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Profile Info */}
           <div className="bg-white rounded-xl p-6 shadow-sm">
-            <h2 className="text-xl font-bold text-blue-600 mb-6">
+            <h2 className="text-xl font-bold text-primary mb-6">
               Profile Information
             </h2>
 
@@ -182,7 +182,7 @@ const ProfilePage = () => {
             <div className="border-t border-gray-200 pt-6 mt-6 flex justify-end gap-3">
               <button
                 onClick={() => toast("Changes discarded")}
-                className="px-6 py-2 border border-blue-600 text-blue-600 text-sm font-medium rounded-lg hover:bg-blue-50"
+                className="px-6 py-2 border border-primary text-primary text-sm font-medium rounded-lg hover:bg-primary/10"
               >
                 Cancel
               </button>
@@ -190,10 +190,10 @@ const ProfilePage = () => {
               <button
                 onClick={handleSaveChanges}
                 disabled={isSaving}
-                className={`px-6 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg ${
+                className={`px-6 py-2 bg-primary text-white text-sm font-medium rounded-lg ${
                   isSaving
                     ? "opacity-50 cursor-not-allowed"
-                    : "hover:bg-blue-700"
+                    : "hover:bg-primary/90"
                 }`}
               >
                 {isSaving ? "Saving..." : "Save Changes"}
@@ -203,7 +203,7 @@ const ProfilePage = () => {
 
           {/* Change Password */}
           <div className="bg-white rounded-xl p-6 shadow-sm">
-            <h2 className="text-xl font-bold text-blue-600 mb-6">
+            <h2 className="text-xl font-bold text-primary mb-6">
               Change Password
             </h2>
             <ChangePasswordForm onSave={handleSavePassword} />

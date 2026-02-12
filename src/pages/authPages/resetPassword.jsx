@@ -153,8 +153,8 @@ export default function ResetPasswordPage() {
             {/* Card header */}
             <div className="p-8 text-center">
               <div className="flex justify-center mb-6">
-                <div className="w-16 h-16 rounded-full bg-blue-50 flex items-center justify-center">
-                  <MdLock className="h-8 w-8 text-blue-600" />
+                <div className="w-16 h-16 rounded-full bg-light-primary/30 flex items-center justify-center">
+                  <MdLock className="h-8 w-8 text-primary" />
                 </div>
               </div>
               
@@ -186,11 +186,11 @@ export default function ResetPasswordPage() {
                         setPassword(e.target.value);
                         setErrors(prev => ({ ...prev, password: '', passwordStrength: '' }));
                       }}
-                      className={`w-full px-4 py-3 rounded-xl border-2 transition-all focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
-                        errors.password || errors.passwordStrength 
-                          ? 'border-red-500' 
-                          : password 
-                          ? 'border-blue-500' 
+                    className={`w-full px-4 py-3 rounded-xl border-2 transition-all focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary ${
+                      errors.password || errors.passwordStrength 
+                        ? 'border-red-500' 
+                        : password 
+                        ? 'border-primary' 
                           : 'border-gray-200'
                       }`}
                       placeholder="Enter new password"
@@ -264,7 +264,7 @@ export default function ResetPasswordPage() {
                         setConfirmPassword(e.target.value);
                         setErrors(prev => ({ ...prev, confirmPassword: '', match: '' }));
                       }}
-                      className={`w-full px-4 py-3 rounded-xl border-2 transition-all focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
+                    className={`w-full px-4 py-3 rounded-xl border-2 transition-all focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary ${
                         errors.confirmPassword || errors.match
                           ? 'border-red-500'
                           : (confirmPassword && password === confirmPassword)
@@ -305,7 +305,7 @@ export default function ResetPasswordPage() {
                 <button
                   type="submit"
                   disabled={isLoading}
-                  className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3.5 rounded-xl transition-all duration-300 transform hover:scale-[1.02] shadow-lg hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+                  className="w-full bg-primary hover:bg-hover text-white font-medium py-3.5 rounded-xl transition-all duration-300 transform hover:scale-[1.02] shadow-lg hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
                 >
                   {isLoading ? (
                     <span className="flex items-center justify-center gap-2">
@@ -333,20 +333,20 @@ export default function ResetPasswordPage() {
                 </h2>
                 
                 {email ? (
-                  <div className="bg-blue-50 rounded-xl p-4 mb-6">
-                    <p className="text-blue-800 font-medium">
+                  <div className="bg-light-primary/30 rounded-xl p-4 mb-6">
+                    <p className="text-gray-800 font-medium">
                       <span className="font-bold">{email}</span>
                     </p>
                   </div>
                 ) : (
-                  <div className="bg-blue-50 rounded-xl p-4 mb-6">
-                    <p className="text-blue-800 font-medium">You can now sign in with your new password.</p>
+                  <div className="bg-light-primary/30 rounded-xl p-4 mb-6">
+                    <p className="text-gray-800 font-medium">You can now sign in with your new password.</p>
                   </div>
                 )}
 
                 <button
                   onClick={handleSuccess}
-                  className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3.5 rounded-xl transition-all duration-300 transform hover:scale-[1.02] shadow-lg hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                  className="w-full bg-primary hover:bg-hover text-white font-medium py-3.5 rounded-xl transition-all duration-300 transform hover:scale-[1.02] shadow-lg hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
                 >
                   Go to Login
                 </button>
@@ -358,7 +358,7 @@ export default function ResetPasswordPage() {
               <div className="flex justify-center">
                 <Link 
                   to="/login" 
-                  className="flex items-center text-blue-600 hover:text-blue-700 font-medium transition-colors"
+                  className="flex items-center text-primary hover:text-hover font-medium transition-colors"
                 >
                   <MdArrowBack className="h-4 w-4 mr-1" />
                   Back to Login

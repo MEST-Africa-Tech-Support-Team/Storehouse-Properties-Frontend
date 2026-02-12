@@ -104,7 +104,7 @@ export default function Login() {
           <div className="flex items-start">
             <div className="flex-1">
               <div className="flex items-center gap-2 mb-2">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-blue-600" viewBox="0 0 20 20" fill="currentColor">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-primary" viewBox="0 0 20 20" fill="currentColor">
                   <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
                 </svg>
                 <h3 className="font-bold text-gray-900">Verify your email</h3>
@@ -118,7 +118,7 @@ export default function Login() {
                     toast.dismiss(t.id);
                     navigate('/auth/resend-verification', { state: { email: form.email } });
                   }}
-                  className="flex-1 px-3 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition"
+                  className="flex-1 px-3 py-2 bg-primary text-white rounded-lg text-sm font-medium hover:bg-hover transition"
                 >
                   Resend verification
                 </button>
@@ -320,7 +320,7 @@ export default function Login() {
   return (
     <div className="min-h-screen w-full relative">
       <h1 className="text-white text-3xl font-bold text-center pt-18 z-10 relative">
-        Login
+        Sign in
       </h1>
 
       <div className="flex flex-col items-center justify-between py-8 px-4">
@@ -367,7 +367,7 @@ export default function Login() {
                 onChange={handleChange}
                 disabled={loading || !navigator.onLine}
                 placeholder="Enter your email"
-                className={`w-full px-3 py-2 border rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                className={`w-full px-3 py-2 border rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-primary ${
                   formErrors.email 
                     ? 'border-red-500 focus:ring-red-200' 
                     : 'border-gray-300'
@@ -398,7 +398,7 @@ export default function Login() {
                 onChange={handleChange}
                 disabled={loading || !navigator.onLine}
                 placeholder="Enter your password"
-                className={`w-full px-3 py-2 border rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                className={`w-full px-3 py-2 border rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-primary ${
                   formErrors.password 
                     ? 'border-red-500 focus:ring-red-200' 
                     : 'border-gray-300'
@@ -425,7 +425,7 @@ export default function Login() {
                 className={`text-xs hover:underline transition-colors ${
                   loading || !navigator.onLine
                     ? "text-gray-400 cursor-not-allowed"
-                    : "text-blue-600 hover:text-blue-800"
+                    : "text-primary hover:text-hover"
                 }`}
                 aria-disabled={loading || !navigator.onLine}
               >
@@ -438,8 +438,8 @@ export default function Login() {
               disabled={loading || !navigator.onLine || isSubmitting || !form.email.trim() || !form.password.trim()}
               className={`w-full py-2.5 rounded-full font-medium text-sm transition-all duration-200 mb-4 ${
                 loading || !navigator.onLine || isSubmitting || !form.email.trim() || !form.password.trim()
-                  ? "bg-blue-400 cursor-not-allowed transform scale-100"
-                  : "bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white shadow-sm hover:shadow-md transform hover:scale-[1.02]"
+                  ? "bg-primary/50 cursor-not-allowed transform scale-100"
+                  : "bg-primary hover:bg-hover active:bg-hover text-white shadow-sm hover:shadow-md transform hover:scale-[1.02]"
               } flex items-center justify-center`}
             >
               {loading ? (
@@ -479,8 +479,8 @@ export default function Login() {
                 to="/auth/signup"
                 className={`font-medium transition-colors ${
                   loading || !navigator.onLine
-                    ? "text-blue-400 cursor-not-allowed"
-                    : "text-blue-600 hover:text-blue-800 hover:underline"
+                    ? "text-primary/50 cursor-not-allowed"
+                    : "text-primary hover:text-hover hover:underline"
                 }`}
                 aria-disabled={loading || !navigator.onLine}
               >
@@ -490,11 +490,11 @@ export default function Login() {
 
             <p className="text-center text-xs mt-3 text-gray-500">
               By signing in, you agree to our{" "}
-              <Link to="/terms" className="text-blue-600 hover:underline">
+              <Link to="/terms" className="text-primary hover:underline">
                 Terms of Service
               </Link>{" "}
               and{" "}
-              <Link to="/privacy" className="text-blue-600 hover:underline">
+              <Link to="/privacy" className="text-primary hover:underline">
                 Privacy Policy
               </Link>
             </p>
