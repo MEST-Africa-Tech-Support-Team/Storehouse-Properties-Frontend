@@ -3,7 +3,7 @@ import { FaStar } from 'react-icons/fa';
 
 const TestimonialCard = ({ quote, author, role, avatar, rating = 5 }) => {
   return (
-    <article className="flex flex-col p-8 bg-white rounded-[24px] shadow-blue-200 shadow-sm hover:shadow-xl hover:-translate-y-2 transition-all duration-300 w-full max-w-[380px]">
+    <article className="flex flex-col p-8 bg-white rounded-[24px] shadow-primary/20 shadow-sm hover:shadow-xl hover:-translate-y-2 transition-all duration-300 w-full max-w-[380px]">
       <div className="flex gap-1 mb-6">
         {[...Array(rating)].map((_, i) => (
           <FaStar key={i} className="text-[#FFC107] text-lg" />

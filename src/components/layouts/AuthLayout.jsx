@@ -11,12 +11,12 @@ export default function AuthLayout() {
           backgroundImage: "url('https://images.unsplash.com/photo-1583847268964-b28dc8f51f92?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80')",
         }}
       >
-        <div className="absolute inset-0 bg-blue-900/60"></div>
+        <div className="absolute inset-0 bg-black/50"></div>
       </div>
 
       <Link
         to="/"
-        className="absolute top-6 left-6 flex items-center gap-1 text-white hover:text-blue-200 z-20"
+        className="absolute top-6 left-6 flex items-center gap-1 text-white hover:text-light-primary z-20"
       >
         <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />

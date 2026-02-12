@@ -12,27 +12,27 @@ export default function AmenitiesSection({ amenities }) {
   // ✅ Icon mapping using only your specified icons
   const iconMap = {
     // WiFi & Internet
-    'WiFi': <FaWifi className="text-blue-500" />,
-    'Wi-Fi': <FaWifi className="text-blue-500" />,
-    'High-speed WiFi': <FaWifi className="text-blue-500" />,
-    'Internet': <FaWifi className="text-blue-500" />,
-    'Wireless Internet': <FaWifi className="text-blue-500" />,
-    'Free WiFi': <FaWifi className="text-blue-500" />,
+    'WiFi': <FaWifi className="text-primary" />,
+    'Wi-Fi': <FaWifi className="text-primary" />,
+    'High-speed WiFi': <FaWifi className="text-primary" />,
+    'Internet': <FaWifi className="text-primary" />,
+    'Wireless Internet': <FaWifi className="text-primary" />,
+    'Free WiFi': <FaWifi className="text-primary" />,
     
     // Climate Control
-    'Air condition': <TbAirConditioningDisabled className="text-blue-400" />,
-    'Air conditioning': <TbAirConditioningDisabled className="text-blue-400" />,
-    'AC': <TbAirConditioningDisabled className="text-blue-400" />,
+    'Air condition': <TbAirConditioningDisabled className="text-primary/80" />,
+    'Air conditioning': <TbAirConditioningDisabled className="text-primary/80" />,
+    'AC': <TbAirConditioningDisabled className="text-primary/80" />,
     
     // Laundry (using washing machine for all laundry-related items)
-    'Washing machine': <GiWashingMachine className="text-blue-500" />,
-    'Dryer': <GiWashingMachine className="text-blue-500" />,
-    'Laundry': <GiWashingMachine className="text-blue-500" />,
+    'Washing machine': <GiWashingMachine className="text-primary" />,
+    'Dryer': <GiWashingMachine className="text-primary" />,
+    'Laundry': <GiWashingMachine className="text-primary" />,
     'Iron': <GiWashingMachine className="text-gray-600" />,
     'Ironing board': <GiWashingMachine className="text-gray-600" />,
-    'Clothes': <GiWashingMachine className="text-blue-500" />,
-    'Dishwasher': <GiWashingMachine className="text-blue-500" />,
-    'Dishes': <GiWashingMachine className="text-blue-500" />,
+    'Clothes': <GiWashingMachine className="text-primary" />,
+    'Dishwasher': <GiWashingMachine className="text-primary" />,
+    'Dishes': <GiWashingMachine className="text-primary" />,
     
     // Parking & Garage
     'Free parking': <BiSolidCarGarage className="text-gray-700" />,
@@ -44,9 +44,9 @@ export default function AmenitiesSection({ amenities }) {
     'Car garage': <BiSolidCarGarage className="text-gray-700" />,
     
     // Pool & Recreation
-    'Pool': <MdPool className="text-blue-400" />,
-    'Swimming pool': <MdPool className="text-blue-400" />,
-    'Hot tub': <MdPool className="text-blue-400" />,
+    'Pool': <MdPool className="text-primary/80" />,
+    'Swimming pool': <MdPool className="text-primary/80" />,
+    'Hot tub': <MdPool className="text-primary/80" />,
     
     // Gym & Fitness
     'Gym access': <CgGym className="text-purple-600" />,

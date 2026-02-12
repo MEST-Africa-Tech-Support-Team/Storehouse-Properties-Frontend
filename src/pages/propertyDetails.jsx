@@ -45,8 +45,8 @@ export default function PropertyDetails() {
       const normalizedProperty = normalizePropertyData(propertyData);
       setProperty(normalizedProperty);
       
-      // Check if it's a favorite
-      const saved = localStorage.getItem(`favorite_${propertyId}`);
+      // ✅ FIXED: Use normalized ID for localStorage key
+      const saved = localStorage.getItem(`favorite_${normalizedProperty.id}`);
       setIsFavorite(saved === 'true');
       
     } catch (error) {
@@ -108,13 +108,13 @@ export default function PropertyDetails() {
     if (id) {
       fetchProperty(id);
     } 
-   
     else if (location.state?.property) {
       const propFromState = location.state.property;
       const normalizedProperty = normalizePropertyData(propFromState);
       setProperty(normalizedProperty);
       
-      const saved = localStorage.getItem(`favorite_${propFromState._id || propFromState.id}`);
+      // ✅ FIXED: Use normalized ID for localStorage key
+      const saved = localStorage.getItem(`favorite_${normalizedProperty.id}`);
       setIsFavorite(saved === 'true');
       
       setLoading(false);
@@ -128,7 +128,9 @@ export default function PropertyDetails() {
   const handleToggleFavorite = () => {
     const newState = !isFavorite;
     setIsFavorite(newState);
-    const propertyId = property?._id || property?.id || id;
+    
+    // ✅ FIXED: Use normalized property ID from state
+    const propertyId = property?.id;
     if (propertyId) {
       localStorage.setItem(`favorite_${propertyId}`, String(newState));
     }
@@ -142,7 +144,7 @@ export default function PropertyDetails() {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-white px-4">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
       </div>
     );
   }
@@ -157,7 +159,7 @@ export default function PropertyDetails() {
           </p>
           <button
             onClick={() => navigate(-1)}
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-hover transition-colors"
           >
             ← Go Back
           </button>
@@ -211,7 +213,6 @@ export default function PropertyDetails() {
               description={property.description || 'No description available.'} 
             />
 
-           
             <AmenitiesSection 
               amenities={property.amenities.length > 0 ? property.amenities : fallbackAmenities} 
             />

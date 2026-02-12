@@ -21,7 +21,7 @@ const LastLoginInfo = ({ user }) => {
 
   return (
     <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200 w-full max-w-md mx-auto sm:max-w-full sm:p-4">
-      <h3 className="text-lg font-semibold text-blue-600 mb-4">Last Login Information</h3>
+      <h3 className="text-lg font-semibold text-primary mb-4">Last Login Information</h3>
       
       <div className="space-y-4">
         {/* Last Login Date */}
@@ -39,7 +39,7 @@ const LastLoginInfo = ({ user }) => {
             <FaGlobe className="text-gray-400 text-base" />
             <span>Device / IP:</span>
           </div>
-          <p className="ml-0 sm:ml-6 text-blue-600 cursor-pointer break-words">
+          <p className="ml-0 sm:ml-6 text-primary cursor-pointer break-words">
             {deviceText}
           </p>
         </div>

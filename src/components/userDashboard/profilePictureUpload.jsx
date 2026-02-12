@@ -41,11 +41,11 @@ const ProfilePictureUpload = ({ onUpload }) => {
           className="w-16 h-16 rounded-full object-cover border-2 border-gray-200"
         />
       ) : (
-        <div className="w-16 h-16 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-semibold text-lg border-2 border-gray-200">
+        <div className="w-16 h-16 rounded-full bg-light-primary/20 flex items-center justify-center text-primary font-semibold text-lg border-2 border-gray-200">
           {getInitials(userName)}
         </div>
       )}
-      <label className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg cursor-pointer hover:bg-blue-700 transition-colors">
+      <label className="inline-flex items-center gap-2 px-4 py-2 bg-primary text-white text-sm font-medium rounded-lg cursor-pointer hover:bg-hover transition-colors">
         <FaUpload className="text-xs" />
         Upload New
         <input

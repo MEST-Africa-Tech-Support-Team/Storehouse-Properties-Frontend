@@ -5,10 +5,12 @@ import {
 import PropertyCard from "../components/ui/propertyCard";
 import FavoritesFilterBar from "../components/userDashboard/favouritesFilterBar.jsx"; 
 import { propertyService } from "../services/propertyService"; 
+import { authService } from "../services/authService";
 import { toast } from "react-hot-toast"; 
 
 const ExplorePage = () => {
   const [allProperties, setAllProperties] = useState([]);
+  const [favoriteIds, setFavoriteIds] = useState(new Set());
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(false);
   const [activeCategory, setActiveCategory] = useState("All");
@@ -31,8 +33,36 @@ const ExplorePage = () => {
     }
   };
 
+  // ✅ Fetch user's favorite property IDs
+  const fetchFavorites = async () => {
+    const token = authService.getToken();
+    if (!token) {
+      setFavoriteIds(new Set());
+      return;
+    }
+
+    try {
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/favorites/me`, {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) return;
+
+      const data = await response.json();
+      const favoritesData = Array.isArray(data) ? data : (data.favorites || data.properties || []);
+      const ids = new Set(favoritesData.map(p => p._id || p.id));
+      setFavoriteIds(ids);
+    } catch (error) {
+      console.error('Failed to fetch favorites:', error);
+    }
+  };
+
   useEffect(() => {
     fetchProperties();
+    fetchFavorites();
   }, []);
 
   const handleApplyFilters = (filters) => {
@@ -50,6 +80,19 @@ const ExplorePage = () => {
 
   const handleLoadMore = () => {
     setPage((prev) => prev + 1);
+  };
+
+  // ✅ Handle when a favorite is toggled from PropertyCard
+  const handleFavoriteChange = (propertyId, isFavorited) => {
+    setFavoriteIds(prev => {
+      const newSet = new Set(prev);
+      if (isFavorited) {
+        newSet.add(propertyId);
+      } else {
+        newSet.delete(propertyId);
+      }
+      return newSet;
+    });
   };
 
   const filteredProperties = useMemo(() => {
@@ -108,7 +151,7 @@ const ExplorePage = () => {
         className="relative h-[400px] w-full flex items-center px-4 sm:px-16 bg-cover bg-center"
         style={{ backgroundImage: `url('https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=1920&q=80')` }}
       >
-        <div className="absolute inset-0 bg-black/40" /> 
+        <div className="absolute inset-0 bg-black/50" /> 
         <div className="relative z-10 max-w-[1440px] mx-auto w-full">
           <h1 className="text-[56px] font-black text-white tracking-tight mb-2">
             Explore Stays
@@ -136,7 +179,7 @@ const ExplorePage = () => {
               onClick={() => setActiveCategory(cat === "All" ? "All" : cat)}
               className={`px-8 py-2.5 rounded-full text-[12px] font-bold transition-all border ${
                 activeCategory === cat || (activeCategory === "All" && cat === "All")
-                ? "bg-blue-600 text-white border-blue-600 shadow-lg shadow-blue-100" 
+                ? "bg-primary text-white border-primary shadow-lg shadow-primary/30" 
                 : "bg-gray-50 text-gray-400 border-transparent hover:bg-gray-100"
               }`}
             >
@@ -150,7 +193,7 @@ const ExplorePage = () => {
 
         {initialLoad && loading ? (
           <div className="flex justify-center py-12">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
           </div>
         ) : filteredProperties.length === 0 ? (
           <div className="text-center py-12">
@@ -163,7 +206,7 @@ const ExplorePage = () => {
                 <div key={prop._id || prop.id} className="relative group animate-fadeIn">
                   {prop.badge && (
                     <div className={`absolute top-4 left-4 z-10 px-3 py-1 rounded-full text-[9px] font-bold text-white uppercase shadow-sm ${
-                      prop.badge === 'Price Drop' ? 'bg-[#22c55e]' : 'bg-blue-600'
+                      prop.badge === 'Price Drop' ? 'bg-[#22c55e]' : 'bg-primary'
                     }`}>
                       {prop.badge}
                     </div>
@@ -179,7 +222,8 @@ const ExplorePage = () => {
                     amenities={prop.amenities}
                     rules={prop.rules}
                     location={prop.location}
-                    isFavorite={prop.isFavorite || false}
+                    isFavorite={favoriteIds.has(prop._id || prop.id)}
+                    onFavoriteChange={handleFavoriteChange}
                   />
                 </div>
               ))}
@@ -190,7 +234,7 @@ const ExplorePage = () => {
                 <button 
                   onClick={handleLoadMore}
                   disabled={loading}
-                  className="group flex items-center gap-3 px-12 py-3.5 border-2 border-blue-600 text-blue-600 font-black rounded-2xl hover:bg-blue-600 hover:text-white transition-all disabled:opacity-30 disabled:cursor-not-allowed text-[14px]"
+                  className="group flex items-center gap-3 px-12 py-3.5 border-2 border-primary text-primary font-black rounded-2xl hover:bg-primary hover:text-white transition-all disabled:opacity-30 disabled:cursor-not-allowed text-[14px]"
                 >
                   {loading ? (
                     <FaSpinner className="animate-spin text-lg" />

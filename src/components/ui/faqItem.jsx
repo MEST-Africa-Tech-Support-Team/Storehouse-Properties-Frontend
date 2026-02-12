@@ -6,12 +6,12 @@ export default function FAQItem({ question, answer }) {
 
   return (
     <div 
-      className="bg-[#F4F8FF] rounded-4xl overflow-hidden transition-all duration-300 mb-4"
+      className="bg-light-primary/20 rounded-4xl overflow-hidden transition-all duration-300 mb-4"
       style={{ willChange: 'height' }} 
     >
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex justify-between items-center w-full p-5 text-left focus:outline-none hover:bg-blue-50 transition-colors"
+        className="flex justify-between items-center w-full p-5 text-left focus:outline-none hover:bg-light-primary/30 transition-colors"
         aria-expanded={isOpen}
         aria-controls={`faq-answer-${question.replace(/\s+/g, '-').toLowerCase()}`}
       >

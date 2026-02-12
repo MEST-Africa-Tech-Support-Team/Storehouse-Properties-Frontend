@@ -94,6 +94,15 @@ const FavoritesPage = () => {
     setFilteredFavorites(favorites);
   };
 
+  // ✅ Handle when a favorite is toggled from PropertyCard
+  const handleFavoriteChange = (propertyId, isFavorited) => {
+    if (!isFavorited) {
+      // Property was removed from favorites - update both states
+      setFavorites(prev => prev.filter(p => (p._id || p.id) !== propertyId));
+      setFilteredFavorites(prev => prev.filter(p => (p._id || p.id) !== propertyId));
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex flex-col lg:flex-row">
@@ -125,7 +134,7 @@ const FavoritesPage = () => {
             <p className="text-gray-600 text-lg">{error}</p>
             <button
               onClick={fetchFavorites}
-              className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+              className="mt-4 px-4 py-2 bg-primary text-white rounded-lg hover:bg-hover transition-colors"
             >
               Retry
             </button>
@@ -166,6 +175,7 @@ const FavoritesPage = () => {
                 rules={property.rules}
                 location={property.location}
                 isFavorite={true}
+                onFavoriteChange={handleFavoriteChange}
               />
             ))}
           </div>

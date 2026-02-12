@@ -182,7 +182,7 @@ export default function GuestInformation({
           placeholder="Enter your full name"
           className={`w-full px-3 py-2.5 border ${
             errors.fullName ? "border-red-300" : "border-gray-300"
-          } rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-500`}
+          } rounded-lg focus:outline-none focus:ring-1 focus:ring-primary`}
         />
         {errors.fullName && (
           <p className="text-red-500 text-xs mt-1">{errors.fullName}</p>
@@ -201,7 +201,7 @@ export default function GuestInformation({
           placeholder="your.email@example.com"
           className={`w-full px-3 py-2.5 border ${
             errors.email ? "border-red-300" : "border-gray-300"
-          } rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-500`}
+          } rounded-lg focus:outline-none focus:ring-1 focus:ring-primary`}
         />
         {errors.email && (
           <p className="text-red-500 text-xs mt-1">{errors.email}</p>
@@ -218,7 +218,7 @@ export default function GuestInformation({
           value={formData.phone}
           onChange={handlePhoneChange}
           placeholder="Enter phone number"
-          className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-500 [&>input]:p-0 [&>input]:text-gray-700 [&>input]:placeholder:text-gray-400"
+          className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-primary [&>input]:p-0 [&>input]:text-gray-700 [&>input]:placeholder:text-gray-400"
         />
         {errors.phone && (
           <p className="text-red-500 text-xs mt-1">{errors.phone}</p>
@@ -234,7 +234,7 @@ export default function GuestInformation({
           onChange={(e) => handleCountryChange(e.target.value)}
           className={`w-full px-3 py-2.5 border ${
             errors.country ? "border-red-300" : "border-gray-300"
-          } rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-500`}
+          } rounded-lg focus:outline-none focus:ring-1 focus:ring-primary`}
         >
           <option value="">Select your country</option>
           {Country.getAllCountries().map((c) => (
@@ -286,7 +286,7 @@ export default function GuestInformation({
           className={`w-full py-3 border-2 border-dashed rounded-lg flex flex-col items-center justify-center transition-colors ${
             uploadedFiles.length >= 2
               ? "border-gray-200 bg-gray-50 cursor-not-allowed"
-              : "border-gray-300 hover:border-blue-400 hover:bg-blue-50"
+              : "border-gray-300 hover:border-primary hover:bg-light-primary/20"
           }`}
         >
           <FiUpload className="w-5 h-5 text-gray-400 mb-1" />
@@ -379,7 +379,7 @@ export default function GuestInformation({
               onChange={handleChange}
               className={`w-full pl-3 pr-9 py-2.5 border ${
                 errors.checkIn ? "border-red-300" : "border-gray-300"
-              } rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-500`}
+              } rounded-lg focus:outline-none focus:ring-1 focus:ring-primary`}
             />
           </div>
           {errors.checkIn && (
@@ -398,7 +398,7 @@ export default function GuestInformation({
               onChange={handleChange}
               className={`w-full pl-3 pr-9 py-2.5 border ${
                 errors.checkOut ? "border-red-300" : "border-gray-300"
-              } rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-500`}
+              } rounded-lg focus:outline-none focus:ring-1 focus:ring-primary`}
             />
           </div>
           {errors.checkOut && (
@@ -418,7 +418,7 @@ export default function GuestInformation({
             name="arrivalTime"
             value={formData.arrivalTime}
             onChange={handleChange}
-            className="w-full pl-3 pr-9 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-500"
+            className="w-full pl-3 pr-9 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-primary"
           />
         </div>
       </div>
@@ -435,7 +435,7 @@ export default function GuestInformation({
           onChange={handleChange}
           placeholder="Any special requests or information the property should know?"
           rows={4}
-          className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-500 resize-none"
+          className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-primary resize-none"
         ></textarea>
       </div>
 
@@ -470,7 +470,7 @@ export default function GuestInformation({
           />
           <label htmlFor="agreedToTerms" className="text-sm text-gray-700">
             I have read and agree to the{" "}
-            <a href="#" className="text-blue-600 hover:underline">
+            <a href="#" className="text-primary hover:underline">
               terms and conditions
             </a>
           </label>
@@ -486,8 +486,8 @@ export default function GuestInformation({
         aria-busy={isSubmitting}
         className={`w-full py-3 rounded-xl font-medium text-white transition ${
           isFormValid() && !isSubmitting
-            ? "bg-blue-600 hover:bg-blue-700"
-            : "bg-blue-300 cursor-not-allowed"
+            ? "bg-primary hover:bg-hover"
+            : "bg-primary/30 cursor-not-allowed"
         }`}
       >
         Continue to payment

@@ -75,12 +75,12 @@ const FeatureCard = ({ icon, title, description }) => {
   return (
     <div
       className="flex flex-col items-center text-center p-6 rounded-2xl transition-all duration-200 ease-out
-                 hover:shadow-lg active:scale-[0.98] active:shadow-md focus:outline-none focus:ring-2 focus:ring-blue-300 focus:ring-opacity-50
-                 shadow-blue-200 cursor-pointer"
+                 hover:shadow-lg active:scale-[0.98] active:shadow-md focus:outline-none focus:ring-2 focus:ring-primary focus:ring-opacity-50
+                 hover:shadow-primary cursor-pointer"
       tabIndex={0}
     >
-      <div className="w-20 h-20 flex items-center justify-center rounded-xl bg-blue-50 mb-6">
-        <span className="text-blue-600 text-[28px]">{icon}</span>
+      <div className="w-20 h-20 flex items-center justify-center rounded-xl bg-light-primary/30 mb-6">
+        <span className="text-primary text-[28px]">{icon}</span>
       </div>
 
       <h3 className="text-[18px] font-semibold text-[#0f172a] mb-3">{title}</h3>

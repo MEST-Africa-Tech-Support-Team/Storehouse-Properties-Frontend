@@ -84,7 +84,7 @@ const AdminLayout = () => {
         action: (
           <Link 
             to="/admin/properties/add" 
-            className="flex items-center gap-2 bg-[#1E5EFF] px-4 py-2 rounded-lg text-white hover:bg-blue-700 transition-all shadow-md font-semibold text-sm"
+            className="flex items-center gap-2 bg-primary px-4 py-2 rounded-lg text-white hover:bg-hover transition-all shadow-md font-semibold text-sm"
           >
             <RiAddCircleLine className="text-lg" />
             Add New Property

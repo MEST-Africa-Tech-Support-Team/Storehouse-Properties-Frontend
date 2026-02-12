@@ -34,7 +34,7 @@ const ProfileInfoWithAvatar = ({
               onChange={(e) => onChange("firstName", e.target.value)}
               placeholder="John"
               className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm
-                         focus:outline-none focus:ring-2 focus:ring-blue-500"
+                         focus:outline-none focus:ring-2 focus:ring-primary"
             />
           </div>
 
@@ -48,7 +48,7 @@ const ProfileInfoWithAvatar = ({
               onChange={(e) => onChange("lastName", e.target.value)}
               placeholder="Doe"
               className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm
-                         focus:outline-none focus:ring-2 focus:ring-blue-500"
+                         focus:outline-none focus:ring-2 focus:ring-primary"
             />
           </div>
 
@@ -62,7 +62,7 @@ const ProfileInfoWithAvatar = ({
               onChange={(e) => onChange("email", e.target.value)}
               placeholder="john@example.com"
               className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm
-                         focus:outline-none focus:ring-2 focus:ring-blue-500"
+                         focus:outline-none focus:ring-2 focus:ring-primary"
             />
           </div>
 
@@ -76,7 +76,7 @@ const ProfileInfoWithAvatar = ({
               onChange={(e) => onChange("phone", e.target.value)}
               placeholder="+233 55 123 4567"
               className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm
-                         focus:outline-none focus:ring-2 focus:ring-blue-500"
+                         focus:outline-none focus:ring-2 focus:ring-primary"
             />
           </div>
         </div>
@@ -95,15 +95,15 @@ const ProfileInfoWithAvatar = ({
               className="w-20 h-20 rounded-full object-cover border"
             />
           ) : (
-            <div className="w-20 h-20 rounded-full bg-blue-100 flex items-center justify-center
-                            text-blue-600 font-semibold text-xl border">
+            <div className="w-20 h-20 rounded-full bg-light-primary/20 flex items-center justify-center
+                            text-primary font-semibold text-xl border">
               {getInitials([firstName, lastName].filter(Boolean).join(' '))}
             </div>
           )}
 
           <label className="inline-flex items-center gap-2 px-4 py-2
-                            bg-blue-600 text-white text-sm font-medium
-                            rounded-lg cursor-pointer hover:bg-blue-700 transition">
+                            bg-primary text-white text-sm font-medium
+                            rounded-lg cursor-pointer hover:bg-hover transition">
             <FaUpload className="text-xs" />
             Upload New
             <input

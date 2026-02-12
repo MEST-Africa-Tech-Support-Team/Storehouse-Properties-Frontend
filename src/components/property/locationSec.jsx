@@ -121,7 +121,7 @@ const LocationSection = ({ location = {} }) => {
         >
           {loading && (
             <div className="absolute inset-0 flex items-center justify-center bg-gray-50">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
             </div>
           )}
           
@@ -138,7 +138,7 @@ const LocationSection = ({ location = {} }) => {
         {/* ✅ Location Details */}
         <div className="p-4 bg-gray-50 border-t border-gray-200">
           <div className="flex items-start gap-3">
-            <FaMapMarkerAlt className="text-blue-600 text-xl flex-shrink-0 mt-1" />
+            <FaMapMarkerAlt className="text-primary text-xl flex-shrink-0 mt-1" />
             <div className="flex-1">
               <p className="text-sm font-medium text-gray-700 mb-1">
                 {fullLocation || 'No location available'}
@@ -154,7 +154,7 @@ const LocationSection = ({ location = {} }) => {
 
         {/* ✅ Map Attribution */}
         <div className="px-4 py-2 bg-gray-50 border-t border-gray-200 text-xs text-gray-500">
-          Map data © <a href="https://openstreetmap.org" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">OpenStreetMap</a> contributors
+          Map data © <a href="https://openstreetmap.org" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">OpenStreetMap</a> contributors
         </div>
       </div>
     </div>

@@ -147,7 +147,7 @@ const PropertyImageGallery = ({ images = [] }) => {
                   }}
                   className={`flex-shrink-0 w-20 h-20 md:w-24 md:h-24 rounded-xl overflow-hidden border-2 transition-all duration-200 cursor-pointer ${
                     idx === currentIndex
-                      ? 'border-blue-500 scale-105'
+                      ? 'border-primary scale-105'
                       : 'border-transparent blur-[2px] grayscale hover:blur-none hover:grayscale-0'
                   }`}
                 >
