@@ -98,39 +98,54 @@ export const bookingService = {
   approveBooking: async (id) => {
     if (!id) throw new Error('Booking id is required');
     const token = authService.getToken();
-    if (!token) throw new Error('Authentication required');
-
+    
     const res = await fetch(`${API_BASE_URL}/bookings/${encodeURIComponent(id)}/approve`, {
       method: 'PATCH',
       headers: {
         Authorization: `Bearer ${token}`,
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({}),
+      body: JSON.stringify({ status: "confirmed" }), 
     });
 
-    const data = await res.json().catch(() => ({}));
-    if (!res.ok) throw new Error(data.message || data.error || `Approve failed (${res.status})`);
+    const data = res.status === 204 ? { message: 'Approved' } : await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(data.message || `Approve failed (${res.status})`);
     return data;
   },
 
-  rejectBooking: async (id, { reason } = {}) => {
+  rejectBooking: async (id) => {
     if (!id) throw new Error('Booking id is required');
     const token = authService.getToken();
-    if (!token) throw new Error('Authentication required');
 
-    const payload = reason ? { reason } : {};
     const res = await fetch(`${API_BASE_URL}/bookings/admin/${encodeURIComponent(id)}/reject`, {
       method: 'PATCH',
       headers: {
         Authorization: `Bearer ${token}`,
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(payload),
+      body: JSON.stringify({ status: "rejected" }),
     });
 
-    const data = await res.json().catch(() => ({}));
-    if (!res.ok) throw new Error(data.message || data.error || `Reject failed (${res.status})`);
+    const data = res.status === 204 ? { message: 'Rejected' } : await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(data.message || `Reject failed: ${data.message || 'Invalid state'}`);
+    return data;
+  },
+
+  expireBooking: async (id) => {
+    if (!id) throw new Error('Booking id is required');
+    const token = authService.getToken();
+
+    const res = await fetch(`${API_BASE_URL}/bookings/${encodeURIComponent(id)}/expire`, {
+      method: 'PATCH',
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ status: "expired" }),
+    });
+
+    const data = res.status === 204 ? { message: 'Expired' } : await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(data.message || `Expire failed (${res.status})`);
     return data;
   }
 };
