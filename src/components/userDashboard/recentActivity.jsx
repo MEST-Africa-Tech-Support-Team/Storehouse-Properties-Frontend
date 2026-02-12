@@ -96,7 +96,7 @@ const RecentActivity = () => {
                 <p className="text-xs text-gray-500 mt-1">Viewed {item.viewed}</p>
               </div>
 
-              <span className="px-3 py-1.5 bg-white text-[#1E5EFF] border-2 border-[#1E5EFF] text-xs font-medium rounded-full whitespace-nowrap group-hover:bg-[#1E5EFF] group-hover:text-white transition-colors">
+              <span className="px-3 py-1.5 bg-white text-primary border-2 border-primary text-xs font-medium rounded-full whitespace-nowrap group-hover:bg-primary group-hover:text-white transition-colors">
                 View
               </span>
             </Link>

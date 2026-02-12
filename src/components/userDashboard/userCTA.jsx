@@ -4,7 +4,7 @@ import { FaRegCompass } from "react-icons/fa";
 
 const CTASection = () => {
   return (
-    <div className="text-center p-10 bg-[#1e5eff] rounded-xl shadow-lg mt-6">
+    <div className="text-center p-10 bg-primary rounded-xl shadow-lg mt-6">
       <div className="mb-4">
         <FaRegCompass className="text-white text-5xl mx-auto" />
       </div>
@@ -16,7 +16,7 @@ const CTASection = () => {
 
       <Link
         to="/explore"
-        className="inline-block px-8 py-3 bg-white text-primary font-semibold rounded-full text-base hover:bg-light-primary/20 transition-colors duration-200 shadow-md hover:shadow-lg"
+        className="inline-block px-8 py-3 bg-white text-primary font-semibold rounded-full text-base hover:bg-white transition-colors duration-200 shadow-md hover:shadow-lg"
       >
         Explore Properties
       </Link>

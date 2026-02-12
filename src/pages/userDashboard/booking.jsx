@@ -128,19 +128,19 @@ const BookingsPage = () => {
           </div>
         )}
 
-        {/* Empty state */}
-        {!loading && bookings.length === 0 && (
-          <div className="text-center py-12">
-            <p className="text-gray-600 text-lg">You haven't booked any properties yet.</p>
-            <Link to="/explore" className="mt-4 inline-block px-5 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700">Explore properties</Link>
-          </div>
-        )}
-
         <FilterBar
           onStatusChange={setFilterStatus}
           onChildrenChange={setFilterChildren}
           onSortChange={handleSortChange}
         />
+
+        {/* Empty state */}
+        {!loading && bookings.length === 0 && (
+          <div className="text-center py-12">
+            <p className="text-gray-600 text-lg">You haven't booked any properties yet.</p>
+            <Link to="/explore" className="mt-4 inline-block px-5 py-3 bg-primary text-white rounded-full hover:bg-hover">Explore properties</Link>
+          </div>
+        )}
 
         <div className="space-y-4">
           {filteredAndSorted.map(booking => (

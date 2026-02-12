@@ -45,8 +45,8 @@ export default function PropertyDetails() {
       const normalizedProperty = normalizePropertyData(propertyData);
       setProperty(normalizedProperty);
       
-      // Check if it's a favorite
-      const saved = localStorage.getItem(`favorite_${propertyId}`);
+      // ✅ FIXED: Use normalized ID for localStorage key
+      const saved = localStorage.getItem(`favorite_${normalizedProperty.id}`);
       setIsFavorite(saved === 'true');
       
     } catch (error) {
@@ -108,13 +108,13 @@ export default function PropertyDetails() {
     if (id) {
       fetchProperty(id);
     } 
-   
     else if (location.state?.property) {
       const propFromState = location.state.property;
       const normalizedProperty = normalizePropertyData(propFromState);
       setProperty(normalizedProperty);
       
-      const saved = localStorage.getItem(`favorite_${propFromState._id || propFromState.id}`);
+      // ✅ FIXED: Use normalized ID for localStorage key
+      const saved = localStorage.getItem(`favorite_${normalizedProperty.id}`);
       setIsFavorite(saved === 'true');
       
       setLoading(false);
@@ -128,7 +128,9 @@ export default function PropertyDetails() {
   const handleToggleFavorite = () => {
     const newState = !isFavorite;
     setIsFavorite(newState);
-    const propertyId = property?._id || property?.id || id;
+    
+    // ✅ FIXED: Use normalized property ID from state
+    const propertyId = property?.id;
     if (propertyId) {
       localStorage.setItem(`favorite_${propertyId}`, String(newState));
     }
@@ -211,7 +213,6 @@ export default function PropertyDetails() {
               description={property.description || 'No description available.'} 
             />
 
-           
             <AmenitiesSection 
               amenities={property.amenities.length > 0 ? property.amenities : fallbackAmenities} 
             />
