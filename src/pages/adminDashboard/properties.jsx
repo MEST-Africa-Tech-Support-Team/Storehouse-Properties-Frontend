@@ -11,6 +11,7 @@ import {
   RiArrowDownSLine,
   RiFilter3Line,
 } from "react-icons/ri";
+import { Link } from "react-router-dom";
 
 const AdminPropertiesPage = () => {
   // --- STATE ---
@@ -210,17 +211,26 @@ const AdminPropertiesPage = () => {
                           {item.status || "draft"}
                         </span>
                       </td>
-                      <td className="px-6 py-4">
-                        <div className="flex items-center justify-center gap-2">
-                          <IconButton icon={<RiEyeLine />} color="hover:text-blue-600" />
-                          <IconButton icon={<RiEditLine />} color="hover:text-green-600" />
-                          <IconButton 
-                            onClick={() => handleDelete(itemId)}
-                            icon={<RiDeleteBin7Line />} 
-                            color="hover:text-red-600" 
-                          />
-                        </div>
-                      </td>
+                    <td className="px-6 py-4">
+  <div className="flex items-center justify-center gap-2">
+    {/* View Details */}
+    <Link to={`/admin/properties/view/${itemId}`}>
+      <IconButton icon={<RiEyeLine />} color="hover:text-blue-600" />
+    </Link>
+    
+    {/* Edit Property */}
+    <Link to={`/admin/properties/edit/${itemId}`}>
+      <IconButton icon={<RiEditLine />} color="hover:text-green-600" />
+    </Link>
+    
+    {/* Delete Property - Already implemented in your code */}
+    <IconButton 
+      onClick={() => handleDelete(itemId)}
+      icon={<RiDeleteBin7Line />} 
+      color="hover:text-red-600" 
+    />
+  </div>
+</td>
                     </tr>
                   );
                 })}
