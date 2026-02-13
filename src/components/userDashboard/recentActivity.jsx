@@ -65,7 +65,7 @@ const RecentActivity = () => {
             }}
           >
             <Link
-              to={`/property/${item.id}`}
+              to={`/dashboard/bookings/${item.id}`}
               state={{
                 property: {
                   id: item.id,
