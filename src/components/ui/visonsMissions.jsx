@@ -1,43 +1,63 @@
 import React from "react";
+import { FaBullseye, FaHandshake, FaCogs } from "react-icons/fa";
 
 export default function MissionVisionSection() {
   return (
-    <div className="py-12 bg-light-primary/20">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          <div className="bg-white p-6 rounded-2xl shadow-sm hover:shadow-md transition-shadow">
-            <div className="w-12 h-12 bg-primary rounded-xl flex items-center justify-center mb-4">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                fill="white"
-                className="w-6 h-6"
-              >
-                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.9c-.43.43-.43 1.13 0 1.56l3.58 3.58c.43.43 1.13.43 1.56 0l.9-.9c.43-.43.43-1.13 0-1.56l-3.58-3.58c-.43-.43-1.13-.43-1.56 0zm-4.24-4.24l-.9.9c-.43.43-.43 1.13 0 1.56l3.58 3.58c.43.43 1.13.43 1.56 0l.9-.9c.43-.43.43-1.13 0-1.56L12.34 6.34c-.43-.43-1.13-.43-1.56 0z" />
-              </svg>
+    <div className="py-16 sm:py-20 lg:py-24 bg-light-primary/30">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+          {/* Our Mission */}
+          <div className="group bg-white p-8 sm:p-10 rounded-2xl border border-[#EBEBEB] hover:border-primary 
+                          hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+            <div className="w-14 h-14 bg-gradient-to-br from-primary/10 to-primary/5 rounded-xl 
+                            flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
+              <FaBullseye className="w-7 h-7 text-primary" />
             </div>
-            <h2 className="text-xl font-bold text-gray-800 mb-4">Our Mission</h2>
-            <p className="text-gray-700 leading-relaxed">
-              To simplify property rentals by creating a transparent, <br /> secure platform that empowers both property owners and <br /> guests to connect directly and confidently.
+            <h3 className="text-xl sm:text-2xl font-semibold text-[#222222] mb-4 group-hover:text-primary transition-colors duration-300">
+              Our Mission
+            </h3>
+            <p className="text-[#717171] text-[15px] sm:text-base leading-relaxed">
+              Our mission is to manage real estate properties 24/7, maximizing client income through exceptional property management skills while ensuring tenant and guest satisfaction through first-rate property maintenance.
             </p>
+            
+            {/* Decorative bottom line */}
+            <div className="mt-6 h-1 w-12 bg-primary scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left rounded-full" />
           </div>
 
-          <div className="bg-white p-6 rounded-2xl shadow-sm hover:shadow-md transition-shadow">
-            <div className="w-12 h-12 bg-primary rounded-xl flex items-center justify-center mb-4">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                fill="white"
-                className="w-6 h-6"
-              >
-                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-2.67 0-5.2-1.13-7.03-3.03L12 14.1l7.03 2.83C17.2 18.87 14.67 20 12 20zm0-10c-2.67 0-5.2-1.13-7.03-3.03L12 4.1l7.03 2.83C17.2 8.87 14.67 10 12 10zm0 6c-1.1 0-2.1-.4-2.85-1.15L12 14.1l2.85 1.15C13.9 15.6 12.9 16 12 16z" />
-              </svg>
+          {/* Our Commitment */}
+          <div className="group bg-white p-8 sm:p-10 rounded-2xl border border-[#EBEBEB] hover:border-primary 
+                          hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+            <div className="w-14 h-14 bg-gradient-to-br from-primary/10 to-primary/5 rounded-xl 
+                            flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
+              <FaHandshake className="w-7 h-7 text-primary" />
             </div>
-            <h2 className="text-xl font-bold text-gray-800 mb-4">Our Vision</h2>
-            <p className="text-gray-700 leading-relaxed">
-              To become the most trusted property rental platform 
-              <br />where quality meets simplicity, setting new standards for <br /> transparency and user experience in the industry.
+            <h3 className="text-xl sm:text-2xl font-semibold text-[#222222] mb-4 group-hover:text-primary transition-colors duration-300">
+              Our Commitment
+            </h3>
+            <p className="text-[#717171] text-[15px] sm:text-base leading-relaxed">
+              At Storehouse Property and Consult Ltd, we are committed to delivering stress-free property ownership, strong financial performance, and well-maintained properties. We are honored to serve as trusted managers of our clients' real estate investments.
             </p>
+            
+            {/* Decorative bottom line */}
+            <div className="mt-6 h-1 w-12 bg-primary scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left rounded-full" />
+          </div>
+
+          {/* Our Systems */}
+          <div className="group bg-white p-8 sm:p-10 rounded-2xl border border-[#EBEBEB] hover:border-primary 
+                          hover:shadow-xl transition-all duration-300 hover:-translate-y-1 md:col-span-2 lg:col-span-1">
+            <div className="w-14 h-14 bg-gradient-to-br from-primary/10 to-primary/5 rounded-xl 
+                            flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
+              <FaCogs className="w-7 h-7 text-primary" />
+            </div>
+            <h3 className="text-xl sm:text-2xl font-semibold text-[#222222] mb-4 group-hover:text-primary transition-colors duration-300">
+              Our Systems & Processes
+            </h3>
+            <p className="text-[#717171] text-[15px] sm:text-base leading-relaxed">
+              We operate with streamlined systems designed to reduce unnecessary costs and wastage. Our automated collections and disbursement processes ensure smooth cash flow, while all records and reports are properly documented and available for inspection by property owners and their representatives. We also maintain a stringent selection process for suppliers and service providers.
+            </p>
+            
+            {/* Decorative bottom line */}
+            <div className="mt-6 h-1 w-12 bg-primary scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left rounded-full" />
           </div>
         </div>
       </div>

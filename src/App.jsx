@@ -30,6 +30,7 @@ import BookingsPage from "./pages/userDashboard/booking.jsx";
 import FavoritesPage from "./pages/userDashboard/favorites.jsx";
 import ProfilePage from "./pages/userDashboard/profile.jsx";
 import SupportPage from "./pages/userDashboard/support.jsx";
+import UserBookingDetailPage from "./pages/userDashboard/bookingDetails.jsx";
 
 import AdminOverviewPage from "./pages/adminDashboard/overview.jsx";
 import AdminAnalyticsPage from "./pages/adminDashboard/analytics.jsx";
@@ -38,7 +39,7 @@ import AdminPropertiesPage from "./pages/adminDashboard/properties.jsx";
 import AdminSettingsPage from "./pages/adminDashboard/settings.jsx";
 import AdminUsersPage from "./pages/adminDashboard/users.jsx";
 import AdminAddPropertyPage from "./pages/adminDashboard/addProperty.jsx";
-import BookingDetailPage from "./pages/adminDashboard/bookingDetailPage.jsx";
+import AdminBookingDetailPage from "./pages/adminDashboard/bookingDetailPage.jsx";
 import UserDetailPage from "./pages/adminDashboard/userDetailsPage.jsx";
 import AdminRecentBookingsPage from "./pages/adminDashboard/AdminRecentBookingsPage.jsx";
 import AdminBookingReviewPage from "./pages/adminDashboard/AdminBookingReviewPage.jsx";
@@ -68,6 +69,7 @@ const router = createBrowserRouter([
       { path: "/dashboard/favorites", element: <FavoritesPage /> },
       { path: "/dashboard/profile", element: <ProfilePage /> },
       { path: "/dashboard/support", element: <SupportPage /> },
+      { path: "/dashboard/bookings/:id", element: <UserBookingDetailPage /> },
     ],
   },
   {
@@ -83,7 +85,7 @@ const router = createBrowserRouter([
       { path: "bookings", element: <AdminBookingsPage /> },
       { path: "properties", element: <AdminPropertiesPage /> },
       { path: "properties/add", element: <AdminAddPropertyPage /> },
-      { path: "bookings/:id", element: <BookingDetailPage /> },
+      { path: "bookings/:id", element: <AdminBookingDetailPage /> },
       { path: "users", element: <AdminUsersPage /> },
       { path: "users/:id", element: <UserDetailPage /> },
       { path: "settings", element: <AdminSettingsPage /> },

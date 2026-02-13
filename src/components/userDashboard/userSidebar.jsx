@@ -90,11 +90,11 @@ const UserSidebar = () => {
         <div>
           <Link
             to="/"
-            className="flex items-center gap-2 mb-6 text-black font-bold text-xl no-underline hover:text-black transition-colors"
+            className="flex items-center gap-2 mb-6 text-black font-medium text-xl no-underline hover:text-black transition-colors"
             aria-label="Go to homepage"
           >
             <img src={Logo} alt="Storehouse Logo" className="h-10 w-auto brightness-0" />
-            Storehouse
+            Storehouse Property
           </Link>
 
           <nav className="space-y-1">

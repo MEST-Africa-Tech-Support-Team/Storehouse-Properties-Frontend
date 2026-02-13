@@ -1,41 +1,41 @@
 import React from "react";
-import { FiUsers, FiShield, FiCheckCircle, FiSettings } from "react-icons/fi";
 import { FiArrowRight } from "react-icons/fi";
 import { MdSecurity, MdVerified } from "react-icons/md";
 import { FcDataProtection } from "react-icons/fc";
+import { FaBullhorn, FaShieldAlt, FaHome, FaCheckCircle } from "react-icons/fa";
 
 export default function StorehouseFeaturesSection() {
   return (
     <div className="py-16 bg-white">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 mb-16">
         <h2 className="text-3xl font-bold text-gray-800 text-center mb-2">
-          What Makes Storehouse Different
+          What Makes Storehouse Property Different?
         </h2>
         <p className="text-gray-500 text-center mb-12">
           Features that set us apart from the competition
         </p>
 
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {[
             {
-              icon: <FiUsers className="w-6 h-6" />,
-              title: "Direct Bookings",
-              desc: "No third-party dependency, direct connection between owners and guests",
+              icon: <FaBullhorn className="w-6 h-6" />,
+              title: "Continuous Marketing & Exposure",
+              desc: "Your property is promoted across Airbnb, Booking.com, social media, and other channels, ensuring high visibility and fast occupancy with qualified tenants.",
             },
             {
-              icon: <MdSecurity className="w-6 h-6" />,
-              title: "Secure Payments",
-              desc: "Bank-level security for all transactions and personal data",
+              icon: <FaShieldAlt className="w-6 h-6" />,
+              title: "Transparent & Secure Payments",
+              desc: "Automated collections and disbursement ensure smooth revenue flow, fully documented and accessible to property owners for complete peace of mind.",
             },
             {
-              icon: <MdVerified className="w-6 h-6" />,
-              title: "Verified Listings",
-              desc: "Every property is verified to ensure quality and authenticity",
+              icon: <FaHome className="w-6 h-6" />,
+              title: "High-Quality, Well-Maintained Properties",
+              desc: "Every property under our care is meticulously maintained and regularly inspected to guarantee comfort, safety, and tenant satisfaction.",
             },
             {
-              icon: <FiSettings className="w-6 h-6" />,
-              title: "Simple Management",
-              desc: "Intuitive tools for property owners to manage their listings effortlessly",
+              icon: <FaCheckCircle className="w-6 h-6" />,
+              title: "Hassle-Free Property Management",
+              desc: "From rent collection and tenant relations to maintenance and compliance, we handle every aspect of property management so you can enjoy your investment stress-free.",
             },
           ].map((item, index) => (
             <div
